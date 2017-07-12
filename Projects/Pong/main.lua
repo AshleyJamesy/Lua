@@ -15,35 +15,36 @@ MyBall = Ball()
 MyBall.position = Vector2(love.graphics.getWidth() * 0.5, love.graphics.getHeight() * 0.5)
 MyBall.size = Vector2(love.graphics.getHeight() * 0.05, love.graphics.getHeight() * 0.05)
 MyBall.colour = Vector4(255, 255, 255, 255)
-table.insert(MyBall.players, Player1)
-table.insert(MyBall.players, Player2)
 
 Player1.position = Vector2(love.graphics.getWidth() * (1 - 0.15), love.graphics.getHeight() * 0.5)
+Player1.target = Vector2(Player1.position)
 Player1.size = Vector2(love.graphics.getHeight() * 0.05, love.graphics.getWidth() * 0.15)
 Player1.colour.z = 255
 
-Player2.position.x = love.graphics.getWidth() * 0.15
-Player2.position.y = love.graphics.getHeight() * 0.5
-Player2.size.x = love.graphics.getHeight() * 0.05
-Player2.size.y = love.graphics.getWidth() * 0.15
+Player2.position = Vector2(love.graphics.getWidth() * 0.15, love.graphics.getHeight() * 0.5)
+Player2.target = Vector2(Player2.position)
+Player2.size = Vector2(love.graphics.getHeight() * 0.05, love.graphics.getWidth() * 0.15)
 Player2.colour.x = 255
 
 function love.load()
     log = ""
+    log = TypeOf(Player1.position)
 end
 
 function love.update(dt)
     MyBall:Update(dt)
+    Player1:Update(dt)
+    Player2:Update(dt)
 end
 
 function love.touchmoved(id, x, y)
     if x > love.graphics.getWidth() * 0.5 then
         if id == Player1.touch then
-            Player1.position.y = y
+            Player1.target.y = y
         end
     else
         if id == Player2.touch then
-            Player2.position.y = y
+            Player2.target.y = y
         end
     end
 end
@@ -62,12 +63,12 @@ function love.touchpressed(id, x, y)
     if x > love.graphics.getWidth() * 0.5 then
         if Player1.touch == nil then
             Player1.touch = id
-            Player1.y = y
+            Player1.target.y = y
         end
     else
         if Player2.touch == nil then
             Player2.touch = id
-            Player2.y = y
+            Player2.target.y = y
         end
     end
 end
