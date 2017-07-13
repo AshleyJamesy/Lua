@@ -1,4 +1,4 @@
-include("table")
+include("table_extended")
 
 module("class", package.seeall)
 
@@ -52,7 +52,7 @@ NewClass = function(newclass, derived)
     t.__index   = metaIndex
     t.__call    = metaCall
     t.__base    = Classes[derived]
-    
+
     t.__type = table.Copy(d.__type or {}, {})
     table.insert(t.__type, newclass)
     

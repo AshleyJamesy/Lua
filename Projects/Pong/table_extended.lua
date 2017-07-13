@@ -17,6 +17,8 @@ function table.Merge(src, dst)
 	return dst
 end
 
+table.A = 10
+
 function table.Copy(src, dst, overwrite)
 	--check both are tables
 	if(not IsTable(src) or not IsTable(dst)) then 

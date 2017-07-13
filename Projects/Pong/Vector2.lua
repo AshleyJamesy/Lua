@@ -1,3 +1,4 @@
+include("table_extended")
 include("class")
 
 local Class, BaseClass = class.NewClass("Vector2")
