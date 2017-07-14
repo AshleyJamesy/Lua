@@ -76,6 +76,17 @@ function Class:Normalised()
     return Vector3(x, y, z)
 end
 
+function Class.Dot(a,b,c)
+    return a.x * b.x * c.x + a.y * b.y * c.y + a.z * b.z * c.z
+end
+
+function Class.Cross(a,b)
+    local x = a.y * b.z - a.z * b.y
+    local y = a.z * b.x - a.x - b.z
+    local z = a.x * b.y - a.y * b.x
+    return Vector2(x,y,z)
+end
+
 function Class:GetTable()
     return { self.x, self.y, self.z }
 end

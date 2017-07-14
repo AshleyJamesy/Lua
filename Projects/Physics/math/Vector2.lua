@@ -70,6 +70,10 @@ function Class:Normalised()
     return Vector2(x, y)
 end
 
+function Class.Dot(a,b)
+    return a.x * b.x + a.y * b.y
+end
+
 function Class:GetTable()
     return { self.x, self.y }
 end
