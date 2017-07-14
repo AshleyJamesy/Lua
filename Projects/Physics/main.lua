@@ -38,23 +38,37 @@ include("Circle")
 include("AABB")
 include("RigidBody")
 
-local settings = serialiser.DeSerialise(git .. "config.json")
 
-local networkThread = love.thread.newThread(git .. "network.lua")
-local channel       = love.thread.getChannel("network")
-networkThread:start(channel, settings.ip, 6789, settings.server == "true" and true or false)
+
+function SendToAll(message)
+    schannel:push({"all", message})
+end
 
 function love.load()
     log = "Log:\n"
-    i = {}
+
+    local settings          = serialiser.DeSerialise(git .. "config.json")
+    local networkThread     = love.thread.newThread(git .. "network.lua")
+    local rchannel          = love.thread.getChannel("network_receive")
+    local schannel          = love.thread.getChannel("network_send")
+
+    if MOBILE then
+        networkThread:start(rchannel, schannel, settings.ip, 6789, false)
+    else
+        networkThread:start(rchannel, schannel, settings.ip, 6789, settings.server == "true" and true or false)
+    end
 end
 
 function love.update(dt)
     Time.deltaTime = dt
 
-    v = channel:pop()
+    v = rchannel:pop()
     if v then
-        log = log .. tostring(v[1]) .. ", " .. tostring(v[2]) .. "\n"
+        if v[1] == "message" then
+            log = log .. tostring(v[2]) .. ": " .. tostring(v[3]) .. "\n"
+        else
+            log = log .. tostring(v[1]) .. ": " .. tostring(v[2]) .. "\n"
+        end
     end
 end
 

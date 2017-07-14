@@ -1,41 +1,66 @@
 require "enet"
 
-local CHANNEL, IP, PORT, SERVER = ...
+local RCHANNEL, SCHANNEL, IP, PORT, SERVER = ...
 
 if SERVER then
-    CHANNEL:push({"SERVER", IP .. ":" .. tostring(PORT)})
-    local host = enet.host_create(IP .. ":" .. tostring(PORT))
-    print(host:get_socket_address())
+    local host = enet.host_create(IP .. ":" .. PORT)
+    RCHANNEL:push({"SERVER", host:get_socket_address()})
     while true do
         --update while loop every 100ms
         local event = host:service(100)
         while event do
             if event.type == "receive" then
-
+            	RCHANNEL:push({"message", event.peer, event.data})
             elseif event.type == "connect" then
-                CHANNEL:push({"connect", event.peer})
+                RCHANNEL:push({"connect", event.peer})
             elseif event.type == "disconnect" then
-                CHANNEL:push({"disconnect", event.peer})
+                RCHANNEL:push({"disconnect", event.peer})
             end
-        event = host:service()
+        	
+			--Send Packets
+	        while true do
+				local value = SCHANNEL:pop()
+				if value then
+					if value[1] == "all" then
+						host:broadcast(value[2], 0, "reliable")
+					end
+				else
+					break
+				end
+			end
+
+        	event = host:service()
+
         end
     end
 else
-    CHANNEL:push({"CLIENT", IP .. ":" .. tostring(PORT)})
-    local host = enet.host_create()
-    print(host:get_socket_address())
-    local server = host:connect(IP .. ":" .. tostring(PORT))
+    local client = enet.host_create()
+    RCHANNEL:push({"CLIENT", client:get_socket_address()})
+    local server = client:connect(IP .. ":" .. PORT)
     while true do
-        local event = host:service(100)
+        local event = client:service(100)
         while event do
             if event.type == "receive" then
-
+            	RCHANNEL:push({"message", event.peer, event.data})
             elseif event.type == "connect" then
-                CHANNEL:push({"connect", event.peer})
+                RCHANNEL:push({"connect", event.peer})
             elseif event.type == "disconnect" then
-                CHANNEL:push({"disconnect", event.peer})
+                RCHANNEL:push({"disconnect", event.peer})
             end
-        event = host:service()
+
+        	--Send Packets
+	        while true do
+				local value = SCHANNEL:pop()
+				if value then
+					if value[1] == "all" then
+						client:broadcast(value[2], 0, "reliable")
+					end
+				else
+					break
+				end
+			end
+
+        	event = client:service()
         end
     end
 end
