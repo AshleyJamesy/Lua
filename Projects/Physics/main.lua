@@ -24,13 +24,10 @@ function include(file)
     return file
 end
 
-local networkThread = love.thread.newThread(git .. "network.lua")
-local channel = love.thread.getChannel("network")
-networkThread:start(channel)
-
 include("extensions/table")
 include("types")
 include("class")
+include("serialiser")
 include("Time")
 include("math/Vector2")
 include("math/Vector3")
@@ -41,27 +38,28 @@ include("Circle")
 include("AABB")
 include("RigidBody")
 
+local settings = serialiser.DeSerialise(git .. "config.json")
+
+local networkThread = love.thread.newThread(git .. "network.lua")
+local channel       = love.thread.getChannel("network")
+networkThread:start(channel, settings.ip, 6789, settings.server == "true" and true or false)
+
 function love.load()
-    MyBody = RigidBody(100, 100)
-    Shape  = Circle(25)
-    MyBody.collider = Shape
-    
-    MyBody2 = RigidBody(100, 500)
-    MyBody2.collider = Shape
-    MyBody2.static = true
-    
-    MyWorld = World()
-    MyWorld:Add(MyBody)
-    MyWorld:Add(MyBody2)
+    log = "Log:\n"
+    i = {}
 end
 
 function love.update(dt)
     Time.deltaTime = dt
-    MyWorld:Update()
+
+    v = channel:pop()
+    if v then
+        log = log .. tostring(v[1]) .. ", " .. tostring(v[2]) .. "\n"
+    end
 end
 
 function love.draw()
-    MyWorld:Draw()
+    love.graphics.print(log, 0, 0, 0, 1.5, 1.5)
 end
 
 
