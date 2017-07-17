@@ -38,8 +38,6 @@ include("Circle")
 include("AABB")
 include("RigidBody")
 
-
-
 function SendToAll(message)
     schannel:push({"all", message})
 end
@@ -49,8 +47,8 @@ function love.load()
 
     local settings          = serialiser.DeSerialise(git .. "config.json")
     local networkThread     = love.thread.newThread(git .. "network.lua")
-    local rchannel          = love.thread.getChannel("network_receive")
-    local schannel          = love.thread.getChannel("network_send")
+    rchannel                = love.thread.getChannel("network_receive")
+    schannel                = love.thread.getChannel("network_send")
 
     if MOBILE then
         networkThread:start(rchannel, schannel, settings.ip, 6789, false)
