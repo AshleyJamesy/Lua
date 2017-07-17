@@ -7,7 +7,7 @@ if SERVER then
     RCHANNEL:push({"SERVER", host:get_socket_address()})
     while true do
         --update while loop every 100ms
-        local event = host:service(100)
+        local event = host:service(0)
         while event do
             if event.type == "receive" then
             	RCHANNEL:push({"message", event.peer, event.data})
@@ -38,7 +38,7 @@ else
     RCHANNEL:push({"CLIENT", client:get_socket_address()})
     local server = client:connect(IP .. ":" .. PORT)
     while true do
-        local event = client:service(100)
+        local event = client:service(0)
         while event do
             if event.type == "receive" then
             	RCHANNEL:push({"message", event.peer, event.data})

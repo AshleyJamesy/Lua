@@ -36,7 +36,7 @@ function Class.__sub(a,b)
     return Vector4(x,y,z,w)
 end
 
-function Class:__mul(a,b)
+function Class.__mul(a,b)
     --float * Vector4
     if TypeOf(a) == "number" then
         return Vector4(b.x * a, b.y * a, b.z * a, b.w * a)
