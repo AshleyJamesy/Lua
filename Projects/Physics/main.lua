@@ -29,6 +29,7 @@ include("types")
 include("class")
 include("serialiser")
 include("Time")
+include("Screen")
 include("math/Vector2")
 include("math/Vector3")
 include("math/Vector4")
@@ -37,43 +38,32 @@ include("Collider")
 include("Circle")
 include("AABB")
 include("RigidBody")
-
-
-
-function SendToAll(message)
-    schannel:push({"all", message})
-end
+include("Particle")
+include("ParticleSystem")
 
 function love.load()
-    log = "Log:\n"
+    image = love.graphics.newImage(GetProjectDirectory() .. "particle.png")
+    MyParticleSystem = ParticleSystem(image, 1000)
+    System = ParticleSystem(image, 100)
+end
 
-    local settings          = serialiser.DeSerialise(git .. "config.json")
-    local networkThread     = love.thread.newThread(git .. "network.lua")
-    local rchannel          = love.thread.getChannel("network_receive")
-    local schannel          = love.thread.getChannel("network_send")
-
-    if MOBILE then
-        networkThread:start(rchannel, schannel, settings.ip, 6789, false)
-    else
-        networkThread:start(rchannel, schannel, settings.ip, 6789, settings.server == "true" and true or false)
-    end
+function love.touchmoved(id, x, y)
+    MyParticleSystem.position:Set(x,y)
 end
 
 function love.update(dt)
     Time.deltaTime = dt
-
-    v = rchannel:pop()
-    if v then
-        if v[1] == "message" then
-            log = log .. tostring(v[2]) .. ": " .. tostring(v[3]) .. "\n"
-        else
-            log = log .. tostring(v[1]) .. ": " .. tostring(v[2]) .. "\n"
-        end
-    end
+    Time.timeElapsed = Time.timeElapsed + dt
+    
+    MyParticleSystem:Update()
+    System:Update()
 end
 
 function love.draw()
-    love.graphics.print(log, 0, 0, 0, 1.5, 1.5)
+    MyParticleSystem:Draw()
+    System:Draw()
+    love.graphics.setColor(255,255,255,255)
+    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS()), 10, 10, 0, 3, 3)
 end
 
 

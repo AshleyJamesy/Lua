@@ -50,6 +50,17 @@ function Class:ToString()
     return self:__tostring()
 end
 
+function Class:Set(x, y)
+    if x and TypeOf(x) ~= "number" then
+        self.x = x.x
+        self.y = x.y
+        return
+    end
+
+    self.x = x or 0
+    self.y = y or 0
+end
+
 function Class:Magnitude()
     return math.abs(math.sqrt(self.x * self.x + self.y * self.y))
 end
