@@ -33,7 +33,7 @@ include("composition/GameObject")
 include("composition/components/MyComponent")
 
 function GameLoad()
-	for i = 0, 100 do
+	for i = 0, 1000 do
 		local myGameObject = GameObject()
 		myGameObject:AddComponent("MyComponent")
 	end
