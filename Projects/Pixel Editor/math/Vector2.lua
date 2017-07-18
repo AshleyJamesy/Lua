@@ -9,9 +9,13 @@ function Class:New(x, y)
 		self.y = x.y or 0
 		return
 	end
-
+    
     self.x = x or 0
     self.y = y or 0
+end
+
+function Class.__eq(a,b)
+    return a.x == b.x and a.y == b.y
 end
 
 function Class.__add(a,b)
@@ -42,12 +46,8 @@ function Class.__mul(a,b)
     return Vector2(a.x * b.x, a.y * b.y)
 end
 
-function Class:__tostring()
-    return self.x .. ", " .. self.y
-end
-
 function Class:ToString()
-    return self:__tostring()
+    return self.x .. ", " .. self.y
 end
 
 function Class:Set(x, y)

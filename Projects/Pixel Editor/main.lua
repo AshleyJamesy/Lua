@@ -27,27 +27,50 @@ end
 include("extensions/table")
 include("types")
 include("class")
-include("math/Vector2")
-include("math/Vector3")
-include("math/Vector4")
+include("Time")
+include("composition/scene/SceneManager")
+include("composition/GameObject")
+include("composition/components/MyComponent")
+
+function GameLoad()
+	for i = 0, 1000 do
+		local myGameObject = GameObject()
+		myGameObject:AddComponent("MyComponent")
+	end
+end
 
 function love.load()
-    log = ""
-    a = {1, 3, 5, 10}
-    
-    if table.isSequenced(a) then
-        log = "is sequenced"
-    end
+	SceneManager.CreateScene("scene")
+
+	GameLoad()
+
+	SceneManager.RunFunction("SceneLoaded", nil, SceneManager.GetActiveScene())
+end
+
+function love.keypressed(key, scancode, isrepeat)
+	SceneManager.RunFunction("KeyPressed", nil,  key, scancode, isrepeat)
+end
+
+function love.keyreleased(key, scancode)
+	SceneManager.RunFunction("KeyReleased", nil, key, scancode)
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+	SceneManager.RunFunction("MouseMoved", nil, x, y, dx, dy, istouch)
 end
 
 function love.update(dt)
-    
+	SceneManager.Update(dt)
+	SceneManager.RunFunction("LateUpdate", nil, dt)
 end
 
 function love.draw()
-    love.graphics.print(log, 0, 0, 0, 2, 2)
-end
+	SceneManager.RunFunction("Render")
+	SceneManager.RunFunction("UserInterface")
+	SceneManager.RunFunction("Gizmos")
 
+	love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+end
 
 
 

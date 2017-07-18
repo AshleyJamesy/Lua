@@ -9,7 +9,7 @@ function Class:New(x, y, z, w)
         self.y = x.y or 0
         self.z = x.z or 0
         self.w = x.w or 0
-        return
+    return
     end
 
     self.x = x or 0
@@ -50,12 +50,8 @@ function Class.__mul(a,b)
     return Vector4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w)
 end
 
-function Class:__tostring()
-    return self.x .. ", " .. self.y .. ", " .. self.z .. ", " .. self.w
-end
-
 function Class:ToString()
-    return self:__tostring()
+    return self.x .. ", " .. self.y .. ", " .. self.z .. ", " .. self.w
 end
 
 function Class:Magnitude()

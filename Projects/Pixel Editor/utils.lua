@@ -24,16 +24,6 @@ function path(file)
     return GetProjectDirectory() .. file
 end
 
-function ToString(o)
-    if IsType(o, "class") then
-        if o:Type().__tostring then
-            return o:Type().__tostring(o)
-        end
-    end
-    
-    return tostring(o)
-end
-
 function dump(o, mi, i)
     mi = mi or 2
     i = i or 0

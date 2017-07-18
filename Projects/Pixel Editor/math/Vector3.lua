@@ -16,6 +16,10 @@ function Class:New(x, y, z)
 	self.z = z or 0
 end
 
+function Class.__eq(a,b)
+    return a.x == b.x and a.y == b.y and a.z == b.z
+end
+
 function Class.__add(a, b)
 	--Vector*>3 + Vector*>3
 	local x = (a.x or 0) + (b.x or 0)
@@ -47,12 +51,8 @@ function Class.__mul(a, b)
     return Vector2(a.x * b.x, a.y * b.y, a.z * b.z)
 end
 
-function Class:__tostring()
-    return self.x .. ", " .. self.y .. ", " .. self.z
-end
-
 function Class:ToString()
-    return self:__tostring()
+    return self.x .. ", " .. self.y .. ", " .. self.z
 end
 
 function Class.Lerp(a, b, t)
