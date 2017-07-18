@@ -33,7 +33,7 @@ include("composition/GameObject")
 include("composition/components/MyComponent")
 
 function GameLoad()
-	for i = 0, 1000 do
+	for i = 0, 100 do
 		local myGameObject = GameObject()
 		myGameObject:AddComponent("MyComponent")
 	end
@@ -57,6 +57,14 @@ end
 
 function love.mousemoved(x, y, dx, dy, istouch)
 	SceneManager.RunFunction("MouseMoved", nil, x, y, dx, dy, istouch)
+end
+
+function love.mousepressed(x, y, button, istouch)
+	SceneManager.RunFunction("MousePressed", nil, x, y, button, istouch)
+end
+
+function love.mousereleased(x, y, button, istouch)
+	SceneManager.RunFunction("MouseReleased", nil, x, y, button, istouch)
 end
 
 function love.update(dt)
