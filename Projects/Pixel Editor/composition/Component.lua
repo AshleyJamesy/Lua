@@ -5,7 +5,7 @@ include("composition/scene/SceneManager")
 local Class, BaseClass = class.NewClass("Component", "Object")
 Component = Class
 
-function Class:New(gameObject, sceneAdd)
+function Class:New(gameObject)
 	BaseClass.New(self)
 
 	--TODO: Limits
@@ -21,13 +21,21 @@ function Class:New(gameObject, sceneAdd)
 	end
 	
 	--Whether to add component to batching for layers
-	if sceneAdd or sceneAdd == nil then
+	if self.sceneAdd or self.sceneAdd == nil then
 		SceneManager.GetActiveScene():AddComponent(self)
 	end
 end
 
-function Class:BroadcastMessage(method, require, ...)
+function Class:BroadcastMessage(method, ...)
+	self.gameObject:BroadcastMessage(method, ...)
+end
 
+function Class:SendMessage(method, ...)
+	self.gameObject:SendMessage(method, ...)
+end
+
+function Class:SendMessageUpwards(method, ...)
+	
 end
 
 function Class:GetComponent(type)
@@ -76,12 +84,4 @@ function Class:GetComponentsInParent(type)
 	end
 	
 	return nil
-end
-
-function Class:SendMessage(method, require, ...)
-	
-end
-
-function Class:SendMessageUpwards(method, require, ...)
-	
 end

@@ -33,9 +33,27 @@ function Class.GetActiveScene()
 	return SceneManager.active
 end
 
-function Class.RunFunction(method, ignore, ...)
+function Class.CallFunctionOnAll(method, ignore, ...)
 	if SceneManager.active then
-		SceneManager.active:RunFunction(method, ignore, ...)
+		SceneManager.active:CallFunctionOnAll(method, ignore, ...)
+	end
+end
+
+function Class.CallFunctionOnType(method, type, ...)
+	if SceneManager.active then
+		SceneManager.active:CallFunctionOnType(method, type, ...)
+	end
+end
+
+function Class.RunFunctionOnAll(method, ignore, ...)
+	if SceneManager.active then
+		SceneManager.active:RunFunctionOnAll(method, ignore, ...)
+	end
+end
+
+function Class.RunFunctionOnType(method, type, ...)
+	if SceneManager.active then
+		SceneManager.active:RunFunctionOnType(method, type, ...)
 	end
 end
 
@@ -45,6 +63,6 @@ function Class.Update(dt)
 	
 	SceneManager.GetActiveScene().transform:Update()
 	
-	SceneManager.RunFunction("Update", nil, dt)
-	SceneManager.RunFunction("LateUpdate", nil, dt)
+	SceneManager.CallFunctionOnAll("Update", nil, dt)
+	SceneManager.CallFunctionOnAll("LateUpdate", nil, dt)
 end

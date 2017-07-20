@@ -6,17 +6,38 @@ include("composition/scene/SceneManager")
 local Class, BaseClass = class.NewClass("GameObject", "Object")
 GameObject = Class
 
-function Class:New()
+function Class:New(name)
 	BaseClass.New(self)
-	
-	self.tag    = ""
-	self.layer  = 0
+
+	self.tag 	= ""
+	self.layer 	= 0
 	
 	--TODO Scene
 	self.scene 		= SceneManager.GetActiveScene()
 	--TODO Transform
-	self.transform  = Transform(self)
-	self.components = { self.transform }
+	self.transform 		= Transform(self)
+	self.transform.name = name or "GameObject"
+	self.components 	= { self.transform }
+end
+
+function Class:BroadcastMessage(method, ...)
+	for _, component in pairs(self.components) do
+		if component[method] then
+			component[method](self, ...)
+		end
+	end
+
+	for _, child in pairs(self.transform.children) do
+		child.gameObject:BroadcastMessage(method, ...)
+	end
+end
+
+function Class:SendMessage(method, ...)
+	for _, component in pairs(self.components) do
+		if component[method] then
+			component[method](self, ...)
+		end
+	end
 end
 
 function Class:AddComponent(type)

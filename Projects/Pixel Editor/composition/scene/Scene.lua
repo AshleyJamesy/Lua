@@ -5,7 +5,7 @@ local Class, BaseClass = class.NewClass("Scene")
 Scene = Class
 
 function Class:New(name)
-	self.name			     = name
+	self.name		= name
 	self.objects    = {}
 	self.layers     = {}
 	
@@ -17,7 +17,7 @@ function Class:New(name)
 	if not SceneManager.active then
 		SceneManager.active = self
 	end
-
+	
 	self.transform = Transform()
 end
 
@@ -48,8 +48,26 @@ function Class:AddComponent(component)
 	layer:AddComponent(component)
 end
 
-function Class:RunFunction(method, ignore, ...)
+function Class:CallFunctionOnAll(method, ignore, ...)
 	for layerid, layer in pairs(self.layers) do
-		layer:RunFunction(method, ignore, ...)
+		layer:CallFunctionOnAll(method, ignore, ...)
+	end
+end
+
+function Class:CallFunctionOnType(method, type, ...)
+	for layerid, layer in pairs(self.layers) do
+		layer:CallFunctionOnType(method, type, ...)
+	end
+end
+
+function Class:RunFunctionOnAll(method, ignore, ...)
+	for layerid, layer in pairs(self.layers) do
+		layer:RunFunctionOnAll(method, ignore, ...)
+	end
+end
+
+function Class:RunFunctionOnType(method, type, ...)
+	for layerid, layer in pairs(self.layers) do
+		layer:RunFunctionOnType(method, type, ...)
 	end
 end
