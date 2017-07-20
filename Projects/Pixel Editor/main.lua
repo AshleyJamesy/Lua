@@ -30,13 +30,9 @@ include("class")
 include("Time")
 include("composition/scene/SceneManager")
 include("composition/GameObject")
-include("composition/components/MyComponent")
 
 function GameLoad()
-	for i = 0, 1000 do
-		local myGameObject = GameObject()
-		myGameObject:AddComponent("MyComponent")
-	end
+
 end
 
 function love.load()
@@ -74,10 +70,9 @@ end
 
 function love.draw()
 	SceneManager.RunFunction("Render")
-	SceneManager.RunFunction("UserInterface")
 	SceneManager.RunFunction("Gizmos")
 
-	love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+	love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 10)
 end
 
 
