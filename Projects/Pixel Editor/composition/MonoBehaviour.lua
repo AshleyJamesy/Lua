@@ -19,9 +19,9 @@ end
 --Virtual Functions
 function Class:Awake()			end
 function Class:Start()			end
-function Class:Update() 		end
-function Class:FixedUpdate()	end
-function Class:LateUpdate()		end
+--function Class:Update() 		end
+--function Class:FixedUpdate()	end
+--function Class:LateUpdate()	end
 function Class:OnEnable()		end
 function Class:OnDisable()		end
 function Class:OnDestroy()		end

@@ -35,7 +35,7 @@ function Class:GetLayerByName(name)
 			return v
 		end
 	end
-
+	
 	return nil
 end
 

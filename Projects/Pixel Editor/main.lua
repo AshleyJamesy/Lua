@@ -35,11 +35,11 @@ include("composition/components/LineRenderer")
 function love.load()
 	SceneManager.CreateScene("scene")
 	
-	for i = 1, 5000 do
+	for i = 1, 1000 do
 		local myObject = GameObject()
 		myObject:AddComponent("LineRenderer")
 		myObject:GetComponent("LineRenderer").colour:Set(math.random() * 255, math.random() * 255, math.random() * 255, 255)
-		myObject.transform.position:Set(math.random() * 255, math.random() * 255)
+		myObject.transform.position:Set(100 + math.random() * 255, 100 + math.random() * 255)
 		myObject.layer = math.random(0, 7)
 	end
 
