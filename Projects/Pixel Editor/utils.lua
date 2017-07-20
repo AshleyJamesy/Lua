@@ -13,10 +13,10 @@ function include(file)
 		return
 	end
 
-	local file = require(full_path)
+    includes[full_path] = true
 
-	includes[full_path] = true
-	
+	local file = require(full_path)
+    
 	return file
 end
 

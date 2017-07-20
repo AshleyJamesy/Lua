@@ -7,36 +7,49 @@ Scene = Class
 function Class:New(name)
 	self.name			     = name
 	self.objects    = {}
-	self.components = {}
 	self.layers     = {}
 	
 	for i = 0, 7 do
 	    self.layers[i] = Layer("Layer_" .. i, i)
 	end
 	self.layers[0].name = "Default"
+	
+	if not SceneManager.active then
+		SceneManager.active = self
+	end
+
+	self.transform = Transform()
 end
 
 function Class:AddLayer(index, name)
     self.layers[index].name = name
 end
 
+function Class:GetLayerById(index)
+	return self.layers[index]
+end
+
+function Class:GetLayerByName(name)
+	for k, v in pairs(self.layers) do
+		if v.name == name then
+			return v
+		end
+	end
+
+	return nil
+end
+
 function Class:AddGameObject(gameObject)
-    if gameObject then
-        local layer = self.layers[gameObject.layer]
-        table.insert(layer.objects, gameObject)
-    end
+	table.insert(self.objects, gameObject)
 end
 
 function Class:AddComponent(component)
-	if component then
-		if component:IsType("Component") then
-			local batch = component:Type()
-			
-			if not self.components[batch] then
-				self.components[batch] = {}
-			end
-			
-			table.insert(self.components[batch], component)
-		end
+	local layer = self:GetLayerById(component.gameObject.layer)
+	layer:AddComponent(component)
+end
+
+function Class:RunFunction(method, ignore, ...)
+	for layerid, layer in pairs(self.layers) do
+		layer:RunFunction(method, ignore, ...)
 	end
 end

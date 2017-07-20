@@ -33,30 +33,9 @@ function Class.GetActiveScene()
 	return SceneManager.active
 end
 
-function Class.RunFunction(func, type, ...)
+function Class.RunFunction(method, ignore, ...)
 	if SceneManager.active then
-		if type ~= nil then
-			if SceneManager.active.components[type] then
-				for k, component in pairs(SceneManager.active.components[type]) do
-					if component[func] then
-						component[func](component, ...)
-					else
-						break
-					end
-				end
-			end
-		else
-			for i, batch in pairs(SceneManager.active.components) do
-				for k, component in pairs(batch) do
-					if component[func] then
-
-						component[func](component, ...)
-					else
-						break
-					end
-				end
-			end
-		end
+		SceneManager.active:RunFunction(method, ignore, ...)
 	end
 end
 
@@ -64,7 +43,8 @@ function Class.Update(dt)
 	Time.delta 		= dt
 	Time.elapsed 	= Time.elapsed + dt
 	
-	SceneManager.RunFunction("Update", "Transform", dt)
+	SceneManager.GetActiveScene().transform:Update()
+	
 	SceneManager.RunFunction("Update", nil, dt)
+	SceneManager.RunFunction("LateUpdate", nil, dt)
 end
-

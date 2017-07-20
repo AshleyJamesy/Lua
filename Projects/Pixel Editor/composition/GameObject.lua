@@ -8,10 +8,10 @@ GameObject = Class
 
 function Class:New()
 	BaseClass.New(self)
-
+	
 	self.tag    = ""
-	self.layer  = 1
-
+	self.layer  = 0
+	
 	--TODO Scene
 	self.scene 		= SceneManager.GetActiveScene()
 	--TODO Transform
@@ -25,7 +25,7 @@ function Class:AddComponent(type)
 		if component:IsType("MonoBehaviour") then
 			local instance = class.New(type, self)
 			table.insert(self.components, instance)
-
+			
 			instance:Awake()
 			instance:Start()
 		end

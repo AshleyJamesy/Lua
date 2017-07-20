@@ -80,25 +80,25 @@ function New(name, ...)
     return Classes[name](...)
 end
 
-function NewClass(name, derived)
+function NewClass(name, base)
     if Classes[name] then
         return Classes[name], Classes[name]:Base()
     end
 
-    local d = Classes[derived] or Class
+    local b = Classes[base] or Class
     local n = {}
     n.__index       = n
     n.__call        = Class.__call
     n.__tostring    = Class.__tostring
-    n.__type        = table.Copy(d.__type)
+    n.__type        = table.Copy(b.__type)
 
     table.insert(n.__type, name)
     
-    setmetatable(n, d)
+    setmetatable(n, b)
     
     Classes[name] = n
     
-    return n, d
+    return n, b
 end
 
 function GetClass(name)

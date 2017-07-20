@@ -5,17 +5,25 @@ include("composition/scene/SceneManager")
 local Class, BaseClass = class.NewClass("Component", "Object")
 Component = Class
 
-function Class:New(gameObject)
+function Class:New(gameObject, sceneAdd)
 	BaseClass.New(self)
-	
+
+	--TODO: Limits
+	self.multiple = 0
+
 	self.gameObject = gameObject
 	self.tag 		= ""
-	self.transform	= gameObject.transform
-	
-	--TODO: Limits
-	self.__multiple = 1
 
-	SceneManager.GetActiveScene():AddComponent(self)
+	if gameObject then
+		self.transform	= gameObject.transform
+	else
+		self.transform 	= nil
+	end
+	
+	--Whether to add component to batching for layers
+	if sceneAdd or sceneAdd == nil then
+		SceneManager.GetActiveScene():AddComponent(self)
+	end
 end
 
 function Class:BroadcastMessage(method, require, ...)

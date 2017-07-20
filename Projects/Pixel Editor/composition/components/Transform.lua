@@ -5,18 +5,17 @@ include("composition/Component")
 local Class, BaseClass = class.NewClass("Transform", "Component")
 Transform = Class
 
-function Class:New(gameObject)
-	BaseClass.New(self, gameObject)
+function Class:New(gameObject, parent)
+	BaseClass.New(self, gameObject, false)
 
-	if gameObject then
-		self.transform = self
-	end
+	self.transform = self
 	
 	--Only one transform per GameObject
-	self.__multiple = 1
+	--TODO:
+	self.multiple = 1
 	
-	self.root 		= nil
-	self.parent		= nil
+	--It either has a parent or it exists in scenes root
+	self.parent		= parent or SceneManager.GetActiveScene().transform
 	self.children	= {}
 	self.scale 		= Vector2(0,0)
 	self.rotation	= 0

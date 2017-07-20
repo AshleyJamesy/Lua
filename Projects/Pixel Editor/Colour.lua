@@ -69,6 +69,14 @@ function Class.__mul(a,b)
 	end
 end
 
+function Class:Set(r,g,b,a)
+	self:New(r,g,b,a)
+end
+
 function Class:ToString()
 	return self.r .. ", " .. self.g .. ", " .. self.b .. ", " .. self.a
+end
+
+function Class:Unpack()
+	return self.r, self.g, self.b, self.a
 end

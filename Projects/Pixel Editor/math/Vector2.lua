@@ -88,3 +88,8 @@ end
 function Class:GetTable()
     return { self.x, self.y }
 end
+
+function Class:Unpack()
+    print(self.x, self.y)
+    return self.x, self.y
+end

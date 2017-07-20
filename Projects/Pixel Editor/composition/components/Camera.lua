@@ -3,6 +3,7 @@ include("composition/MonoBehaviour")
 include("Colour")
 
 local Class, BaseClass = class.NewClass("Camera", "MonoBehaviour")
+Camera = Class
 
 function Class:Awake()
     self.culling    = {}
