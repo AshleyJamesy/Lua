@@ -46,11 +46,11 @@ end
 function table.HasValue(t, value)
 	for k, v in pairs(t) do
 		if v == value then 
-			return true 
+			return true, k
 		end
 	end
 	
-	return false
+	return false, nil
 end
 
 --[[
@@ -64,11 +64,11 @@ end
 function table.HasKey(t, key)
 	for k, v in pairs(t) do
 		if k == key then 
-			return true 
+			return true, k
 		end
 	end
 	
-	return false
+	return false, nil
 end
 
 function table.Add(dst, src)

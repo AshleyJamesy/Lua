@@ -9,8 +9,8 @@ GameObject = Class
 function Class:New()
 	BaseClass.New(self)
 
-	self.tag 		= ""
-	self.layer 		= 0
+	self.tag    = ""
+	self.layer  = 1
 
 	--TODO Scene
 	self.scene 		= SceneManager.GetActiveScene()

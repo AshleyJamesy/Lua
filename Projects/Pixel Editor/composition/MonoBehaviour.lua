@@ -4,10 +4,6 @@ include("composition/Behaviour")
 local Class, BaseClass = class.NewClass("MonoBehaviour", "Behaviour")
 MonoBehaviour = Class
 
-function Class:New(...)
-	BaseClass.New(self, ...)
-end
-
 function Class:Enable()
 	if self.enabled then return end
 	self.enabled = true

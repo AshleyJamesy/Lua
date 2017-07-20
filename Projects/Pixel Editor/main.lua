@@ -17,9 +17,9 @@ function include(file)
         return
     end
     
-    local file = require(full_path)
-    
     includes[full_path] = true
+    
+    local file = require(full_path)
     
     return file
 end
@@ -73,9 +73,9 @@ function love.update(dt)
 end
 
 function love.draw()
-	SceneManager.RunFunction("Render")
-	SceneManager.RunFunction("UserInterface")
-	SceneManager.RunFunction("Gizmos")
+	SceneManager.RunFunction("Render", "Camera")
+	SceneManager.RunFunction("UserInterface", "Camera")
+	SceneManager.RunFunction("Gizmos", "Camera")
 
 	love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
 end

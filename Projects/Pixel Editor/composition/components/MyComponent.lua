@@ -17,6 +17,10 @@ end
 
 function Class:Update()
 	self.transform.position = Vector2.Lerp(self.transform.position, self.target, Time.delta)
+
+ self.transform.position.x = math.random() * love.graphics.getWidth()
+	self.transform.position.y = math.random() * love.graphics.getHeight()
+	self.target:Set(x,y)
 end
 
 function Class:Render()
