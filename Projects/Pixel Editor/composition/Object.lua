@@ -3,14 +3,18 @@ include("class")
 
 local Class, BaseClass = class.NewClass("Object")
 Object = Class
-
-function Class.Instantiate(object)
-	
-end
+Object.count = 0
 
 function Class:New()
 	self.hideflag   = {}
-	self.name		= self:Type()
+	self.name		      = self:Type()
+	self.instanceId = Object.count
+	
+	Object.count = Object.count + 1
+end
+
+function Class:GetInstanceId()
+    return self.instanceId
 end
 
 function Class:ToString()

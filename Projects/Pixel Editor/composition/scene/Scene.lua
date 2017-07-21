@@ -1,5 +1,6 @@
 include("class")
 include("Layer")
+include("composition/components/Transform")
 
 local Class, BaseClass = class.NewClass("Scene")
 Scene = Class
@@ -19,6 +20,8 @@ function Class:New(name)
 	end
 	
 	self.transform = Transform()
+	self.transform.instanceId = -1
+	Object.count = Object.count - 1
 end
 
 function Class:AddLayer(index, name)

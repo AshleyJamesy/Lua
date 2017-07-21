@@ -36,7 +36,7 @@ function Class:SetParent(transform)
 end
 
 function Class:Find(name)
-	for _, transform in pairs(self.children) then
+	for _, transform in pairs(self.children) do
 		if transform.name == name then
 			return transform
 		end

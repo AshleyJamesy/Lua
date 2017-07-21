@@ -7,7 +7,7 @@ Component = Class
 
 function Class:New(gameObject)
 	BaseClass.New(self)
-
+ 
 	--TODO: Limits
 	self.multiple = 0
 
