@@ -1,6 +1,6 @@
 include("class")
+include("types/Colour")
 include("composition/MonoBehaviour")
-include("Colour")
 
 local Class, BaseClass = class.NewClass("LineRenderer", "MonoBehaviour")
 LineRenderer = Class

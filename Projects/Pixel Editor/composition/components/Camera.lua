@@ -1,6 +1,6 @@
 include("class")
+include("types/Colour")
 include("composition/MonoBehaviour")
-include("Colour")
 
 local Class, BaseClass = class.NewClass("Camera", "MonoBehaviour")
 Camera = Class
@@ -69,25 +69,18 @@ function Class:ToScreenPosition(x, y)
 end
 
 function Class:ToWorldPosition(x, y)
-	--(camera position - mouseposition - (screen/2)) * 0.5
-	local vec = Vector2(0,0)
-	vec.x = self.canvas and self.canvas:getWidth() or love.graphics.getWidth()
-	vec.y = self.canvas and self.canvas:getHeight() or love.graphics.getHeight()
 	
-	vec = vec * Vector2(1 / self.zoom.x, 1 / self.zoom.y) * 0.5
-	
-	return (self.transform.position + Vector2(x,y) - vec) * 0.5
 end
 
 function Class:Render()
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.push()
-	
+
 	local vec = Vector2(0,0)
     vec.x = (self.canvas and canvas:getWidth()  or love.graphics.getWidth()) * 0.5
     vec.y = (self.canvas and canvas:getHeight() or love.graphics.getHeight()) * 0.5
     
-    love.graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
+    --love.graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
     love.graphics.translate(vec.x, vec.y)
     love.graphics.rotate(-self.transform.rotation)
     love.graphics.translate(-self.transform.position.x, -self.transform.position.y)
@@ -97,26 +90,23 @@ function Class:Render()
 		love.graphics.setCanvas(self.canvas)
 		love.graphics.clear(self.background:Unpack())
 		--run function on all except camera types
+		love.graphics.line(-100, 0, 100, 0)
+		love.graphics.line(0, -100, 0, 100)
+
 		SceneManager.RunFunctionOnAll(Render, { "Camera" }, self)
+		SceneManager.RunFunctionOnAll(Gizmos, nil, self)
 		love.graphics.setCanvas()
 	else
 		love.graphics.clear(self.background:Unpack())
 		--run function on all except camera types
+		love.graphics.line(-100, 0, 100, 0)
+		love.graphics.line(0, -100, 0, 100)
+
 		SceneManager.RunFunctionOnAll(Render, { "Camera" }, self)
+		SceneManager.RunFunctionOnAll(Gizmos, nil, self)
 	end
-	
-	love.graphics.line(-100, 0, 100, 0)
-	love.graphics.line(0, -100, 0, 100)
 
 	love.graphics.pop()
-
-	if self.canvas then
-		love.graphics.setCanvas(self.canvas)
-		SceneManager.RunFunctionOnAll(Gizmos, nil, self)
-		love.graphics.setCanvas()
-	else
-		SceneManager.RunFunctionOnAll(Gizmos, nil, self)
-	end
 end
 
 function Class:Gizmos()

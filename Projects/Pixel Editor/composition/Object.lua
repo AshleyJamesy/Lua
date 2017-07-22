@@ -1,6 +1,5 @@
 include("class")
 
-
 local Class, BaseClass = class.NewClass("Object")
 Object = Class
 Object.count = 0

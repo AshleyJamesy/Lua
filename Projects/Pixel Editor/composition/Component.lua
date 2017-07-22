@@ -40,7 +40,7 @@ end
 
 function Class:GetComponent(type)
 	if self.gameObject then
-
+		return self.gameObject:GetComponent(type)
 	end
 
 	return nil
@@ -64,7 +64,7 @@ end
 
 function Class:GetComponents(type)
 	if self.gameObject then
-		
+		return self.gameObject:GetComponents(type)
 	end
 	
 	return nil

@@ -24,7 +24,8 @@ function include(file)
 
 	includes[full_path] = true
 
-	local file = require(full_path)
+	--local file = require(full_path)
+	require(full_path)
 
 	return file
 end
@@ -39,6 +40,7 @@ function LoadGame()
  include("composition/GameObject")
  include("composition/components/LineRenderer")
  include("composition/components/Camera")
+ include("composition/components/SpriteRenderer")
  include("composition/components/RigidBody")
  include("composition/components/Collider")
  include("composition/components/CircleCollider")
@@ -58,12 +60,11 @@ function LoadGame()
 	
 	myCamera = GameObject()
 	myCamera:AddComponent("Camera")
-	myCamera:GetComponent("Camera").zoom:Set(1,1)
 	
 	myGameObject = GameObject()
 	myGameObject:AddComponent("RigidBody")
-	myGameObject:AddComponent("CircleCollider")
-	
+	myGameObject:AddComponent("SpriteRenderer")
+
 	SceneManager.CallFunctionOnAll("SceneLoaded", nil, SceneManager.GetActiveScene())
 end
 
@@ -91,6 +92,10 @@ end
 
 function love.mousemoved(x, y, dx, dy, istouch)
 	SceneManager.CallFunctionOnAll("MouseMoved", nil, x, y, dx, dy, istouch)
+end
+
+function love.joystickaxis(joystick, axis, value)
+	SceneManager.CallFunctionOnAll("JoystickAxis", nil, joystick, axis, value)
 end
 
 function love.mousepressed(x, y, button, istouch)
@@ -122,19 +127,21 @@ function love.update(dt)
 end
 
 function love.draw()
- local status, error = pcall(SceneManager.CallFunctionOnType, "Render", "Camera")
+	local status, error = pcall(SceneManager.CallFunctionOnType, "Render", "Camera")
 	if status then  
 	else
 	    print("error: " .. error)
 	end
 	
 	--Editor Draw
-	love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 10, 0, 2, 2)
+	love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 10, 0, 1, 1)
 
- local s = ""
- for k, v in pairs(log) do
-     s = s .. v .. "\n"
- end
- 
- love.graphics.print("Log:\n" .. s, 10, 35, 0, 2, 2)
+	if MOBILE then
+		local s = ""
+		for k, v in pairs(log) do
+		 s = s .. v .. "\n"
+		end
+
+		love.graphics.print("Log:\n" .. s, 10, 35, 0, 2, 2)
+	end
 end
