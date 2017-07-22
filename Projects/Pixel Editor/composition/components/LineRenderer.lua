@@ -14,7 +14,7 @@ function Class:Awake()
 end
 
 function Class:Render()
-	   love.graphics.setColor(self.colour:Unpack())
-    love.graphics.rectangle("fill", self.transform.position.x - 5, self.transform.position.y - 5, 10, 10)
+	love.graphics.setColor(self.colour:Unpack())
+    love.graphics.rectangle("fill", -5, -5, 10, 10)
     love.graphics.setColor(255,255,255,255)
 end

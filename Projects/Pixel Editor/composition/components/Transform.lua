@@ -81,6 +81,14 @@ function Class:Translate(x,y)
 	self.position.y = self.position.y + y
 end
 
+function Class:Up()
+	return Vector2.Rotation(self.transform.rotation)
+end
+
+function Class:Right()
+	return Vector2.Rotation(self.transform.rotation + 1.571)
+end
+
 function Class:Rotate(r)
 	self.rotation = self.rotation + r
 end

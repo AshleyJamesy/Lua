@@ -17,15 +17,14 @@ local function Render(component, layer, camera)
 		return true
 	end
 	
-    love.graphics.push()
-    love.graphics.translate(component.transform.position.x, component.transform.position.y)
-    love.graphics.push()
-    love.graphics.rotate(component.transform.rotation)
-    
-    component:Render()
-    
-    love.graphics.pop()
-    love.graphics.pop()
+	love.graphics.push()
+	love.graphics.translate(component.transform.position.x, component.transform.position.y)
+	love.graphics.rotate(component.transform.rotation)
+	love.graphics.scale(component.transform.scale.x, component.transform.scale.y)
+	
+	component:Render()
+
+	love.graphics.pop()
 end
 
 local function Gizmos(component, layer, camera)
@@ -40,14 +39,13 @@ local function Gizmos(component, layer, camera)
 	end
 	
 	love.graphics.push()
-    love.graphics.translate(component.transform.position.x, component.transform.position.y)
-    love.graphics.push()
-    love.graphics.rotate(component.transform.rotation)
-    
-    component:Gizmos()
-    
-    love.graphics.pop()
-    love.graphics.pop()
+	love.graphics.translate(component.transform.position.x, component.transform.position.y)
+	love.graphics.rotate(component.transform.rotation)
+	love.graphics.scale(component.transform.scale.x, component.transform.scale.y)
+
+	component:Gizmos()
+	
+	love.graphics.pop()
 end
 
 function Class:Awake()
@@ -57,51 +55,68 @@ function Class:Awake()
 	end
 	
 	self.culling	= {}
-	self.background	= Colour(0,0,0,255)
+	self.background	= Colour(50, 80, 150, 255)
 	self.zoom		= Vector2(1,1)
 	self.canvas 	= nil
 end
 
-function Class:Update()
-	if love.keyboard.isDown("w") then
-		self.transform:Translate(0,-1)
-	end
-	if love.keyboard.isDown("a") then
-		self.transform:Translate(-1,0)
-	end
-	if love.keyboard.isDown("s") then
-		self.transform:Translate(0,1)
-	end
-	if love.keyboard.isDown("d") then
-		self.transform:Translate(1,0)
-	end
+function Class:ToScreenPosition(x, y)
+	
+end
+
+function Class:ToWorldPosition(x, y)
+	--(camera position - mouseposition - (screen/2)) * 0.5
+	local vec = Vector2(0,0)
+	vec.x = self.canvas and self.canvas:getWidth() or love.graphics.getWidth()
+	vec.y = self.canvas and self.canvas:getHeight() or love.graphics.getHeight()
+	
+	vec = vec * Vector2(1 / self.zoom.x, 1 / self.zoom.y) * 0.5
+	
+	return (self.transform.position + Vector2(x,y) - vec) * 0.5
 end
 
 function Class:Render()
+	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.push()
 	
 	local vec = Vector2(0,0)
-	vec.x = self.canvas and self.canvas:getWidth() or love.graphics.getWidth() * (1 / self.zoom.x) * 0.5
-	vec.y = self.canvas and self.canvas:getHeight() or love.graphics.getHeight() * (1 / self.zoom.y) * 0.5
-	
-	love.graphics.scale(self.zoom.x, self.zoom.y)
-	love.graphics.translate(vec.x, vec.y)
-	love.graphics.rotate(self.transform.rotation)
-	love.graphics.translate(-self.transform.position.x, -self.transform.position.y)
-	
+    vec.x = (self.canvas and canvas:getWidth()  or love.graphics.getWidth()) * 0.5
+    vec.y = (self.canvas and canvas:getHeight() or love.graphics.getHeight()) * 0.5
+    
+    love.graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
+    love.graphics.translate(vec.x, vec.y)
+    love.graphics.rotate(-self.transform.rotation)
+    love.graphics.translate(-self.transform.position.x, -self.transform.position.y)
+    
 	--if canvas then render to canvas else render normally
 	if self.canvas then
 		love.graphics.setCanvas(self.canvas)
 		love.graphics.clear(self.background:Unpack())
 		--run function on all except camera types
 		SceneManager.RunFunctionOnAll(Render, { "Camera" }, self)
-		SceneManager.RunFunctionOnAll(Gizmos, { "Camera" }, self)
 		love.graphics.setCanvas()
 	else
+		love.graphics.clear(self.background:Unpack())
 		--run function on all except camera types
 		SceneManager.RunFunctionOnAll(Render, { "Camera" }, self)
-		SceneManager.RunFunctionOnAll(Gizmos, { "Camera" }, self)
 	end
 	
+	love.graphics.line(-100, 0, 100, 0)
+	love.graphics.line(0, -100, 0, 100)
+
 	love.graphics.pop()
+
+	if self.canvas then
+		love.graphics.setCanvas(self.canvas)
+		SceneManager.RunFunctionOnAll(Gizmos, nil, self)
+		love.graphics.setCanvas()
+	else
+		SceneManager.RunFunctionOnAll(Gizmos, nil, self)
+	end
+
+	love.graphics.setColor(255, 255, 255, 255)
+end
+
+function Class:Gizmos()
+
 end
