@@ -2,14 +2,12 @@ include("class")
 
 local Class, BaseClass = class.NewClass("Collider", "MonoBehaviour")
 Collider = Class
-Collider.sceneAdd = false
 
-function Class:New(gameObject)
-	BaseClass.New(self, gameObject)
-	
-	self.isTrigger		= false
-	self.__collisions	= {}
-	self.__triggers		= {}
+function Class:Awake()
+ self.isTrigger       = false
+	self.offset          = Vector2(0,0)
+	self.__collisions    = {}
+	self.__triggers      = {}
 end
 
 function Class:CollisionEnter(collision)

@@ -61,8 +61,8 @@ function Class.Update(dt)
 	Time.delta 		= dt
 	Time.elapsed 	= Time.elapsed + dt
 	
+	SceneManager.CallFunctionOnType("FixedUpdate", "RigidBody", dt)
 	SceneManager.GetActiveScene().transform:Update()
-	
 	SceneManager.CallFunctionOnAll("Update", nil, dt)
 	SceneManager.CallFunctionOnAll("LateUpdate", nil, dt)
 end

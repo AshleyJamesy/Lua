@@ -23,7 +23,7 @@ end
 function Class:BroadcastMessage(method, ...)
 	for _, component in pairs(self.components) do
 		if component[method] then
-			component[method](self, ...)
+			component[method](component, ...)
 		end
 	end
 
@@ -35,7 +35,7 @@ end
 function Class:SendMessage(method, ...)
 	for _, component in pairs(self.components) do
 		if component[method] then
-			component[method](self, ...)
+			component[method](component, ...)
 		end
 	end
 end
@@ -49,6 +49,8 @@ function Class:AddComponent(type)
 			
 			instance:Awake()
 			instance:Start()
+			
+			self:SendMessage("ComponentAdded", instance)
 		end
 	end
 end

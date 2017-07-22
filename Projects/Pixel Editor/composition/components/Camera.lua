@@ -23,6 +23,8 @@ local function Render(component, layer, camera)
 	love.graphics.scale(component.transform.scale.x, component.transform.scale.y)
 	
 	component:Render()
+	
+	love.graphics.setColor(255,255,255,255)
 
 	love.graphics.pop()
 end
@@ -44,6 +46,8 @@ local function Gizmos(component, layer, camera)
 	love.graphics.scale(component.transform.scale.x, component.transform.scale.y)
 
 	component:Gizmos()
+	
+	love.graphics.setColor(255,255,255,255)
 	
 	love.graphics.pop()
 end
@@ -113,8 +117,6 @@ function Class:Render()
 	else
 		SceneManager.RunFunctionOnAll(Gizmos, nil, self)
 	end
-
-	love.graphics.setColor(255, 255, 255, 255)
 end
 
 function Class:Gizmos()
