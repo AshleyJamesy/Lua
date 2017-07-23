@@ -30,6 +30,9 @@ function include(file)
 	return file
 end
 
+PixelToUnit = 16
+UnitToPixel = 3.0
+
 include("extensions/table")
 include("types")
 include("class")
@@ -44,7 +47,10 @@ function LoadGame()
  include("composition/components/RigidBody")
  include("composition/components/Collider")
  include("composition/components/CircleCollider")
- 
+ include("composition/components/Player")
+ include("composition/components/Particle")
+ include("composition/components/ParticleSystem")
+
  math.randomseed(os.time())
  
 	--love.window.setMode(800, 800, { borderless = true })
@@ -60,11 +66,15 @@ function LoadGame()
 	
 	myCamera = GameObject()
 	myCamera:AddComponent("Camera")
-	myCamera:GetComponent("Camera").zoom:Set(0.1,0.1)
+	myCamera:GetComponent("Camera").zoom:Set(1, 1)
 	
 	myGameObject = GameObject()
 	myGameObject:AddComponent("RigidBody")
 	myGameObject:AddComponent("SpriteRenderer")
+	myGameObject:AddComponent("ParticleSystem")
+	myGameObject:AddComponent("Player")
+
+	myGameObject.transform.scale:Set(3, 3)
 
 	SceneManager.CallFunctionOnAll("SceneLoaded", nil, SceneManager.GetActiveScene())
 end

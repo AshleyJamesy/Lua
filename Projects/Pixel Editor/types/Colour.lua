@@ -41,20 +41,21 @@ end
 
 function Class.__add(a,b)
 	--Colour + Colour
-	local r = (a.r or 0) + (b.r or 0)
-	local g = (a.g or 0) + (b.g or 0)
-	local b = (a.b or 0) + (b.b or 0)
-	local a = (a.a or 0) + (b.a or 0)
-	return Colour(r,g,b,a)
+	local nr = (a.r or 0) + (b.r or 0)
+	local ng = (a.g or 0) + (b.g or 0)
+	local nb = (a.b or 0) + (b.b or 0)
+	local na = (a.a or 0) + (b.a or 0)
+	return Colour(nr,ng,nb,na)
 end
 
 function Class.__sub(a,b)
 	--Colour - Colour
-	local r = (a.r or 0) + (b.r or 0)
-	local g = (a.g or 0) + (b.g or 0)
-	local b = (a.b or 0) + (b.b or 0)
-	local a = (a.a or 0) + (b.a or 0)
-	return Colour(r,g,b,a)
+	local nr = (a.r or 0) + (b.r or 0)
+	local ng = (a.g or 0) + (b.g or 0)
+	local nb = (a.b or 0) + (b.b or 0)
+	local na = (a.a or 0) + (b.a or 0)
+
+	return Colour(nr,ng,nb,na)
 end
 
 function Class.__mul(a,b)

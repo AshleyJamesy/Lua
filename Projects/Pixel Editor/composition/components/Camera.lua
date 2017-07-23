@@ -68,8 +68,12 @@ function Class:ToScreenPosition(x, y)
 	
 end
 
-function Class:ToWorldPosition(x, y)
+function Class:ToWorld(x, y)
+	local vec = Vector2(0,0)
+    vec.x = (self.canvas and canvas:getWidth()  or love.graphics.getWidth()) * 0.5
+    vec.y = (self.canvas and canvas:getHeight() or love.graphics.getHeight()) * 0.5
 	
+	return Vector2(x * self.zoom.x + self.transform.position.x, y * self.zoom.y + self.transform.position.y) - vec
 end
 
 function Class:Render()

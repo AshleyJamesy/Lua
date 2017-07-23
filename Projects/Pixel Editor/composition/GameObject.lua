@@ -47,8 +47,6 @@ function Class:AddComponent(type)
 			local instance = class.New(type, self)
 			table.insert(self.components, instance)
 			
-			print(instance:Type())
-
 			instance:Awake();
 			instance:Start();
 

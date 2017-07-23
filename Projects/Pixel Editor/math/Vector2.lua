@@ -81,6 +81,16 @@ function Class.Rotation(r)
 	return Vector2(-math.sin(r), math.cos(r))
 end
 
+function Class:ToAngle()
+	local angle = math.atan2(self.y, self.x)
+	
+	if angle < 0 then
+		return math.abs(math.rad(-360) - angle)
+	end
+	
+	return math.abs(angle)
+end
+
 function Class:Normalised()
 	local _magnitude = self:Magnitude()
 	local x = math.abs(self.x) > 0 and self.x / _magnitude or 0

@@ -5,7 +5,7 @@ include("math/Vector2")
 local Class, BaseClass = class.NewClass("Particle")
 Particle = Class
 
-function Class:New(batch)
+function Class:New()
     --self.batch        = batch
     self.position     = Vector2()
     self.velocity     = Vector2()
