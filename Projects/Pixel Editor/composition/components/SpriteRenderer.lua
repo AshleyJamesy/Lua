@@ -17,7 +17,7 @@ function Class:Awake()
 	self.timer 			= 1 / self.fps
 	self.frame 			= 1
 	self.colour 		= Colour(255,255,255,255)
-	self.sprite 		= Sprite("resources/sprites/hero.png")
+	self.sprite 		= Sprite(git .. "resources/sprites/hero.png")
 
 	local w, h 	= self.sprite.image:getDimensions()
 
@@ -32,12 +32,13 @@ function Class:Awake()
 
 	self.rigidBody = self:GetComponent("RigidBody")
 
-	self.transform.scale:Set(10,10)
+	self.transform.scale:Set(1,1)
 
 	print("sprite renderer awake")
 end
 
 function Class:JoystickAxis(joystick, axis, value)
+if self.rigidBody then
 	if axis == 1 then
 		if math.abs(value) > 0.1 then
 			if value > 0.1 then
@@ -54,6 +55,7 @@ function Class:JoystickAxis(joystick, axis, value)
 			self.rigidBody.velocity.x = 0
 			self.speed = 0
 		end
+	end
 	end
 end
 

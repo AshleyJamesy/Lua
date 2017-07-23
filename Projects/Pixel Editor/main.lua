@@ -60,6 +60,7 @@ function LoadGame()
 	
 	myCamera = GameObject()
 	myCamera:AddComponent("Camera")
+	myCamera:GetComponent("Camera").zoom:Set(0.1,0.1)
 	
 	myGameObject = GameObject()
 	myGameObject:AddComponent("RigidBody")

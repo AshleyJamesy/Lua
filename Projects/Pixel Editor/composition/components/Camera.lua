@@ -80,9 +80,9 @@ function Class:Render()
     vec.x = (self.canvas and canvas:getWidth()  or love.graphics.getWidth()) * 0.5
     vec.y = (self.canvas and canvas:getHeight() or love.graphics.getHeight()) * 0.5
     
-    --love.graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
     love.graphics.translate(vec.x, vec.y)
     love.graphics.rotate(-self.transform.rotation)
+    love.graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
     love.graphics.translate(-self.transform.position.x, -self.transform.position.y)
     
 	--if canvas then render to canvas else render normally
