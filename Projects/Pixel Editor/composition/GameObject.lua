@@ -16,8 +16,18 @@ function Class:New(name)
 	self.scene 		= SceneManager.GetActiveScene()
 	--TODO Transform
 	self.transform 		= Transform(self)
-	self.transform.name = name or "GameObject"
 	self.components 	= { self.transform }
+end
+
+function Class:Serialise()
+	local t = {}
+	t.components = {}
+
+	for k, v in pairs(self.components) do
+		t.components[k] = v:Serialise(true)
+	end
+	
+	return t
 end
 
 function Class:BroadcastMessage(method, ...)

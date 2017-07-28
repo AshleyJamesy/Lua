@@ -142,7 +142,7 @@ local function Find(_string, _find, _start)
 	end
 end
 
-local function FindUntil(_string, _find, _start)
+local function FindUntil(_string, _find, _start, ignore)
 	local i = _start
 	while(i < #_string + 1) do
         local _char = string.byte(_string:sub(i, i))

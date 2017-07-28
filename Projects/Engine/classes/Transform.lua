@@ -1,21 +1,12 @@
-include("class")
-include("math/Vector2")
-include("composition/Component")
-
-local Class, BaseClass = class.NewClass("Transform", "Component")
-Transform = Class
-Transform.sceneAdd = false
+local Class = class.NewClass("Transform", "Component")
+Class.limit = 1
 
 function Class:New(gameObject, parent)
-	BaseClass.New(self, gameObject)
-	--Only one transform per GameObject
-	--TODO:
-	self.__multiple = 1
-	
+	Class.Base.New(self, gameObject)
+
 	self.transform = self
-	
-	--It either has a parent or it exists in scenes root
-	self.parent		= parent or SceneManager.GetActiveScene().transform
+
+	self.parent		= parent
 	self.children	= {}
 	self.scale 		= Vector2(1,1)
 	self.rotation	= 0
@@ -31,13 +22,13 @@ function Class:SetParent(transform)
 		self.parent = transform
 		self.parent:Attach(transform)
 	else
-		self.parent = SceneManager.GetActiveScene().transform
+		self.parent = nil
 	end
 end
 
 function Class:Find(name)
 	for _, transform in pairs(self.children) do
-		if transform.name == name then
+		if name == transform.gameObject.name then
 			return transform
 		end
 	end
@@ -58,14 +49,14 @@ function Class:RemoveChild(tranform)
 	local found, index = table.HasValue(transform)
 
 	if found then
-		transform.parent = SceneManager.GetActiveScene().transform
+		transform.parent = nil
 		table.remove(self.children, index)
 	end
 end
 
 function Class:RemoveChildAtIndex(index)
 	if self.children[index] then
-		self.children[index].parent = SceneManager.GetActiveScene().transform
+		self.children[index].parent = nil
 		table.remove(self.children, index)
 	end
 end
@@ -76,7 +67,7 @@ function Class:Translate(x,y)
 		self.position.y = self.position.y + x.y
 		return
 	end
-
+	
 	self.position.x = self.position.x + x
 	self.position.y = self.position.y + y
 end
@@ -93,6 +84,7 @@ function Class:Rotate(r)
 	self.rotation = self.rotation + r
 end
 
+--TODO: update children global positions and local positions
 function Class:Update()
 	
 end

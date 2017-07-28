@@ -4,16 +4,19 @@ local Class, BaseClass = class.NewClass("Object")
 Object = Class
 Object.count = 0
 
+Class:IgnoreProperty("instanceId")
+
 function Class:New()
-	self.hideflag   = {}
-	self.name		      = self:Type()
 	self.instanceId = Object.count
-	
-	Object.count = Object.count + 1
+
+	self.hideflag   = {}
+	self.name 		= self:Type()
+
+	Object.count 	= Object.count + 1
 end
 
 function Class:GetInstanceId()
-    return self.instanceId
+	return self.instanceId
 end
 
 function Class:ToString()

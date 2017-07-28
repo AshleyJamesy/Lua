@@ -5,11 +5,15 @@ include("composition/scene/SceneManager")
 local Class, BaseClass = class.NewClass("Component", "Object")
 Component = Class
 
+Class:IgnoreProperty("__multiple")
+Class:IgnoreProperty("gameObject")
+Class:IgnoreProperty("transform")
+
 function Class:New(gameObject)
 	BaseClass.New(self)
- 
+ 	
 	--TODO: Limits
-	self.multiple = 0
+	self.__multiple = 0
 
 	self.gameObject = gameObject
 	self.tag 		= ""
@@ -24,6 +28,33 @@ function Class:New(gameObject)
 	if self.sceneAdd or self.sceneAdd == nil then
 		SceneManager.GetActiveScene():AddComponent(self)
 	end
+end
+
+function Class:Serialise(s)
+	if s then
+	else
+		return nil
+	end
+
+	local t        = {}
+	t.type         = self:Type()
+	t.properties   = {}
+
+	for k, v in pairs(self) do
+		if table.HasValue(self.__ignoreProperties, k) then
+		else
+            local type = TypeOf(v)
+			if IsType(v, "Class") then
+				t.properties[k] = v:Serialise()
+			elseif type == "userdata" then
+                t.properties[k] = "USERDATA"
+            else
+				t.properties[k] = v
+			end
+		end
+	end
+
+	return t
 end
 
 function Class:BroadcastMessage(method, ...)

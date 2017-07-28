@@ -17,6 +17,7 @@ function Class:Awake(image, max)
     self.lifetimespeed  = 5.0
     self.particles      = {}
     self.offset         = Vector2(25,-3)
+    self.space          = "local"
 
     for i = 1, self.max, 1 do
         self.particles[i] = Particle()
@@ -45,8 +46,11 @@ function Class:Update()
 end
 
 function Class:Render()
-    love.graphics.pop()
-
+    if self.space ~= "local" then
+        --this pops the current transform to translate to world space instead of local
+        love.graphics.pop()
+    end
+    
     for k, v in pairs(self.particles) do
         local c = Vector4.Lerp(self.ec, self.sc, v.lifespan / self.lifespan)
         local s = Vector2.Lerp(self.esize, self.ssize, v.lifespan / self.lifespan)
@@ -54,7 +58,11 @@ function Class:Render()
         love.graphics.circle("line", v.position.x, v.position.y, s.x)
     end
 
-    love.graphics.push()
+    if self.space ~= "local" then
+        --pushes a transform so there aren't too many pops than pushes
+        love.graphics.push()
+    end
+    
 
     --self.batch:flush()
 end

@@ -24,8 +24,7 @@ function include(file)
 
 	includes[full_path] = true
 
-	--local file = require(full_path)
-	require(full_path)
+	local file = require(full_path)
 
 	return file
 end
@@ -37,7 +36,10 @@ include("extensions/table")
 include("types")
 include("class")
 include("Time")
+include("serialise")
+include("json")
 include("composition/scene/SceneManager")
+include("composition/Asset")
 
 function LoadGame()
  include("composition/GameObject")
@@ -62,7 +64,7 @@ function LoadGame()
 		for k, v in pairs(modes) do
 			print(k, v.width, v.height, v.width / v.height)
 		end
-	]]
+	]]--
 	
 	myCamera = GameObject()
 	myCamera:AddComponent("Camera")
@@ -72,21 +74,23 @@ function LoadGame()
 	myGameObject:AddComponent("RigidBody")
 	myGameObject:AddComponent("SpriteRenderer")
 	myGameObject:AddComponent("ParticleSystem")
+	myGameObject:GetComponent("ParticleSystem").space = "world"
 	myGameObject:AddComponent("Player")
-
 	myGameObject.transform.scale:Set(3, 3)
-
+	
+	local a = myGameObject:Serialise()
+	print(json.string(a))
 	SceneManager.CallFunctionOnAll("SceneLoaded", nil, SceneManager.GetActiveScene())
 end
 
 function love.load()
  SceneManager.CreateScene("scene")
- 
- local status, error = pcall(LoadGame)
-	if status then
-	else
-	    print("error: " .. error)
-	end
+ LoadGame()
+	--local status, error = pcall(LoadGame)
+	--if status then
+	--else
+	--    print("error: " .. error)
+	--end
 end
 
 function love.keypressed(key, scancode, isrepeat)

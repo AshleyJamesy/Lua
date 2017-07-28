@@ -1,5 +1,3 @@
-include("types")
-
 function table.Count(t)
 	local i = 0
 	for k in pairs(t) do 
