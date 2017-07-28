@@ -1,3 +1,5 @@
+--Class Module
+
 module("class", package.seeall)
 
 Classes = {}
