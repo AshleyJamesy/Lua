@@ -1,4 +1,5 @@
 local Class = class.NewClass("Colour", "Object")
+Class:SetReference(false)
 
 function Class:New(r, g, b, a)
 	if r and TypeOf(r) ~= "number" then

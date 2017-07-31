@@ -1,9 +1,10 @@
 local Class = class.NewClass("GameObject", "Object")
 Class.limit = 0
 
-function Class:New()
+function Class:New(active)
 	Class.Base.New(self)
 	
+	self.active 	= active or true
 	self.gameObject = self
 	self.tag 		= ""
 	self.layer 		= 0
@@ -12,6 +13,49 @@ function Class:New()
 	self.components = { self.transform }
 
 	hook.Call("GameObjectInitalised", self)
+end
+
+function Class.Instantiate(prefab)
+	local gameObject = GameObject()
+	gameObject:DeSerialise(prefab)
+
+	return gameObject
+end
+
+function Class:Prefab(name)
+	local prefab = Prefab(name or self.name)
+	prefab.components = self:Serialise()
+	
+	return prefab
+end
+
+function Class:Serialise()
+	local t = {}
+
+	for k, component in pairs(self.components) do
+		t[k] = component:Serialise()
+	end
+	
+	return t
+end
+
+function Class:DeSerialise(prefab)
+	self.components = {}
+	for k, component in pairs(prefab.components) do
+		self.components[k] = class.DeSerialise(component)
+	end
+
+	for k, component in pairs(prefab.components) do
+		self.components[k].gameObject 	= self
+		self.components[k].transform 	= self.components[1]
+
+		hook.Call("ComponentInitalised", self.components[k])
+		
+		if IsType(self.components[k], "MonoBehaviour") then
+			self.components[k]:Awake()
+			self.components[k]:Start()
+		end
+	end
 end
 
 function Class:BroadcastMessage(method, ...)
@@ -45,8 +89,10 @@ function Class:AddComponent(type_name, ...)
 		
 		table.insert(self.components, instance)
 		
-		instance:Awake(...);
-		instance:Start(...);
+		if self.active then
+			instance:Awake(...)
+			instance:Start(...)
+		end
 	end
 end
 

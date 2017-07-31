@@ -4,8 +4,10 @@ Class.limit = 1
 function Class:New(gameObject, parent)
 	Class.Base.New(self, gameObject)
 
-	self.transform = self
-
+	if gameObject then
+		self.transform = self
+	end
+	
 	self.parent		= parent
 	self.children	= {}
 	self.scale 		= Vector2(1,1)

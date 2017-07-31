@@ -1,125 +1,73 @@
-includes = {}
-
-if not MOBILE then
-	git = ""
-else
-	log = {}
-	function print(o)
-		table.insert(log, tostring(o))
-	end
-end
-
-function GetProjectDirectory()
-	return git 
-end
-
---[[Returns filename and extenstion]]
-function GetFileDetails(filename)
-	local file 	= string.reverse(filename)
-	local i 	= string.find(file, "%.")
-
-	if i then
-		return string.reverse(string.sub(file, i + 1)), string.reverse(string.sub(file, 1, i - 1))
-	end
-
-	return filename, ""
-end
-
-function include(file)
-	if file:sub(#file,#file) == '/' then
-		local folder = love.filesystem.getDirectoryItems(GetProjectDirectory() .. file)
-
-		for k, v in pairs(folder) do
-			local filename, extenstion = GetFileDetails(v)
-			if 		extenstion == "lua" then
-				include(GetProjectDirectory() .. file .. filename)
-			elseif 	extenstion == "" then
-				local full_path = GetProjectDirectory() .. file .. filename
-				if love.filesystem.isDirectory(full_path) then
-					include(full_path .. "/")
-				end
-			else
-				local full_path = GetProjectDirectory() .. file .. filename .. "." .. extenstion
-				if love.filesystem.isDirectory(full_path) then
-					include(full_path .. "/")
-				end
-			end
-		end
-
-		return
-	end
-	
-	local include_path	= string.gsub(GetProjectDirectory(), '/', '.')
-	local file_path		= string.gsub(file, '/', '.')
-	local full_path		= include_path .. file_path
-	
-	if includes[full_path] then
-		return
-	end
-	
-	includes[full_path] = true
-	
-	local file = require(full_path)
-	
-	return file
-end
-
 include("extensions/")
 include("util/")
 include("classes/class")
 include("classes/")
-include("source/")
+
 class.Load()
 
-Scene("main")
+include("systems/")
+include("source/")
 
-local sprite = Sprite("resources/sprites/hero.png")
-local frame  = Sprite("resources/sprites/panel.png")
---[[
-sprite:NewFrame(16,16,16,16)
-sprite:NewFrame(32,16,16,16)
-sprite:NewFrame(48,16,16,16)
-sprite:NewFrame(64,16,16,16)
-sprite:NewFrame(80,16,16,16)
-sprite:NewFrame(96,16,16,16)
-sprite:NewFrame(16,32,16,16)
-sprite:NewFrame(32,32,16,16)
-sprite:NewFrame(48,32,16,16)
-sprite:NewFrame(64,32,16,16)
-sprite:NewFrame(80,32,16,16)
-sprite:NewFrame(96,32,16,16)
-sprite:NewFrame(16,48,16,16)
-sprite:NewFrame(32,48,16,16)
-sprite:NewFrame(48,48,16,16)
-sprite:NewFrame(64,48,16,16)
-sprite:NewFrame(80,48,16,16)
-sprite:NewFrame(96,48,16,16)
-sprite:NewFrame(16,64,16,16)
-sprite:NewFrame(32,64,16,16)
-sprite:NewFrame(48,64,16,16)
-sprite:NewFrame(64,64,16,16)
-sprite:NewFrame(80,64,16,16)
-sprite:NewFrame(96,64,16,16)
-sprite:NewFrame(16,80,16,16)
-sprite:NewFrame(32,80,16,16)
-sprite:NewFrame(48,80,16,16)
+function CreateWindow()
+	local window = ui.Create("Frame")
+	window:SetPosition(100,200)
+	window:SetSize(200,200)
+	window.anchor.x = 0
+	window.anchor.y = 0
 
-sprite:NewAnimation("idle", Animation(1.0, true, { 1, 2, 3, 4 }))
-sprite:NewAnimation("walk", Animation(12.0, true, { 7, 8, 9, 10, 11, 12 }))
+	local titlebar = ui.Create("Button", window)
+	titlebar:SetSize(0, 18)
+	titlebar.parentRect.w = 1.0
+	titlebar.label.text = "Window"
 
-sprite:SaveAsset()
-]]
+	titlebar.DoPress = function(self, x, y, button, istouch)
+		if button == 1 or istouch then
+			self.__offset = Vector2(0,0)
+			self.__offset.x = x - self.globalRect.x
+			self.__offset.y = y - self.globalRect.y
+
+			local found, k = table.HasValue(window.parent.children, window) 
+
+			if found then
+				window.parent.children[k] = nil
+				table.insert(window.parent.children, window)
+			end
+		end
+	end
+
+	titlebar.DoDrag = function(self, x, y, istouch)
+		window.localRect.x = love.mouse.getX() - self.__offset.x
+		window.localRect.y = love.mouse.getY() - self.__offset.y
+	end
+
+	local close = ui.Create("Button", titlebar)
+	close:SetSize(18, 0)
+	close.parentRect.x = 1.0
+	close.parentRect.h = 1.0
+	close.anchor.x = 1.0
+	close.label.text = "x"
+	close.label.align = "center"
+
+	close.DoPress = function(self, x, y, button, istouch)
+		if button == 1 or istouch then
+			window:Destroy()
+		end
+	end
+
+	return window
+end
 
 function love.load()
-	myCamera = GameObject()
-	myCamera:AddComponent("Camera")
+	local window = CreateWindow()
+	local button = ui.Create("Button", window)
+	button:SetPosition(20,40)
+	button:SetSize(100,100)
 
-	local myObject = GameObject()
-	myObject:AddComponent("SpriteRenderer", sprite)
-	myObject:AddComponent("Player")
-	myObject.transform.scale:Set(5,5)
-
-	myFrame = Frame(frame)
+	button.DoPress = function(self, x, y, button, istouch)
+		if button == 1 or istouch then
+			local mywindow = CreateWindow()
+		end
+	end
 end
 
 function love.update(dt)
@@ -133,6 +81,8 @@ function love.update(dt)
 	for k, v in pairs(Scene.main.layers) do
 		v:CallFunctionOnAll("Update", { "Transform" }, nil, dt)
 	end
+
+	ui.Update()
 end
 
 function love.draw()
@@ -140,21 +90,8 @@ function love.draw()
 		v:CallFunctionOnType("Render", "Camera")
 	end
 
-	for k, v in pairs(Scene.main.layers) do
-		v:CallFunctionOnAll("PostRender")
-	end 
+	ui.Render()
 
 	love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 10)
 	love.graphics.print("Delta: " .. string.format("%.5f", Time.delta), 10, 25)
-
-	if Camera.main then
-		local s = "Culling:\n"
-		for k, v in pairs(Camera.main.culling) do
-			s = s .. "	" .. v .. "\n"
-		end
-
-		love.graphics.print(s, 10, 40)
-	end
-
-	myFrame:Render()
 end

@@ -12,14 +12,14 @@ Class.__ignoreProperties 	= { "__ignoreProperties" }
 
 function Class:__call(...)
 	local instance = setmetatable({}, self)
-
+	Class.New(instance)
 	local override = instance:New(...)
-	
+
 	return override and override or instance
 end
 
 function Class:New(...)
-
+	
 end
 
 --when serialising
@@ -27,6 +27,10 @@ end
 --any properties that have a class that reference == false will have a copy of the class
 function Class:SetReference(boolean)
 	self.__reference = boolean
+end
+
+function Class:GetReference()
+	return self.__reference
 end
 
 function Class:IgnoreProperty(property)
@@ -38,7 +42,7 @@ function Class:IgnoreProperty(property)
 end
 
 --TODO: Serialising References
-function Serialise(value, ...)
+function Class.Serialise(value, ...)
 	if type(value) == "table" then
 		local t = {}
 
@@ -49,7 +53,12 @@ function Serialise(value, ...)
 			for k, v in pairs(value) do
 				if table.HasValue(value.__ignoreProperties, k) then
 				else
-					local s = Serialise(v)
+					local s = nil
+					if IsType(v, "Class") then
+						s = v:Serialise()
+					else
+						s = Serialise(v)
+					end
 					if s then
 						t.__properties[k] = s
 					end
@@ -57,7 +66,16 @@ function Serialise(value, ...)
 			end
 		else
 			for k, v in pairs(value) do
-				t[k] = Serialise(v)
+				local s = nil
+				if IsType(v, "Class") then
+					s = v:Serialise()
+				else
+					s = Serialise(v)
+				end
+
+				if s then
+					t[k] = s
+				end
 			end
 		end
 
@@ -70,18 +88,26 @@ function Serialise(value, ...)
 
 	return value
 end
+Serialise = Class.Serialise
 
 --TODO: DeSerialising References
-function DeSerialise(value, ...)
+function Class.DeSerialise(value, ...)
 	if type(value) == "table" then
 		--Is a Serialised Class ELSE Is Standard Object/Array
 		if value.__type and value.__properties then
 			local instance = New(value.__type, ...)
-			
-			for k, v in pairs(value.__properties) do
-				instance[k] = DeSerialise(v)
-			end
 
+			if instance.DeSerialise and instance.DeSerialise ~= Class.DeSerialise then
+				local s = instance:DeSerialise(value)
+				if s then
+					instance = s
+				end
+			else
+				for k, v in pairs(value.__properties) do
+					instance[k] = DeSerialise(v)
+				end
+			end
+			
 			return instance
 		else
 			local instance = {}
@@ -89,13 +115,14 @@ function DeSerialise(value, ...)
 			for k, v in pairs(value) do
 				instance[k] = DeSerialise(v)
 			end
-
+			
 			return instance
 		end
 	end
 	
 	return value
 end
+DeSerialise = Class.DeSerialise
 
 function Class:Type()
 	return TypeOf(self)
@@ -145,10 +172,6 @@ function Class:ToString()
 	return ""
 end
 
-function Class:__tostring()
-	return self:ToString()
-end
-
 function New(name, ...)
 	return Classes[name](...)
 end
@@ -161,11 +184,12 @@ function NewClass(name, base)
 	local b = Classes[base] or Class
 	local n = {}
 	
-	n.__index 		= n
-	n.__call		= Class.__call
-	n.__tostring	= Class.__tostring
-	n.__type		= table.Copy(b.__type)
-	n.Base 			= b
+	n.__index 				= n
+	n.__call				= Class.__call
+	n.__tostring			= Class.__tostring
+	n.__type				= table.Copy(b.__type)
+	n.__ignoreProperties	= table.Copy(b.__ignoreProperties)
+	n.Base 					= b
 
 	if base and b == Class and base ~= "Class" then
 		table.insert(n.__type, base)

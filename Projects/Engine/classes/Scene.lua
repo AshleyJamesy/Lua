@@ -1,3 +1,5 @@
+include("classes/Layer")
+
 local Class = class.NewClass("Scene")
 Class.main 	= nil
 
@@ -32,11 +34,11 @@ function Class:GetLayerByName(name)
 	return nil
 end
 
---called on all scenes
-function Class:ComponentInitalised(component)
-	--check if mainscene is scene 
+function Class:ComponentInitalised(component) 
 	if self == Class.main then
 		local layer = self:GetLayerById(component.gameObject.layer)
 		layer:AddComponent(component)
 	end
 end
+
+Class.main = Scene("main")

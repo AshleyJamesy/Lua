@@ -4,7 +4,7 @@ function Class.Sort(a, b)
     return a:Hash() < b:Hash()
 end
 
-function Class:Awake(sprite)
+function Class:Awake()
 	self.sortingIndex	= 0
 	
 	--animation
@@ -13,22 +13,23 @@ function Class:Awake(sprite)
 	self.timer 				= 0.0
 	self.animation 			= ""
 	self.playing			= false
-
+	
 	--rendering
 	self.flip 			= Vector2(1, 1)
 	self.colour 		= Colour(255,255,255,255)
 	
-	self:SetSprite(sprite)
+	--self:SetSprite(sprite or self.sprite)
 end
 
 function Class:SetSprite(sprite)
 	if sprite then
 		self.sprite = sprite
-
+		
 		local w, h 	= self.sprite.image:getDimensions()
 		self.quad 	= love.graphics.newQuad(0, 0, w, h, w, h)
 
 		local frame = self.sprite:GetFrame(1)
+		
 		if frame then
 			self.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
 		end
@@ -56,7 +57,7 @@ function Class:PlayAnimation(name)
 				self:Reset()
 			end
 		end
-	end		
+	end
 end
 
 function Class:StopAnimation()

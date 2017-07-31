@@ -1,7 +1,3 @@
-function path(file)
-    return GetProjectDirectory() .. file
-end
-
 function dump(o, i)
     local i         = i or -1
     local output    = ""
@@ -21,6 +17,6 @@ function dump(o, i)
                 output = string.rep("   ", i) .. tostring(o)
             end
         end
-
+    
     return output .. "\n"
 end

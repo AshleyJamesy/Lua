@@ -1,4 +1,5 @@
 local Class = class.NewClass("Sprite", "Asset")
+Class.extension = "sprite"
 
 function Class:Load(asset)
 	if asset then

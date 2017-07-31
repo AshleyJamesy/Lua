@@ -1,4 +1,5 @@
 local Class = class.NewClass("Vector3")
+Class:SetReference(false)
 
 function Class:New(x, y, z)
 	if x and TypeOf(x) ~= "number" then

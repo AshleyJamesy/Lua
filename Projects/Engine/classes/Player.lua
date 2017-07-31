@@ -2,6 +2,7 @@ local Class = class.NewClass("Player", "MonoBehaviour")
 
 function Class:Awake()
 	self.spriteRenderer = self:GetComponent("SpriteRenderer")
+	self.a = Vector2(0,0)
 end
 
 function Class:Update()
@@ -19,7 +20,7 @@ function Class:Update()
 		if d then
 			self.spriteRenderer.flip.x = 1
 		end
-
+		
 		self.spriteRenderer:PlayAnimation("walk")
 	else
 		self.spriteRenderer:PlayAnimation("idle")

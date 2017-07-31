@@ -1,4 +1,5 @@
 local Class = class.NewClass("Vector2")
+Class:SetReference(false)
 
 function Class:New(x, y)
 	if x and TypeOf(x) ~= "number" then
@@ -41,6 +42,10 @@ function Class.__mul(a,b)
 
 	--Vector2 * Vector2
 	return Vector2(a.x * b.x, a.y * b.y)
+end
+
+function Class.InRange(a, b, c)
+	return a.x > b.x and a.x < c.x and a.y > b.y and a.y < c.y
 end
 
 function Class:__unm()

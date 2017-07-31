@@ -9,7 +9,33 @@ function Class:New(gameObject)
 	
 	self.transform = (gameObject and gameObject.transform) and gameObject.transform or nil
 	
-	hook.Call("ComponentInitalised", self)
+	if self.gameObject then
+		hook.Call("ComponentInitalised", self)
+	end
+end
+
+function Class:Serialise()
+	local t = {}
+
+	if IsType(self, "Class") then
+		t.__type = self:Type()
+		t.__properties = {}
+
+		for k, v in pairs(self) do
+			if IsType(v, "Class") then
+				if v:GetReference() then
+				else
+					t.__properties[k] = v:Serialise()
+				end
+			else
+				if not IsType(v, "userdata") then
+					t.__properties[k] = v
+				end
+			end
+		end
+	end
+	
+	return t
 end
 
 function Class:BroadcastMessage(method, ...)

@@ -16,6 +16,13 @@ local function Render(component, layer, camera)
 	love.graphics.pop()
 end
 
+local function RenderUI(component, layer, camera)
+	--return true so this batch is discarded since this type does not have a render function
+	if not component.RenderUI then return true end
+	component:RenderUI()
+	love.graphics.setColor(255,255,255,255)
+end
+
 function Class:Awake()
 	if Class.main then
 	else
@@ -26,6 +33,17 @@ function Class:Awake()
 	self.background	= Colour(50, 80, 150, 255)
 	self.zoom		= Vector2(1,1)
 	self.canvas 	= nil
+end
+
+function Class:RenderUI()
+	love.graphics.setColor(255, 255, 255, 255)
+	
+	for k, v in pairs(Scene.main.layers) do
+		if table.HasValue(self.culling, v.name) then
+		else
+			v:RunFunctionOnAll(RenderUI, { "Camera" }, v, self)
+		end
+	end
 end
 
 function Class:Render()
