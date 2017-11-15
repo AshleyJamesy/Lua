@@ -1,0 +1,29 @@
+DESATURATE SHADER
+-----------------
+
+Basic shader showing how to desaturate an image. The shader supports
+5 different ways of saturating the image; the lua side substitutes a
+different method for each shader and compiles it into 5 separate love
+shader objects which can then be switched between.
+
+DESATURATION METHODS
+--------------------
+
+Lightness: corresponds to gimps "lightness" desaturation mode. Finds the largest of the r,g,b
+           values and the smallest of the r,g,b values, adds them, and divides by 2.
+
+Mean: Simple geometric mean (average.) (r + g + b)/3.
+
+Max: Uses the largest color-channel: max(r, g, b)
+
+Min: Uses the smallest color-channel: min(r, g, b)
+
+Luminosity: Uses a perceptual model that takes into account how human perception interprets
+            color luminosity. The coefficients are from the ITU-R BT.709 standard. This method
+            is also used by many painting programs (gimp, krita, ...)
+
+
+LICENSE
+-------
+
+todo

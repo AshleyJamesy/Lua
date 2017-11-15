@@ -4,11 +4,11 @@ function Class:New(w, h)
 	Class.Base.New(self)
 
 	self.canvas = love.graphics.newCanvas(w, h)
-
-	local w, h 	= self.canvas:getDimensions()
-	self.localRect.w = w
-	self.localRect.h = h
-
+	
+	local w, h = self.canvas:getDimensions()
+	self.rects.native.w = w
+	self.rects.native.h = h
+	
 	hook.Add("OnMousePressed",	self, self.OnMousePressed)
 	hook.Add("OnMouseReleased",	self, self.OnMouseReleased)
 	hook.Add("OnMouseMoved",	self, self.OnMouseMoved)
@@ -19,7 +19,7 @@ end
 function Class:Render()
 	love.graphics.setCanvas(self.canvas)
 	love.graphics.clear(0,0,0,0)
-
+	
 	self:Paint()
 	
 	love.graphics.setCanvas()
