@@ -4,24 +4,22 @@ Class.Assets 		= {}
 
 function Class:New(path)
 	if path then
-		path = GetProjectDirectory() .. path
-		
-		if love.filesystem.exists(path) then
-			if love.filesystem.isFile(path) then
+		if love.filesystem.exists(GetProjectDirectory() .. path) then
+			if love.filesystem.isFile(GetProjectDirectory() .. path) then
 				local extenstion = self:Type() == "Asset" and "" or self.Extenstion
-
+     
 				if Class.Assets[path .. "." .. extenstion] then
 					return Class.Assets[path .. "." .. extenstion]
 				else
-					if love.filesystem.exists(path .. "." .. extenstion) then
-						local file = io.open(path .. "." .. extenstion, "rb")
-						if file then
-							local content = file:read("*all")
+					if love.filesystem.exists(GetProjectDirectory() .. path .. "." .. extenstion) then
+						local content = love.filesystem.read(GetProjectDirectory() .. path .. "." .. extenstion)
+						--local file = io.open(path .. "." .. extenstion, "rb")
+						if content then
+							--local content = file:read("*all")
 							local data = json.decode(content)
+							--file:close()
 
-							file:close()
-
-							local asset = class.New(data.type)
+							local asset = class.Quick(data.type)
 							asset.path = data.path
 							asset.type = data.type
 							
@@ -65,11 +63,12 @@ function Class:Save()
 
 	local data = json.encode(asset)
 
-	local file = io.open(self.path .. "." .. self.Extenstion, "w+")
-	if file then
-		file:write(data)
-		file:close()
-	end
+	--local file = io.open(self.path .. "." .. self.Extenstion, "w+")
+	--if file then
+		--file:write(data)
+		--file:close()
+	--end
+	love.filesystem.write(self.path .. "." .. self.Extenstion, data)
 end
 
 --virtual functions

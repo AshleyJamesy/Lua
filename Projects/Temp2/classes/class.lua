@@ -41,8 +41,8 @@ function Class:New(...)
 	
 end
 
-function Class.Quick(name, t)
-	return setmetatable(t , Classes[name] or Class)
+function Quick(name, t)
+	return setmetatable(t or {}, Classes[name] or Class)
 end
 
 function Class:Base()

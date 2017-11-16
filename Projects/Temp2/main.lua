@@ -104,7 +104,7 @@ end
 
 function love.load()
     cam = GameObject()
-    cam:AddComponent("Camera")
+    cam:AddComponent("Camera").zoom:Set(0.3, 0.3)
 
     scene = Scene()
 end
