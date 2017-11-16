@@ -8,9 +8,7 @@ Class.__type  				= { "Class" }
 Class.__loaded 				= true
 
 local function inherit(n, b)
-	print("LOADING", n.__type[#n.__type], n.__type[#n.__type - 1])
-
-	for k, v in pairs(b) do
+ for k, v in pairs(b) do
 		if n[k] then
 		else
 			if type(b[k]) == "function" then
@@ -140,9 +138,9 @@ function NewClass(name, base)
 
 	table.insert(n.__type, name)
 
-	if b then
-		inherit(n, b)
-	end
+	--if b then
+	--	inherit(n, b)
+	--end
 
 	setmetatable(n, Class)
 
@@ -168,7 +166,7 @@ function LoadClass(n)
 			end
 
 			n.__type = table.Copy(b.__type)
-
+			
 			table.insert(n.__type, ThisClass)
 			
 			inherit(n, b)
@@ -187,6 +185,7 @@ end
 ]]
 
 function Load()
+ --[[
 	for k, n in pairs(Classes) do
 		if #n.__type > 2 then
 			local ThisClass = n.__type[#n.__type]
@@ -202,6 +201,11 @@ function Load()
 			
 			n.__base = b
 		end
+	end
+	]]
+	
+	for k, v in pairs(Classes) do
+	    LoadClass(v)
 	end
 end
 

@@ -11,6 +11,8 @@ function Class:New(gameObject)
 	else
 		self.parent = nil
 	end
+	
+	self.transform = self
 
 	self.children 	= Array{}
 

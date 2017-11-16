@@ -20,8 +20,6 @@ end
 
 function Class:New(gameObject, ...)
 	Class:Base().New(self)
-
-	self.gameObject = gameObject
 end
 
 function Class:AddComponent(name, ...)

@@ -18,16 +18,16 @@ end
 function include(file)
     if file:sub(#file,#file) == '/' then
         local folder = love.filesystem.getDirectoryItems(GetProjectDirectory() .. file)
-
+        
         for k, v in pairs(folder) do
             local filename, extenstion = GetFileDetails(v)
             if      extenstion == "lua" then
-                include(GetProjectDirectory() .. file .. filename)
+                include(file .. filename)
             elseif  extenstion == "" then
                 local full_path = GetProjectDirectory() .. file .. filename
                 if love.filesystem.isDirectory(full_path) then
                     include(full_path .. "/")
-                end
+                end          
             else
                 local full_path = GetProjectDirectory() .. file .. filename .. "." .. extenstion
                 if love.filesystem.isDirectory(full_path) then
@@ -48,9 +48,9 @@ function include(file)
     end
     
     includes[full_path] = true
-
+    
     local file = require(full_path)
-
+    
     --print(full_path)
     
     return file

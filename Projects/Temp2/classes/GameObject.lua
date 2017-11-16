@@ -17,7 +17,7 @@ end
 function Class:AddComponent(name, ...)
 	local c = class.GetClass(name)
 	
-	if c and c.__IsComponent then
+	if c and c.IsComponent then
 		if c.__limit == nil or c.__limit > 0 then
 			local j = 0
 			for i = 1, #self.components do
@@ -32,7 +32,10 @@ function Class:AddComponent(name, ...)
 			
 			local instance = class.New(name, self, ...)
 			
-			if instance.__IsMonoBehaviour then
+			instance.gameObject = self
+			instance.transform  = self.transform
+			
+			if instance.IsMonoBehaviour then
 				instance:Awake(...)
 				instance:Start(...)
 			end
@@ -46,7 +49,7 @@ end
 
 function Class:RemoveComponent(name)
 	local c = class.GetClass(name)
-	if c and c.__IsComponent then
+	if c and c.IsComponent then
 		for i = #self.components, 1, -1 do
 			if name == TypeOf(self.components[i]) then
 				self.components[i] = nil
@@ -58,7 +61,7 @@ end
 
 function Class:RemoveComponents(name)
 	local c = class.GetClass(name)
-	if c and c.__IsComponent then
+	if c and c.IsComponent then
 		for i = 1, #self.components do
 			if name == TypeOf(self.components[i]) then
 				self.components[i] = nil
@@ -69,7 +72,7 @@ end
 
 function Class:GetComponent(name)
 	local c = class.GetClass(name)
-	if c and c.__IsComponent then
+	if c and c.IsComponent then
 		for i = 1, #self.components do
 			if name == TypeOf(self.components[i]) then
 				return self.components[i]
@@ -84,7 +87,7 @@ function Class:GetComponents(name)
 	local t = Array()
 
 	local c = class.GetClass(name)
-	if c and c.__IsComponent then
+	if c and c.IsComponent then
 		for i = 1, #self.components do
 			if name == TypeOf(self.components[i]) then
 				t[#t + 1] = self.components[i]

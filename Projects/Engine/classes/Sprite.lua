@@ -2,8 +2,6 @@ local Class = class.NewClass("Sprite", "Asset")
 Class.extension = "sprite"
 
 function Class:Load(asset)
-	if asset then
-		--if asset exists we load the values
 		self.pivot 		= asset.pivot
 		self.frames 	= asset.frames
 		self.animations = asset.animations
