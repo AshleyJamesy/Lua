@@ -141,3 +141,11 @@ function table.GetComponent(t, index, stride, offset)
 
 	return j
 end
+
+local meta_readOnly = {}
+	meta_readOnly.__newindex = function()
+	end
+
+function readOnly(t)
+	return setmetatable(t, meta_readOnly)
+end

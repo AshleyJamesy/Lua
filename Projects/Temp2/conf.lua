@@ -51,8 +51,6 @@ function include(file)
     
     local file = require(full_path)
     
-    --print(full_path)
-    
     return file
 end
 
@@ -129,7 +127,7 @@ function love.run()
         end
         
         if love.timer then
-            love.timer.sleep(0.001)
+            love.timer.sleep(0)
         end
     end
  

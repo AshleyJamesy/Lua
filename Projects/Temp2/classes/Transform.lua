@@ -1,9 +1,8 @@
 local Class = class.NewClass("Transform", "Component")
-Class.__limit = 2
-Class.Counter = 0
+Class.__limit = 1
 
 function Class:New(gameObject)
-	Component.New(self, gameObject)
+	Class:Base().New(self, gameObject)
 
 	if Class.Root then
 		self.parent = Class.Root
@@ -61,10 +60,20 @@ function Class:Update()
 		self.globalRotation = self.rotation
 		self.globalPosition:Set(self.position.x, self.position.y)
 	end
-
+	
 	for k, v in pairs(self.children) do
 		v:Update()
 	end
 end
 
-Class.Root = Transform()
+function Class:Gizmos()
+	love.graphics.setColor(0, 255, 0, 255)
+	love.graphics.line(self.transform.globalPosition.x, self.transform.globalPosition.y, self.transform.globalPosition.x + 10, self.transform.globalPosition.y)
+	love.graphics.setColor(255, 0, 0, 255)
+	love.graphics.line(self.transform.globalPosition.x, self.transform.globalPosition.y, self.transform.globalPosition.x, self.transform.globalPosition.y - 10)
+end
+
+local function InitaliseClass()
+	Class.Root = Transform()
+end
+hook.Add("InitaliseClass", "Transform", InitaliseClass)

@@ -4,19 +4,18 @@ Classes 	= {}
 
 local Class   				= {}
 Class.__index 				= Class
+Class.__typename 			= "Class"
 Class.__type  				= { "Class" }
 Class.__loaded 				= true
 
 local function inherit(n, b)
- for k, v in pairs(b) do
-		if n[k] then
+	for k, v in pairs(b) do
+		if rawget(n, k) then
 		else
-			if type(b[k]) == "function" then
-				n[k] = v
+			if type(v) == "function" then
+				rawset(n, k, v)
 			end
 		end
-
-		--print("	", k, v)
 	end
 end
 
@@ -51,15 +50,15 @@ function Class:Base()
 end
 
 function Class:Type()
-	return TypeOf(self)
+	return self.__typename
 end
 
 function Class:IsType(name)
-	return IsType(self, name)
+	return self.__typename == name or IsType(self, name)
 end
 
 function Class:ToString()
-	return self.__type[#self.__type]
+	return self.__typename
 end
 
 function Class:Types()
@@ -70,9 +69,12 @@ function New(name, ...)
 	return Classes[name](...)
 end
 
-function NewClass(name, base)
+--[[
+	TODO: interfaces with ...
+]]
+function NewClass(name, base, ...)
 	if Classes[name] then
-		return Classes[name], Classes[name]:Base()
+		return Classes[name], Classes[name].__base
 	end
 
 	local b = Classes[name] or Class
@@ -119,6 +121,7 @@ function NewClass(name, base)
 		return rawget(t,k) or n[k]
 	end
 
+	n.__typename 	= name
 	n.__type 		= table.Clone(b.__type)
 
 	n.__base 		= b
@@ -172,41 +175,18 @@ function LoadClass(n)
 			inherit(n, b)
 			
 			n.__base = b
-			
-			n.__loaded = true
 		end
 	end
+
+	n.__loaded = true
 end
 
---TODO:
---[[
-	Fix Class Loading
-	Bug: 
-]]
-
 function Load()
- --[[
-	for k, n in pairs(Classes) do
-		if #n.__type > 2 then
-			local ThisClass = n.__type[#n.__type]
-			local BaseClass = n.__type[#n.__type - 1]
-			
-			local b = Classes[BaseClass]
-
-			n.__type = table.Copy(b.__type)
-
-			table.insert(n.__type, ThisClass)
-			
-			inherit(n, b)
-			
-			n.__base = b
-		end
-	end
-	]]
-	
 	for k, v in pairs(Classes) do
 	    LoadClass(v)
 	end
+
+	hook.Call("InitaliseClass")
 end
 
 function GetClass(name)

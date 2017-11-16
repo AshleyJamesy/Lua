@@ -1,23 +1,29 @@
-local Class = class.NewClass("GameObject")
+local Class = class.NewClass("GameObject", "Object")
 
 function Destroy(object, duration)
 	
 end
 
-function Class:New()
+function Class:New(x,y)
+	Class:Base().New(self)
+
 	self.name 		= "GameObject"
 	self.tag 		= ""
 	self.transform 	= Transform(self)
-
+	
 	self.components = {
 		self.transform
 	}
+
+	self.transform.position.x = x or 0
+	self.transform.position.y = y or 0
 end
 
 function Class:AddComponent(name, ...)
 	local c = class.GetClass(name)
 	
 	if c and c.IsComponent then
+
 		if c.__limit == nil or c.__limit > 0 then
 			local j = 0
 			for i = 1, #self.components do
@@ -31,7 +37,7 @@ function Class:AddComponent(name, ...)
 			end
 			
 			local instance = class.New(name, self, ...)
-			
+
 			instance.gameObject = self
 			instance.transform  = self.transform
 			
@@ -72,6 +78,7 @@ end
 
 function Class:GetComponent(name)
 	local c = class.GetClass(name)
+	
 	if c and c.IsComponent then
 		for i = 1, #self.components do
 			if name == TypeOf(self.components[i]) then
@@ -98,18 +105,17 @@ function Class:GetComponents(name)
 	return t
 end
 
-function Class:SendMessage(method, require, ...)
+function Class:SendMessage(method, req, ...)
 	local r = false
 	for k, v in pairs(self.components) do
 		local f = v[method]
-		print(v:Type(), v[method])
 		if f and type(f) == "function" then
 			f(v, ...)
 			r = true
 		end
 	end
 
-	return r
+	return req and r or nil
 end
 
 --Quicker to check for this function than loop through types

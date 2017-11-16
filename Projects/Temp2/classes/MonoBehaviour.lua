@@ -1,9 +1,5 @@
 local Class = class.NewClass("MonoBehaviour", "Behaviour")
 
-function Class:New(gameObject, ...)
-	Class:Base().New(self, gameObject, ...)
-end
-
 function Class:Enable()
 	if self.enabled then return end
 	self.enabled = true

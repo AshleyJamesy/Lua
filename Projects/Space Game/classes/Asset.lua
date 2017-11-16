@@ -25,7 +25,7 @@ function Class:New(path)
 							asset.type = data.type
 							
 							asset:LoadAsset(data)
-
+							
 							Class.Assets[path .. "." .. extenstion] = asset
 
 							return asset
