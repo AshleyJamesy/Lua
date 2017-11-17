@@ -5,6 +5,8 @@ Class.Components = {}
 function Class:New(gameObject)
 	Class:Base().New(self)
 	
+	self.gameObject = gameObject
+
 	local typename = self:Type()
 	
 	--Batching

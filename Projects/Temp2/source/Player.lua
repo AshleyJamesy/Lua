@@ -8,7 +8,7 @@ end
 function Class:Update()
 	local a = love.keyboard.isDown("a")
 	local d = love.keyboard.isDown("d")
-
+	
 	if a and d then
 		self.spriteRenderer.speed = 1.0
 		self.spriteRenderer:PlayAnimation("idle")

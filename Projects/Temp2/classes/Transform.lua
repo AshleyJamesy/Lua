@@ -22,6 +22,8 @@ function Class:New(gameObject)
 	self.globalScale 	= Vector2(1,1)
 	self.globalRotation = 0
 	self.globalPosition = Vector2(0,0)
+
+	self.__rotate = false
 end
 
 function Class:AddChild(child)
@@ -66,11 +68,37 @@ function Class:Update()
 	end
 end
 
-function Class:Gizmos()
-	love.graphics.setColor(0, 255, 0, 255)
-	love.graphics.line(self.transform.globalPosition.x, self.transform.globalPosition.y, self.transform.globalPosition.x + 10, self.transform.globalPosition.y)
-	love.graphics.setColor(255, 0, 0, 255)
-	love.graphics.line(self.transform.globalPosition.x, self.transform.globalPosition.y, self.transform.globalPosition.x, self.transform.globalPosition.y - 10)
+function Class:OnDrawGizmosSelected()
+	--[[
+	love.graphics.setLineWidth(3.0)
+	love.graphics.setColor(0, 255, 0, 75)
+	love.graphics.line(self.globalPosition.x, self.globalPosition.y, self.globalPosition.x + self.gameObject.__aabb.w * self.globalScale.x * 0.75, self.globalPosition.y)
+	love.graphics.setColor(255, 0, 0, 75)
+	love.graphics.line(self.globalPosition.x, self.globalPosition.y, self.globalPosition.x, self.globalPosition.y - self.gameObject.__aabb.h * self.globalScale.y * 0.75)
+	love.graphics.setColor(0, 0, 255, 75)
+	
+	local radius = math.max(self.gameObject.__aabb.w, self.gameObject.__aabb.h) * math.max(self.globalScale.x, self.globalScale.y) * 0.95
+	love.graphics.circle("line", self.globalPosition.x, self.globalPosition.y, radius)
+	love.graphics.setLineWidth(1.0)
+	]]
+	
+	--[[
+	local v = (Vector2(Camera.main:ToWorld(love.mouse.getPosition())) - self.globalPosition)
+	local m = v:Magnitude()
+
+	if self.__rotate then
+		self.rotation = v:ToAngle()
+	else
+		if m > radius and m < radius + 10 then
+			if love.mouse.isDown(1) then
+				self.__rotate = true
+				Scene.main.a = true
+
+				print("A")
+			end
+		end
+	end
+	]]
 end
 
 local function InitaliseClass()

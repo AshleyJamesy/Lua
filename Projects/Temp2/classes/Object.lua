@@ -20,6 +20,8 @@ function Class:New()
 
 	self.hideflag 	= {}
 	self.name 		= self:Type()
+	
+	self.__aabb 	= { w = 0, h = 0 }
 end
 
 function Class:ToString()

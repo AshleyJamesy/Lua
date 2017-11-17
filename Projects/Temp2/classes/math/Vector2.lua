@@ -114,10 +114,10 @@ function Class:ToAngle()
 	local angle = math.atan2(self.y, self.x)
 	
 	if angle < 0 then
-		return math.abs(-6.28319 - angle)
+		return math.abs(-3.1415 - angle)
 	end
 	
-	return math.abs(angle)
+	return math.abs(angle) - 3.1415
 end
 
 function Class:Unpack()

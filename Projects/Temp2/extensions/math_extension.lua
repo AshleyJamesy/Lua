@@ -13,3 +13,7 @@ end
 function math.shiftleft(value, shift)
 	return value * 2 ^ shift
 end
+
+function math.round(n, i)
+	return (n + i * 0.5) / (i * i)
+end

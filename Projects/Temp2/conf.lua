@@ -15,6 +15,7 @@ function GetFileDetails(filename)
     return filename, ""
 end
 
+line_total = 0
 function include(file)
     if file:sub(#file,#file) == '/' then
         local folder = love.filesystem.getDirectoryItems(GetProjectDirectory() .. file)
@@ -49,9 +50,12 @@ function include(file)
     
     includes[full_path] = true
     
-    local file = require(full_path)
-    
-    return file
+    local contents = love.filesystem.read(GetProjectDirectory() .. file .. ".lua")
+    local _, lines = string.gsub(contents, "\n", "\n")
+
+    line_total = line_total + lines
+
+    return require(full_path)
 end
 
 function love.run()
@@ -147,7 +151,7 @@ function love.conf(t)
     t.window.width 			= 800           -- The window width (number)
     t.window.height 		= 600           -- The window height (number)
     t.window.borderless 	= false        	-- Remove all border visuals from the window (boolean)
-    t.window.resizable 		= false         -- Let the window be user-resizable (boolean)
+    t.window.resizable 		= true         -- Let the window be user-resizable (boolean)
     t.window.minwidth 		= 1             -- Minimum window width if the window is resizable (number)
     t.window.minheight 		= 1             -- Minimum window height if the window is resizable (number)
     t.window.fullscreen 	= false         -- Enable fullscreen (boolean)
@@ -158,7 +162,7 @@ function love.conf(t)
     t.window.highdpi 		= false         -- Enable high-dpi mode for the window on a Retina display (boolean)
     t.window.x 				= nil           -- The x-coordinate of the window's position in the specified display (number)
     t.window.y 				= nil           -- The y-coordinate of the window's position in the specified display (number)
- 
+    
     --Modules
     t.modules.audio 		= true          -- Enable the audio module (boolean)
     t.modules.event 		= true          -- Enable the event module (boolean)

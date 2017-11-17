@@ -1,4 +1,4 @@
-GetProjectDirectory()local Class = class.NewClass("Sprite", "Asset")
+local Class = class.NewClass("Sprite", "Asset")
 Class.Extenstion = "sprite"
 
 function Class:NewAsset(path)
@@ -6,6 +6,7 @@ function Class:NewAsset(path)
 	self.frames = {}
 	self.pivot 	= Vector2(0.5, 0.5)
 	self.animations = {}
+	self.batch = love.graphics.newSpriteBatch(self.image.source, 1000)
 end
 
 function Class:LoadAsset(asset)
@@ -13,7 +14,8 @@ function Class:LoadAsset(asset)
 	self.frames = asset.frames
 	self.pivot 	= Vector2(asset.pivot.x, asset.pivot.y)
 	self.animations = {}
-	
+	self.batch = love.graphics.newSpriteBatch(self.image.source, 1000)
+
 	for k, v in pairs(asset.animations) do
 		self.animations[k] = Animation(unpack(v))
 	end
@@ -55,7 +57,26 @@ function Class:GetAnimation(name)
 	return self.animations[name]
 end
 
-function Class:Render(quad, x, y, r, sx, sy, colour)
+function Class:Render(id, quad, x, y, r, sx, sy, ox, oy, colour)
 	self.batch:setColor(colour:Unpack())
-	self.batch:add(quad, x, y, r, sx, sy)
+	if self.batch then
+		if id == -1 then
+			return self.batch:add(quad, x, y, r, sx, sy, ox, oy)
+		else
+			self.batch:set(id, quad, x, y, r, sx, sy, ox, oy)
+			return id
+		end
+	else
+		love.graphics.draw(self.image.source, quad, x, y, r, sx, sy, ox, oy)
+	end
+	
+	return -1
+end
+
+function Class:BatchAdd()
+	
+end
+
+function Class:BatchClear()
+	self.batch:clear()
 end

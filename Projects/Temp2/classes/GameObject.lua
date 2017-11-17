@@ -31,7 +31,7 @@ function Class:AddComponent(name, ...)
 					j = j + 1
 
 					if j >= c.__limit then
-						return
+						return self.components[i]
 					end
 				end
 			end
@@ -44,6 +44,7 @@ function Class:AddComponent(name, ...)
 			if instance.IsMonoBehaviour then
 				instance:Awake(...)
 				instance:Start(...)
+				instance:Enable()
 			end
 
 			self.components[#self.components + 1] = instance
@@ -106,16 +107,16 @@ function Class:GetComponents(name)
 end
 
 function Class:SendMessage(method, req, ...)
-	local r = false
+	local result = false
 	for k, v in pairs(self.components) do
 		local f = v[method]
 		if f and type(f) == "function" then
 			f(v, ...)
-			r = true
+			result = true
 		end
 	end
 
-	return req and r or nil
+	return req and result or nil
 end
 
 --Quicker to check for this function than loop through types

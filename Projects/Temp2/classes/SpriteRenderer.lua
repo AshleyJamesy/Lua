@@ -11,8 +11,17 @@ function Class:Awake(...)
 	self.yflip 				= false
 	self.colour 			= Colour(255)
 	self.sprite 			= Sprite(...)
+
+	self.batchid 			= -1
 	
 	self:SetSprite(self.sprite)
+end
+
+function Class:SetViewport(x,y,w,h)
+	self.quad:setViewport(x, y, w, h)
+
+	self.gameObject.__aabb.w = self.transform.scale.x * w
+	self.gameObject.__aabb.h = self.transform.scale.y * h
 end
 
 function Class:SetSprite(sprite)
@@ -25,7 +34,7 @@ function Class:SetSprite(sprite)
 		local frame = self.sprite:GetFrame(1)
 		
 		if frame then
-			self.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
+			self:SetViewport(frame.x, frame.y, frame.w, frame.h)
 		end
 	end
 end
@@ -38,7 +47,7 @@ function Class:Reset(name)
 	
 	local frame = self.sprite:GetFrame(animation.frames[1])
 	
-	self.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
+	self:SetViewport(frame.x, frame.y, frame.w, frame.h)
 end
 
 function Class:PlayAnimation(name)
@@ -80,7 +89,7 @@ function Class:Update()
 				
 				local frame = self.sprite:GetFrame(animation.frames[self.animation_index])
 				
-				self.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
+				self:SetViewport(frame.x, frame.y, frame.w, frame.h)
 			end
 		end
 	end
@@ -89,14 +98,20 @@ end
 function Class:Render()
 	if self.sprite then
 		local x, y, w, h = self.quad:getViewport()
-
+		
 		local xf = (self.xflip and -1 or 1) * self.transform.scale.x
 		local yf = (self.yflip and -1 or 1) * self.transform.scale.y
-		
-		love.graphics.setColor(self.colour:Unpack())
 
-		love.graphics.draw(self.sprite.image.source, self.quad, 
-			self.transform.globalPosition.x - (w * self.sprite.pivot.x * xf),
-			self.transform.globalPosition.y - (h * self.sprite.pivot.y * yf), self.transform.globalRotation, xf, yf)
+		--love.graphics.setColor(self.colour:Unpack())
+
+		--love.graphics.draw(self.sprite.image.source, self.quad, 
+		--	self.transform.globalPosition.x,
+		--	self.transform.globalPosition.y, self.transform.globalRotation, xf, yf, w * self.sprite.pivot.x, h * self.sprite.pivot.y)
+		
+		self.batchid = self.sprite:Render(self.batchid, self.quad, 
+			self.transform.globalPosition.x, 
+			self.transform.globalPosition.y, 
+			self.transform.globalRotation,
+			xf, yf, w * self.sprite.pivot.x, h * self.sprite.pivot.y, self.colour)
 	end
 end
