@@ -64,10 +64,11 @@ function Class:Render()
 		love.graphics.line(0, -100, 0, 100)
 
 		love.graphics.setColor(255, 255, 255, 255)
+		
+		--Sprite("resources/sprites/hero.png"):FinishBatch()
+		
 		SendMessage("Render", { "Camera" })
-
-		love.graphics.draw(Sprite("resources/sprites/hero.png").batch)
-
+  
 		if Camera.main == self then
 			SendMessage("OnDrawGizmos")
 		end
@@ -86,10 +87,10 @@ function Class:Render()
 		love.graphics.line(0, -100, 0, 100)
 
 		love.graphics.setColor(255, 255, 255, 255)
+		
 		SendMessage("Render", { "Camera" })
-
-		love.graphics.draw(Sprite("resources/sprites/hero.png").batch)
-
+		Sprite("resources/sprites/hero.png"):FinishBatch()
+		
 		if Camera.main == self then
 			SendMessage("OnDrawGizmos")
 		end

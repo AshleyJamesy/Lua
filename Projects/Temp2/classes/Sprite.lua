@@ -6,7 +6,11 @@ function Class:NewAsset(path)
 	self.frames = {}
 	self.pivot 	= Vector2(0.5, 0.5)
 	self.animations = {}
-	self.batch = love.graphics.newSpriteBatch(self.image.source, 1000)
+	--self.batch = love.graphics.newSpriteBatch(self.image.source, 1000)
+	
+	self.previous  = 0
+	self.counter   = 0
+	self.index     = 0
 end
 
 function Class:LoadAsset(asset)
@@ -19,6 +23,10 @@ function Class:LoadAsset(asset)
 	for k, v in pairs(asset.animations) do
 		self.animations[k] = Animation(unpack(v))
 	end
+	
+	self.previous  = 0
+	self.counter   = 0
+	self.index     = 0
 end
 
 function Class:SaveAsset(asset)
@@ -57,26 +65,37 @@ function Class:GetAnimation(name)
 	return self.animations[name]
 end
 
-function Class:Render(id, quad, x, y, r, sx, sy, ox, oy, colour)
-	self.batch:setColor(colour:Unpack())
+function Class:Render(quad, x, y, r, sx, sy, ox, oy, colour)
 	if self.batch then
-		if id == -1 then
-			return self.batch:add(quad, x, y, r, sx, sy, ox, oy)
-		else
-			self.batch:set(id, quad, x, y, r, sx, sy, ox, oy)
-			return id
-		end
+	 self:BatchAdd(quad, x, y, r, sx, sy, ox, oy, colour)
 	else
+	 love.graphics.setColor(colour:Unpack())
 		love.graphics.draw(self.image.source, quad, x, y, r, sx, sy, ox, oy)
 	end
-	
-	return -1
 end
 
-function Class:BatchAdd()
-	
+function Class:FinishBatch()
+    love.graphics.draw(self.batch)
+    
+    if self.counter < self.previous then
+        self.batch:clear()
+        self.previous = 0
+    else
+        self.previous = self.counter
+    end
+    
+    self.index = 0
 end
 
-function Class:BatchClear()
-	self.batch:clear()
+function Class:BatchAdd(quad, x, y, r, sx, sy, ox, oy, colour)
+    self.batch:setColor(colour:Unpack())
+    
+    self.index   = self.index + 1
+    self.counter = self.index
+    
+    if self.index > self.previous then
+        self.batch:add(quad, x, y, r, sx, sy, ox, oy)
+    else
+        self.batch:set(self.index, quad, x, y, r, sx, sy, ox, oy)
+    end
 end

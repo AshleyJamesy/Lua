@@ -14,7 +14,7 @@ include("source/")
 
 class.Load()
 
-print(line_total)
+--print(line_total)
 
 local errors = {}
 function Call(method, ...)
@@ -130,8 +130,11 @@ function love.load()
     local o = GameObject()
     o:AddComponent("Camera")
 
-    for i = 1, 1 do
-        hook.Call("KeyPressed", "e")
+    for i = 1, 1000 do
+        local o = scene:Create(math.random () * 500 - 250, math.random () * 500 - 250)
+        o.transform.scale:Set(4, 4)
+        o:AddComponent("SpriteRenderer", "resources/sprites/hero.png")
+        o:AddComponent("Player")
     end
 end
 
@@ -152,12 +155,12 @@ function love.draw()
 
     love.graphics.setColor(255, 255, 255, 255)
     if Camera.main then
-        love.graphics.print(love.timer.getFPS())
+        love.graphics.print(love.timer.getFPS(),0,0,0, 3, 3)
     else
         love.graphics.printf("No Main Camera", 0, love.graphics.getHeight() * 0.5, love.graphics.getWidth(), "center")
     end
 
-    love.graphics.draw(a:GetComponent("Camera").canvas.source, 0, 0, 0, 0.3, 0.3)
+    --love.graphics.draw(a:GetComponent("Camera").canvas.source, 0, 0, 0, 0.3, 0.3)
 end
 
 --EVENTS
@@ -247,6 +250,10 @@ end
 function love.touchpressed(id, x, y, dx, dy, pressure)
     Call("TouchPressed", id, x, y, dx, dy, pressure)
     hook.Call("TouchPressed", id, x, y, dx, dy, pressure)
+
+    local o = scene:Create(Camera.main:ToWorld(x,y))
+        o.transform.scale:Set(4, 4)
+        o:AddComponent("SpriteRenderer", "resources/sprites/hero.png")
 end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)

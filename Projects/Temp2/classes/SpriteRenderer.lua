@@ -108,7 +108,7 @@ function Class:Render()
 		--	self.transform.globalPosition.x,
 		--	self.transform.globalPosition.y, self.transform.globalRotation, xf, yf, w * self.sprite.pivot.x, h * self.sprite.pivot.y)
 		
-		self.batchid = self.sprite:Render(self.batchid, self.quad, 
+		self.sprite:Render(self.quad, 
 			self.transform.globalPosition.x, 
 			self.transform.globalPosition.y, 
 			self.transform.globalRotation,
