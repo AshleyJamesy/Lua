@@ -218,6 +218,16 @@ function Class:Paint()
 		love.graphics.push()
 		love.graphics.rotate(self.rotation)
 
+		self.rects.global.x = self.rects.native.x
+		self.rects.global.y = self.rects.native.y
+		self.rects.global.w = self.rects.native.w
+		self.rects.global.h = self.rects.native.h
+
+		if self.parent then
+			self.rects.global.x = self.parent.rects.padding.x + self.rects.native.x
+			self.rects.global.y = self.parent.rects.padding.y + self.rects.native.y
+		end
+		
 		self:Draw(self.rects.global.x, self.rects.global.y, self.rects.global.w, self.rects.global.h)
 
 		for key, element in pairs(self.children) do

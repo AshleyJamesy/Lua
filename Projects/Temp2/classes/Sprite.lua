@@ -19,7 +19,7 @@ function Class:LoadAsset(asset)
 	self.pivot 	= Vector2(asset.pivot.x, asset.pivot.y)
 	self.animations = {}
 	self.batch = love.graphics.newSpriteBatch(self.image.source, 1000)
-
+	
 	for k, v in pairs(asset.animations) do
 		self.animations[k] = Animation(unpack(v))
 	end

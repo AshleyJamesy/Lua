@@ -23,7 +23,6 @@ function Class:AddComponent(name, ...)
 	local c = class.GetClass(name)
 	
 	if c and c.IsComponent then
-
 		if c.__limit == nil or c.__limit > 0 then
 			local j = 0
 			for i = 1, #self.components do
@@ -41,12 +40,10 @@ function Class:AddComponent(name, ...)
 			instance.gameObject = self
 			instance.transform  = self.transform
 			
-			if instance.IsMonoBehaviour then
-				instance:Awake(...)
-				instance:Start(...)
-				instance:Enable()
-			end
-
+			instance:Call("Awake")
+			instance:Call("Start")
+			instance:Call("Enable")
+			
 			self.components[#self.components + 1] = instance
 		end
 	end

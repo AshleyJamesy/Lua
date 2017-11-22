@@ -1,4 +1,4 @@
-local Class = class.NewClass("Canvas", "UIElement")
+local Class = class.NewClass("UICanvas", "UIElement")
 
 function Class:New(w, h)
 	Class.Base.New(self)
@@ -18,7 +18,7 @@ end
 
 function Class:Render()
 	love.graphics.setCanvas(self.canvas)
-	love.graphics.clear(0,0,0,0)
+	love.graphics.clear(self.colour.r, self.colour.g, self.colour.b, self.colour.a)
 	
 	self:Paint()
 	

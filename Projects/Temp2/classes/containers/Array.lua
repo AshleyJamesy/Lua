@@ -4,3 +4,7 @@ Class.__mode = "kv"
 function Class:New(t)
 	return t and setmetatable(t, Class) or nil
 end
+
+function Class:Insert(index, value)
+
+end

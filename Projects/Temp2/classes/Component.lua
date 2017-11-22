@@ -1,15 +1,14 @@
 local Class 	= class.NewClass("Component", "Object")
 Class.__limit 	= 0
 Class.Components = {}
+Class.proxy = setmetatable({}, Class)
 
 function Class:New(gameObject)
 	Class:Base().New(self)
 	
-	self.gameObject = gameObject
-
-	local typename = self:Type()
+	self.gameObject = gameObject or false
 	
-	--Batching
+	local typename = self:Type()
 	if not Class.Components[typename] then
 		Class.Components[typename] = {}
 	end
@@ -39,6 +38,14 @@ end
 
 function Class:SendMessage(method, require, ...)
 	self.gameObject:SendMessage(method, require, ...)
+end
+
+function Class:Call(method, ...)
+	if self[method] then
+		return self[method](...)
+	end
+
+	return nil
 end
 
 --Quicker to check for this function than loop through types

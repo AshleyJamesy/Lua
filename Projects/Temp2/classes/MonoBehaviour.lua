@@ -12,12 +12,9 @@ function Class:Disable()
 	self:OnDisable()
 end
 
---Virtual Functions
-function Class:Awake()			end
-function Class:Start()			end
-function Class:OnEnable()		end
-function Class:OnDisable()		end
-function Class:OnDestroy()		end
+function Class:Update()
+
+end
 
 --Quicker to check for this function than loop through type
 function Class:IsMonoBehaviour()

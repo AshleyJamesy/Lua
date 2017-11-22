@@ -8,6 +8,8 @@ Class.__typename 			= "Class"
 Class.__type  				= { "Class" }
 Class.__loaded 				= true
 
+--Class.__readOnly 			= true
+
 local function inherit(n, b)
 	for k, v in pairs(b) do
 		if rawget(n, k) then
@@ -30,10 +32,6 @@ function Class:__call(...)
 	
 	local instance = setmetatable({}, self)
 	
-	if instance.__Setup then
-		instance:__Setup()
-	end
-
 	return instance:New(...) or instance
 end
 
@@ -118,9 +116,18 @@ function NewClass(name, base, ...)
 	]]
 
 	n.__index = function (t, k)
-		return rawget(t,k) or n[k]
+		return rawget(t, k) or n[k]
 	end
 
+	n.__call = function(t, ...)
+		local x = {}
+		for k, v in pairs(t) do
+			x[k] = v
+		end
+
+		return setmetatable(x, n)
+	end
+	
 	n.__typename 	= name
 	n.__type 		= table.Clone(b.__type)
 
@@ -167,6 +174,8 @@ function LoadClass(n)
 			else
 				LoadClass(b)
 			end
+
+			n.__readOnly = b.__readOnly or false
 
 			n.__type = table.Copy(b.__type)
 			

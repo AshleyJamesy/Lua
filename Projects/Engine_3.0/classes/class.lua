@@ -82,6 +82,7 @@ function NewClass(name, base)
 	n.__call				= Class.__call
 	n.__tostring			= Class.__tostring
 	n.__type				= table.Copy(b.__type)
+	
 	n.Base 					= b
 	
 	if base and b == Class and base ~= "Class" then
