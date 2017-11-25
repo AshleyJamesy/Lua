@@ -149,19 +149,8 @@ function love.load(args)
 	
 	hook.Call("Start")
 
-	canvas = UICanvas()
-
-	local input = UIInputField(canvas)
-	input.rects.native:Set(100, 100, 100, 18)
-
-	local button = UIButton(canvas)
-	button.rects.native:Set(300, 300, 100, 30)
-
-	button.OnPressEvent = button.OnPressEvent + function(object, x, y, istouch) 
-		input:Clear()
-	end
-
-	canvas:RePaint()
+	IMGUI:SetNextWindowPosition(0, 0)
+	IMGUI:SetNextWindowSize(500, 500)
 end
 
 function love.fixedUpdate(dt)
@@ -176,6 +165,7 @@ function love.update(dt)
 	hook.Call("LateUpdate")
 end
 
+local v = 100.0
 function love.draw()
 	hook.Call("OnPreCull")				--Called before the camera culls the scene. Culling determines which objects are visible to the camera. OnPreCull is called just before culling takes place.
 	hook.Call("OnBecameVisible")		--Called when an object becomes visible/invisible to any camera.
@@ -189,10 +179,13 @@ function love.draw()
 	hook.Call("OnDrawGizmos")			--Used for drawing Gizmos in the scene view for visualisation purposes.
 	hook.Call("OnGUI")					--Called multiple times per frame in response to GUI events. The Layout and Repaint events are processed first, followed by a Layout and keyboard/mouse event for each input event.
 
-	canvas:RePaint()
-	canvas:Render()
+	IMGUI:Begin()
 
-	love.graphics.print(love.timer.getFPS(), 0, 0, 0, 1, 1)
+	IMGUI:Button("LineGraph Test", 100, 50)
+	v = IMGUI:Slider("test", v, 0, 1000)
+
+	IMGUI:End()
+	IMGUI:Render()
 end
 
 function love.directorydropped(path)
