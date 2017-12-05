@@ -1,5 +1,6 @@
 local Class = class.NewClass("SortingLayer")
 
-function Class:New()
-	
+function Class:New(id, name)
+	self.id 	= id
+	self.name 	= name
 end

@@ -1,9 +1,9 @@
 local Class = class.NewClass("Renderer", "Component")
 
-function Class:New()
-	Class:Base().New(self)
+function Class:New(gameObject)
+	Class:Base().New(self, gameObject)
 
-	self.bounds 			= nil
+	self.bounds 			= Rect(0,0,0,0)
 	self.enabled 			= false
 	self.isVisible 			= false
 	self.sortingLayerID 	= 0
@@ -11,10 +11,12 @@ function Class:New()
 	self.sortingOrder 		= 0
 end
 
-function Class:OnBecameInvisible()
-
+--OnBecameInvisible is called when the object is no longer visible by any camera.
+function Class:OnBecameInvisible(camera)
+	
 end
 
-function Class:OnBecameVisible()
+--OnBecameVisible is called when the object became visible by any camera.
+function Class:OnBecameVisible(camera)
 	
 end

@@ -6,8 +6,8 @@ SpriteDrawMode = enum{
 	"Tiled"		--The SpriteRenderer will render the sprite as a 9-slice image where the corners will remain constant and the other sections will tile.
 }
 
-function Class:New()
-	Class:Base().New(self)
+function Class:New(gameObject)
+	Class:Base().New(self, gameObject)
 
 	self.colour 	= Colour(255,255,255,255)
 	self.drawMode 	= SpriteDrawMode.None

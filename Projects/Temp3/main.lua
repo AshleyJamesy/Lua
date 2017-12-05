@@ -1,3 +1,5 @@
+FFI = require("ffi")
+
 include("extensions/")
 include("util/")
 include("library/class")
@@ -8,184 +10,74 @@ include("source/")
 
 class.Load()
 
---Order of Execution
---Reset
+function CallFunctionOnType(typename, method, ...)
+	local batch = SceneManager:GetActiveScene().__objects[typename]
+	if batch then
+		local f = nil
+		for _, component in pairs(batch) do
+			if f == nil then
+				f = component[method]
 
---Awake
---OnEnable
---Start
+				if f == nil or type(f) ~= "function" then
+					break
+				end
+			end
 
---FixedUpdate
---INTERNAL PHYSICS UPDATE
---OnTrigger
---OnCollision
---yield WaitForFixedUpdate
-
---Inputs
-
---Update
---yield null
---yield WaitForSeconds
---yield XXX
---yield StartCoroutine
---INTERNAL ANIMATION UPDATE
---LateUpdate
-
---OnWillRenderObject
---OnPreCull
---OnBecameVisible
---OnBecameInvisible
---OnPreRender
---OnRenderObject
---OnPostRender
---OnRenderImage
-
---OnDrawGizmos
-
---OnGUI
-
---yield WaitForEndOfFrame
---ApplicationPause
-
---OnDisable
-
---OnApplicationQuit
-
---OnDisable
-
---OnDestroy
-
---TODO:
---[[
-	Fix Yielding Execution Order
-]]
-
---[[
-function moveHandle(x, y, w, h)
-	local handle = UIButton(p)
-	handle.rects.native.x = x
-	handle.rects.native.y = y
-	handle.rects.native.w = w
-	handle.rects.native.h = h
-
-	handle.OnPressEvent = handle.OnPressEvent + function(object, x, y, istouch) 
-		if not object.__offset then
-			object.__offset = Vector2(0,0)
+			if not component.enabled or component.enabled == true then
+				f(component, ...)
+			end
 		end
-
-		object.__offset:Set(object.rects.global.x - x + object.rects.global.w * object.anchor.x, object.rects.global.y - y + object.rects.global.h * object.anchor.y)
-		
-		object:RePaint()
 	end
-
-	handle.OnDragEvent = handle.OnDragEvent + function(object, x, y, istouch) 
-		object.parent.rects.native.x = x + object.__offset.x
-		object.parent.rects.native.y = y + object.__offset.y
-
-		object:RePaint()
-	end
-
-	handle.OnReleaseEvent = handle.OnReleaseEvent + function(object, x, y, istouch) 
-		object.parent.rects.native.x = math.clamp(object.parent.rects.global.x, 0, object.root.rects.native.w - object.parent.rects.native.w)
-		object.parent.rects.native.y = math.clamp(object.parent.rects.global.y, 0, object.root.rects.native.h - object.rects.native.h)
-
-		object:RePaint()
-	end
-
-	handle.OnHoverEnterEvent = handle.OnHoverEnterEvent + function(object, x, y)
-		local cursor = love.mouse.getSystemCursor("hand")
-		love.mouse.setCursor(cursor)
-	end
-
-	handle.OnHoverExitEvent = handle.OnHoverExitEvent + function(object, x, y)
-		local cursor = love.mouse.getSystemCursor("arrow")
-		love.mouse.setCursor(cursor)
-	end
-
-	return handle
 end
 
-function sizeHandle(x, y, w, h)
-	local handle = UIButton(p)
-	handle.rects.native.x = x
-	handle.rects.native.y = y
-	handle.rects.native.w = w
-	handle.rects.native.h = h
-
-	handle.OnDragEvent = handle.OnDragEvent + function(object, x, y, istouch) 
-		object.parent.rects.native.h 	= math.clamp(y - object.parent.rects.global.y, 10, math.huge)
-		object.rects.native.y = object.parent.rects.native.h - object.rects.native.h
-
-		object:RePaint()
-	end
-
-	handle.OnReleaseEvent = handle.OnHoverExitEvent + function(object, x, y)
-		if not object.__drag then
-			local cursor = love.mouse.getSystemCursor("arrow")
-			love.mouse.setCursor(cursor)
+function CallFunctionOnAll(method, ignore, ...)
+	for name, batch in pairs(SceneManager:GetActiveScene().__objects) do
+		if ignore == nil then
+			CallFunctionOnType(name, method, ...)
+		else
+			if table.HasValue(ignore, name) then
+			else
+				CallFunctionOnType(name, method, ...)
+			end
 		end
 	end
-
-	handle.OnHoverEnterEvent = handle.OnHoverEnterEvent + function(object, x, y)
-		local cursor = love.mouse.getSystemCursor("sizens")
-		love.mouse.setCursor(cursor)
-	end
-
-	handle.OnHoverExitEvent = handle.OnHoverExitEvent + function(object, x, y)
-		if not object.__drag then
-			local cursor = love.mouse.getSystemCursor("arrow")
-			love.mouse.setCursor(cursor)
-		end
-	end
-
-	return handle
 end
-]]
 
 function love.load(args)
-	hook.Call("Awake")
-	hook.Call("OnEnable")
-	hook.Call("OnLevelWasLoaded")
+	--hook.Call("Awake")
+	--hook.Call("OnEnable")
+	--hook.Call("OnLevelWasLoaded")
 	
-	hook.Call("Start")
+	--hook.Call("Start")
 
-	IMGUI:SetNextWindowPosition(0, 0)
-	IMGUI:SetNextWindowSize(500, 500)
+	SceneManager:GetActiveScene()
+
+	local a = GameObject()
+	a:AddComponent("Camera").zoom:Set(5, 5)
 end
 
-function love.fixedUpdate(dt)
-	hook.Call("FixedUpdate")
-end
+function love.update()
+	SceneManager:GetActiveScene().__world:update(Time.Delta)
+	
+	for k, v in pairs(SceneManager:GetActiveScene().__roots) do
+		v:Update()
+	end
 
-function love.update(dt)
+	CallFunctionOnAll("Update", { "Transform" })
 	hook.Call("Update")
-	
-	WaitForSecondsRealtime:DoYields()
 
+	CallFunctionOnAll("LateUpdate")
 	hook.Call("LateUpdate")
 end
 
-local v = 100.0
 function love.draw()
-	hook.Call("OnPreCull")				--Called before the camera culls the scene. Culling determines which objects are visible to the camera. OnPreCull is called just before culling takes place.
-	hook.Call("OnBecameVisible")		--Called when an object becomes visible/invisible to any camera.
-	hook.Call("OnBecameInvisible")		--
-	hook.Call("OnWillRenderObject")		--Called once for each camera if the object is visible.
-	hook.Call("PreRender")				--Called before the camera starts rendering the scene.
-	hook.Call("OnRenderObject")			--Called after all regular scene rendering is done.
-	hook.Call("OnPostRender")			--Called after a camera finishes rendering the scene.
-	hook.Call("OnRenderImage")			--Called after scene rendering is complete to allow post-processing of the image
+	CallFunctionOnType("Camera", "Render")
+	hook.Call("OnRenderImage") 				--Called after scene rendering is complete to allow post-processing of the image
 
-	hook.Call("OnDrawGizmos")			--Used for drawing Gizmos in the scene view for visualisation purposes.
-	hook.Call("OnGUI")					--Called multiple times per frame in response to GUI events. The Layout and Repaint events are processed first, followed by a Layout and keyboard/mouse event for each input event.
+	love.graphics.draw(Camera.main.texture, 0, 0, 0, 1, 1)
 
-	IMGUI:Begin()
-
-	IMGUI:Button("LineGraph Test", 100, 50)
-	v = IMGUI:Slider("test", v, 0, 1000)
-
-	IMGUI:End()
-	IMGUI:Render()
+	love.graphics.print("FPS: ".. tostring(love.timer.getFPS()), 10, 10)
+	love.graphics.print("Body Count: ".. tostring(SceneManager:GetActiveScene().__world:getBodyCount()), 10, 25)
 end
 
 function love.directorydropped(path)
@@ -212,8 +104,13 @@ function love.lowmemory()
 	hook.Call("LowMemory")
 end
 
+DEBUG = true
 function love.keypressed(key, scancode, isrepeat)
 	hook.Call("KeyPressed", key, scancode, isrepeat)
+
+	if key == "space" then
+		DEBUG = not DEBUG
+	end
 end
 
 function love.keyreleased(key, scancode)
@@ -230,6 +127,13 @@ end
 
 function love.mousepressed(x, y, button, istouch)
 	hook.Call("MousePressed", x, y, button, istouch)
+	
+	if button == 2 then
+		local object = GameObject(Camera.main:ScreenToWorld(x, y))
+		object:AddComponent("RigidBody").mass = 1000
+		object:AddFixture(love.physics.newRectangleShape(0, 0, 50, 50, 0), 1)
+		object:AddComponent("Player")
+	end
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)

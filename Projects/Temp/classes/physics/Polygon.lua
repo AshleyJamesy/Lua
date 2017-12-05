@@ -148,7 +148,6 @@ function Class.Overlapping(a, b)
 	end
 
 	--Optimised
-	--[[
 	if #a.normals == #b.normals then
 		normalsA = a.normals
 		normalsB = b.normals
@@ -223,9 +222,9 @@ function Class.Overlapping(a, b)
 			end
 		end
 	end
-	]]
 
 	--UnOptimised
+	--[[
 	for i = 1, #a.normals * 0.5 do
 		local index = (2 * i) - (2 - 1)
 
@@ -259,6 +258,7 @@ function Class.Overlapping(a, b)
 			end
 		end
 	end
+	]]
 
 	return true, mx, my
 end

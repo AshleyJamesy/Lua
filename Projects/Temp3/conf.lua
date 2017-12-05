@@ -58,12 +58,13 @@ function include(file)
 end
 
 Time = {}
-Time.Delta 					= 0.0
+Time.Elapsed 				= 0.0
+Time.MaxFrameRate 			= 60
 Time.TimeScale 				= 1.0
+Time.Delta 					= 0.0
 Time.FixedTimeStep 			= 0.02
 Time.MaximumAllowedTimeStep = 0.3333333
 Time.Alpha 					= 1.0
-Time.Elapsed 				= 0.0
 
 function love.run()
 	if love.math then
@@ -95,13 +96,12 @@ function love.run()
 				love.handlers[name](a,b,c,d,e,f)
 			end
 		end
-		
-		local delta     = 0.0
+
 		local frameTime = 0.0
 		-- Update dt, as we'll be passing it to update
 		if love.timer then
 			love.timer.step()
-			Time.Delta  = love.timer.getDelta()
+			Time.Delta  = love.timer.getDelta() * Time.TimeScale
 			frameTime   = love.timer.getDelta()
 		end
 		
@@ -113,7 +113,7 @@ function love.run()
 			accumulator = accumulator + frameTime
 			
 			while accumulator >= Time.FixedTimeStep do
-				love.fixedupdate(Time.FixedTimeStep)
+				love.fixedupdate()
 				accumulator = accumulator - Time.FixedTimeStep
 			end
 			
@@ -121,7 +121,7 @@ function love.run()
 		end
 
 		if love.update then 
-			love.update(Time.Delta)
+			love.update()
 		end
 
 		Time.Elapsed = Time.Elapsed + frameTime
@@ -132,7 +132,7 @@ function love.run()
 				love.graphics.origin()
 				
 				if love.draw then 
-					love.draw()
+					love.draw(Time.Alpha)
 				end
 				
 				love.graphics.present()
@@ -140,7 +140,9 @@ function love.run()
 		end
 		
 		if love.timer then
-			love.timer.sleep(0)
+			--if Time.MaxFrameRate > 0 then
+			--	love.timer.sleep((1 / Time.MaxFrameRate) - accumulator)
+			--end
 		end
 	end
 end
@@ -172,15 +174,15 @@ function love.conf(t)
 	t.window.y 				= nil           -- The y-coordinate of the window's position in the specified display (number)
 	
 	--Modules
-	t.modules.audio 		= true          -- Enable the audio module (boolean)
-	t.modules.event 		= true          -- Enable the event module (boolean)
-	t.modules.graphics 		= true          -- Enable the graphics module (boolean)
+	t.modules.audio 		= true			-- Enable the audio module (boolean)
+	t.modules.event 		= true			-- Enable the event module (boolean)
+	t.modules.graphics 		= true			-- Enable the graphics module (boolean)
 	t.modules.image 		= true          -- Enable the image module (boolean)
 	t.modules.joystick 		= true          -- Enable the joystick module (boolean)
 	t.modules.keyboard 		= true          -- Enable the keyboard module (boolean)
 	t.modules.math 			= true          -- Enable the math module (boolean)
 	t.modules.mouse 		= true          -- Enable the mouse module (boolean)
-	t.modules.physics 		= false         -- Enable the physics module (boolean)
+	t.modules.physics 		= true         -- Enable the physics module (boolean)
 	t.modules.sound 		= true          -- Enable the sound module (boolean)
 	t.modules.system 		= true          -- Enable the system module (boolean)
 	t.modules.timer 		= true          -- Enable the timer module (boolean), Disabling it will result 0 delta time in love.update

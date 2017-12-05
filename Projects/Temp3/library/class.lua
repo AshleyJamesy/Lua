@@ -33,7 +33,7 @@ function Class:__call(...)
 	--end
 	
 	local instance = setmetatable({}, self)
-	
+
 	return instance:New(...) or instance
 end
 
@@ -120,7 +120,7 @@ function NewClass(name, base, ...)
 	n.__index = function (t, k)
 		return rawget(t, k) or n[k]
 	end
-
+	
 	n.__call = function(t, ...)
 		return setmetatable(n.__copy(t), n)
 	end
@@ -185,6 +185,12 @@ function Load()
 	end
 
 	hook.Call("InitaliseClass")
+end
+
+function PrintClasses()
+	for k, v in pairs(Classes) do
+		print(k, v)
+	end
 end
 
 function GetClass(name)

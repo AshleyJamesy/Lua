@@ -4,9 +4,9 @@ Class.sceneCount 	= 0
 Class.activeScene 	= nil
 
 --Events
-Class.activeSceneChanged 	= Delegate()
-Class.sceneLoaded 			= Delegate()
-Class.sceneUnLoaded 		= Delegate()
+Class.activeSceneChanged 	= hook.CreateHookTable()
+Class.sceneLoaded 			= hook.CreateHookTable()
+Class.sceneUnLoaded 		= hook.CreateHookTable()
 
 OpenSceneMode = enum{
 	"Single", 					--Closes all current open scenes and loads a scene.
@@ -20,6 +20,10 @@ end
 
 --The currently active Scene is the Scene which will be used as the target for new GameObjects instantiated by scripts
 function Class:GetActiveScene()
+	if self.activeScene == nil then
+		self.activeScene = Scene("scene")
+	end
+	
 	return self.activeScene
 end
 
@@ -29,7 +33,9 @@ end
 
 function Class:GetSceneByName(name)
 	for k, v in pairs(self.scenes) do
-		if v.name == name then return v end
+		if v.name == name then 
+			return v
+		end
 	end
 end
 

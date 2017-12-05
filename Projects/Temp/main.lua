@@ -59,7 +59,7 @@ function love.update(dt)
 					local objectB = bucket[j]
 
 					if objectA ~= objectB and objectA.group ~= objectB.group then
-						local result, mx, my = Collision.Overlapping(objectA, objectB)
+						local result, mx, my = Polygon.Overlapping(objectA, objectB)
 						if result then
 							objectA.x = objectA.x - mx * 0.5
 							objectA.y = objectA.y - my * 0.5
@@ -120,6 +120,9 @@ function love.draw()
 	for k, v in pairs(spartial.list) do
 		v:Draw(false)
 	end
+
+	love.graphics.print("FPS: ".. tostring(love.timer.getFPS()), 10, 10)
+	love.graphics.print("Count:" .. tostring(#spartial.list), 10, 25)
 end
 
 function love.keypressed(key, scancode, isrepeat)

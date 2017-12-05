@@ -5,15 +5,15 @@ Class.activeScene 		= nil
 Class.loadedSceneCount 	= {}
 
 --Events
-Class.activeSceneChanged 	= Delegate()
-Class.sceneLoaded 			= Delegate()
-Class.sceneUnLoaded 		= Delegate()
-Class.newSceneCreated 		= Delegate()
-Class.newSceneClosed 		= Delegate()
-Class.newSceneClosing 		= Delegate()
-Class.newSceneOpened 		= Delegate()
-Class.newSceneSaved 		= Delegate()
-Class.newSceneSaving 		= Delegate()
+Class.activeSceneChanged 	= hook.CreateHookTable()
+Class.sceneLoaded 			= hook.CreateHookTable()
+Class.sceneUnLoaded 		= hook.CreateHookTable()
+Class.newSceneCreated 		= hook.CreateHookTable()
+Class.newSceneClosed 		= hook.CreateHookTable()
+Class.newSceneClosing 		= hook.CreateHookTable()
+Class.newSceneOpened 		= hook.CreateHookTable()
+Class.newSceneSaved 		= hook.CreateHookTable()
+Class.newSceneSaving 		= hook.CreateHookTable()
 
 NewSceneSetup = enum{
 	"EmptyScene", 			--No game objects are added to the new scene.

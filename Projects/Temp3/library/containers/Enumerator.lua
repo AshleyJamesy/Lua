@@ -5,9 +5,7 @@ function enum(t)
 end
 
 function Class:New(t)
-	self.values = {}
-
 	for k, v in pairs(t) do
-		self.values[v] = k
+		self[v] = k
 	end
 end

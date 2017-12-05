@@ -1,4 +1,5 @@
 local Class = class.NewClass("Vector2")
+Class.__ctype = true
 
 --Constructor
 function Class:New(x, y)
@@ -89,7 +90,7 @@ function Class.Lerp(a, b, t)
 end
 
 function Class.Rotation(r)
-	return class.Quick("Vector2", {x = -math.sin(r), y = math.cos(r)})
+	return class.Quick("Vector2", {x = math.sin(r), y = -math.cos(r)})
 end
 
 function Class:ToAngle()
@@ -105,3 +106,4 @@ end
 function Class:Unpack()
 	return self.x, self.y
 end
+

@@ -1,11 +1,13 @@
 local Class = class.NewClass("Component", "Object")
 
-function Class:New()
-	Class:Base().New(self)
-
-	self.gameObject = nil
+function Class:New(gameObject)
+	Class:Base().New(self, gameObject.__id)
+	
 	self.tag 		= ""
-	self.transform 	= nil
+	
+	--Set by GameObject:AddComponent
+	--self.gameObject 	= gameObject
+	--self.transform 	= gameObject and gameObject.transform or nil
 end
 
 function Class:BroadcastMessage(methodName, reciever, ...)
@@ -46,4 +48,8 @@ end
 
 function Class:SendMessageUpward(methodName, reciever, ...)
 	
+end
+
+function Class:IsComponent()
+	return true
 end
