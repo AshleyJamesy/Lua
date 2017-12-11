@@ -29,6 +29,15 @@ function Class:Size()
 	return class.Quick("Vector2", { self.w, self.h })
 end
 
+function Class.Intersect(a, b)
+	if (a.x + a.w < b.x) then return false end
+	if (a.x > b.x + b.w) then return false end
+	if (a.y + a.h < b.y) then return false end
+	if (a.y > b.y + b.h) then return false end
+
+	return true
+end
+
 function Class:ToString()
 	return self.x .. ", " .. self.y .. ", " .. self.w .. ", " .. self.h
 end

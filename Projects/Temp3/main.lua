@@ -14,19 +14,42 @@ function CallFunctionOnType(typename, method, ...)
 	local batch = SceneManager:GetActiveScene().__objects[typename]
 	if batch then
 		local f = nil
-		for _, component in pairs(batch) do
+
+		local index, component = next(batch, nil)
+		while index do
 			if f == nil then
 				f = component[method]
 
 				if f == nil or type(f) ~= "function" then
+					f = nil
 					break
 				end
 			end
 
-			if not component.enabled or component.enabled == true then
+			if component.enabled == nil or component.enabled == true then
+				f(component, ...)
+			end
+
+			index, component = next(batch, index)
+		end
+		
+		--[[
+		for k, component in pairs(batch) do
+			if f == nil then
+				f = component[method]
+
+				if f == nil or type(f) ~= "function" then
+					f = nil
+					break
+				end
+			end
+
+			if component.enabled == nil or component.enabled == true then
 				f(component, ...)
 			end
 		end
+		]]
+		
 	end
 end
 
@@ -52,14 +75,41 @@ function love.load(args)
 
 	SceneManager:GetActiveScene()
 
-	local a = GameObject()
-	a:AddComponent("Camera").zoom:Set(5, 5)
+	local object = GameObject()
+	local camera = object:AddComponent("Camera")
+	object:AddComponent("FlyCamera")
+	object:AddComponent("Player")
+	
+	camera.texture = nil
 end
 
 function love.update()
-	SceneManager:GetActiveScene().__world:update(Time.Delta)
+	local scene = SceneManager:GetActiveScene()
 	
-	for k, v in pairs(SceneManager:GetActiveScene().__roots) do
+	Input.Update()
+
+	--[[
+	scene.__world:update(Time.Delta)
+	
+	for k, v in pairs(scene.__inactive) do
+		if scene.__objects[v.__typename] == nil then
+			scene.__objects[v.__typename] = {}
+		end
+
+		table.insert(scene.__objects[v.__typename], 1, v)
+
+		if v.IsMonoBehaviour then
+			v:Awake()
+			v:Start()
+			v:Enable()
+		end
+
+		v.enabled = true
+
+		table.remove(scene.__inactive, k)
+	end
+
+	for k, v in pairs(scene.__roots) do
 		v:Update()
 	end
 
@@ -68,16 +118,36 @@ function love.update()
 
 	CallFunctionOnAll("LateUpdate")
 	hook.Call("LateUpdate")
+	]]
+
+	hook.Call("Update")
+	scene:Update()
+	
+	hook.Call("LateUpdate")
+	scene:LateUpdate()
+	
+	Input.LateUpdate()
 end
 
 function love.draw()
+	local scene = SceneManager:GetActiveScene()
+
+	hook.Call("OnPreRender")
+
+	scene:Render()
+	
+	hook.Call("OnPostRender")
+	hook.Call("OnRenderImage")
+
+	--[[
 	CallFunctionOnType("Camera", "Render")
 	hook.Call("OnRenderImage") 				--Called after scene rendering is complete to allow post-processing of the image
 
-	love.graphics.draw(Camera.main.texture, 0, 0, 0, 1, 1)
+	--love.graphics.draw(Camera.main.texture, 0, 0, 0, 1, 1)
+	]]
 
-	love.graphics.print("FPS: ".. tostring(love.timer.getFPS()), 10, 10)
-	love.graphics.print("Body Count: ".. tostring(SceneManager:GetActiveScene().__world:getBodyCount()), 10, 25)
+	love.graphics.print("FPS: ".. 		tostring(love.timer.getFPS()), 10, 10)
+	love.graphics.print("Sprite Count: " .. tostring(scene.__objects["SpriteRenderer"] ~= nil and #scene.__objects["SpriteRenderer"] or 0), 10, 25)
 end
 
 function love.directorydropped(path)
@@ -104,13 +174,8 @@ function love.lowmemory()
 	hook.Call("LowMemory")
 end
 
-DEBUG = true
 function love.keypressed(key, scancode, isrepeat)
 	hook.Call("KeyPressed", key, scancode, isrepeat)
-
-	if key == "space" then
-		DEBUG = not DEBUG
-	end
 end
 
 function love.keyreleased(key, scancode)
@@ -127,13 +192,6 @@ end
 
 function love.mousepressed(x, y, button, istouch)
 	hook.Call("MousePressed", x, y, button, istouch)
-	
-	if button == 2 then
-		local object = GameObject(Camera.main:ScreenToWorld(x, y))
-		object:AddComponent("RigidBody").mass = 1000
-		object:AddFixture(love.physics.newRectangleShape(0, 0, 50, 50, 0), 1)
-		object:AddComponent("Player")
-	end
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)

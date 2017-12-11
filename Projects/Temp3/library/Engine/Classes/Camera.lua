@@ -20,18 +20,23 @@ function Class:New(gameObject)
 	self.cullingMask 		= {}
 	self.zoom 				= Vector2(1, 1)
 	self.texture 			= love.graphics.newCanvas()
+
+	self.bounds 			= Rect(0,0,0,0)
 end
 
 local ignore_table = { "Camera" }
 
 local function grid(camera)
-	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth()) * 0.5
-    local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight()) * 0.5
+	--[[
+	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth()) 	* 0.5
+    local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight()) 	* 0.5
 
 	love.graphics.setColor(255, 255, 255, 20)
-	local sx 	= 100 * camera.zoom.x
-	local sy 	= 100 * camera.zoom.y
+
+	local sx 	= 100
+	local sy 	= 100
 	local c 	= 0
+
 	for x = 0, (w * 2) / 100 do
 		c = (math.floor(camera.transform.globalPosition.x / sx) * sx) + (x * sx) - w
 		love.graphics.line(c, camera.transform.globalPosition.y - h, c, camera.transform.globalPosition.y + h)
@@ -39,6 +44,31 @@ local function grid(camera)
 		for y = 0, (h * 2) / 100 do
 			c = (math.floor(camera.transform.globalPosition.y / sy) * sy) + (y * sy) - h
 			love.graphics.line(camera.transform.globalPosition.x - w, c, camera.transform.globalPosition.x + w, c)
+		end
+	end
+	]]
+
+	love.graphics.setColor(150, 150, 150, 20)
+
+	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth())
+    local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight())
+
+    local zx = 100
+    local zy = 100
+
+    local ix = math.floor(w / zx)
+    local iy = math.floor(h / zy)
+    
+    local cx = (0 * zx) - (camera.transform.globalPosition.x % zx)
+    local cy = (0 * zy) - (camera.transform.globalPosition.y % zy) 
+
+	for x = 0, ix do
+		cx = (x * zx) - (camera.transform.globalPosition.x % zx)
+		love.graphics.line(cx, 0, cx, h)
+
+		for y = 0, iy do
+			cy = (y * zy) - (camera.transform.globalPosition.y % zy)
+			love.graphics.line(0, cy, w, cy)
 		end
 	end
 end
@@ -50,6 +80,8 @@ end
 		Render
 --]]
 function Class:Render()
+	self.bounds:Set(self.transform.globalPosition.x - 400, self.transform.globalPosition.y - 300, 800, 600)
+
 	--hook.Call("OnPreCull")			--Called before the camera culls the scene. Culling determines which objects are visible to the camera. OnPreCull is called just before culling takes place.
 	--hook.Call("OnBecameVisible")		--Called when an object becomes visible/invisible to any camera.
 	--hook.Call("OnBecameInvisible")	--Called when an object becomes visible/invisible to any camera.
@@ -58,9 +90,9 @@ function Class:Render()
 	--hook.Call("OnRenderObject")		--Called after all regular scene rendering is done.
 	--hook.Call("OnPostRender")			--Called after a camera finishes rendering the scene.
 	--hook.Call("OnRenderImage")		--Called after scene rendering is complete to allow post-processing of the image
-	
-	hook.Call("OnPreCull", self)
-	hook.Call("PreRender", self)
+
+	--hook.Call("OnPreCull", self)
+	--hook.Call("PreRender", self)
 	
 	love.graphics.push()
 	
@@ -77,14 +109,16 @@ function Class:Render()
 		love.graphics.setCanvas(self.texture)
 		love.graphics.clear(self.backgroundColour.r, self.backgroundColour.g, self.backgroundColour.b, self.backgroundColour.a)
 
-		--love.graphics.push()
-		--love.graphics.origin()
+		--Screen Space
+		love.graphics.push()
+		love.graphics.origin()
 
 		if self.cameraType == CameraType.SceneView then
+			self.transform.rotation = 0
 			grid(self)
 		end
 
-		--love.graphics.pop()
+		love.graphics.pop()
 
 		love.graphics.setColor(255, 255, 255, 255)
 
@@ -95,9 +129,16 @@ function Class:Render()
 	else
 		love.graphics.clear(self.backgroundColour.r, self.backgroundColour.g, self.backgroundColour.b, self.backgroundColour.a)
 
+		--Screen Space
+		love.graphics.push()
+		love.graphics.origin()
+
 		if self.cameraType == CameraType.SceneView then
+			self.transform.rotation = 0
 			grid(self)
 		end
+
+		love.graphics.pop()
 
 		love.graphics.setColor(255, 255, 255, 255)
 		
@@ -107,8 +148,10 @@ function Class:Render()
 
 	love.graphics.pop()
 
-	hook.Call("OnRenderObject", self)
-	hook.Call("OnPostRender", self)
+	CallFunctionOnAll("OnRenderObject", self)
+	CallFunctionOnAll("OnPostRender", self)
+
+	love.graphics.setColor(255, 255, 255, 255)
 end
 
 function Class:OnDrawGizmos(camera)

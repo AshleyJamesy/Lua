@@ -8,13 +8,8 @@ function Class:New(x, y)
 	self.isStatic			= false 	--EDITOR ONLY
 	self.layer 				= 0
 	self.scene 				= SceneManager:GetActiveScene()
-	self.__components 		= {}
+	self.components 		= {}
 	self.transform 			= self:AddComponent("Transform", x, y)
-	
-	self.trigger = false
-
-	self.__body = love.physics.newBody(self.scene.__world, self.transform.position.x, self.transform.position.y, "static")
-	self.__body:setUserData(self)
 end
 
 function Class:AddComponent(typename, ...)
@@ -23,12 +18,12 @@ function Class:AddComponent(typename, ...)
 	if c and c.IsComponent then
 		if c.__limit == nil or c.__limit > 0 then
 			local j = 0
-			for i = 1, #self.__components do
-				if typename == TypeOf(self.__components[i]) then
+			for i = 1, #self.components do
+				if typename == TypeOf(self.components[i]) then
 					j = j + 1
 					
 					if j >= c.__limit then
-						return self.__components[i]
+						return self.components[i]
 					end
 				end
 			end
@@ -40,30 +35,33 @@ function Class:AddComponent(typename, ...)
 			
 			c.New(instance, self, ...)
 			
-			if instance.IsMonoBehaviour then
-				instance:Awake()
-				instance:Start()
-				instance:Enable()
-			end
-			
-			self.__components[#self.__components + 1] = instance
+			--This is done in by the Scene
+			--if instance.IsMonoBehaviour then
+			--	instance:Awake()
+			--	instance:Start()
+			--	instance:Enable()
+			--end
+
+			--instance.enabled = true
+						
+			table.insert(self.components, 1, instance)
 		end
 	end
 	
-	return self.__components[#self.__components]
+	return self.components[1]
 end
 
 function Class:GetComponent(typename)
 	local c = class.GetClass(typename)
 	
 	if c and c.IsComponent then
-		for i = 1, #self.__components do
-			if typename == TypeOf(self.__components[i]) then
-				return self.__components[i]
+		for i = 1, #self.components do
+			if typename == TypeOf(self.components[i]) then
+				return self.components[i]
 			end
 		end
 	end
-
+	
 	return nil
 end
 
@@ -72,9 +70,9 @@ function Class:GetComponents(typename)
 	
 	local c = class.GetClass(typename)
 	if c and c.IsComponent then
-		for i = 1, #self.__components do
-			if typename == TypeOf(self.__components[i]) then
-				t[#t + 1] = self.__components[i]
+		for i = 1, #self.components do
+			if typename == TypeOf(self.components[i]) then
+				t[#t + 1] = self.components[i]
 			end
 		end
 	end
@@ -83,7 +81,7 @@ function Class:GetComponents(typename)
 end
 
 function Class:BroadcastMessage(method, ...)
-	for _, component in pairs(self.__components) do
+	for _, component in pairs(self.components) do
 		if component[method] then
 			component[method](component, ...)
 		end
@@ -95,29 +93,14 @@ function Class:BroadcastMessage(method, ...)
 end
 
 function Class:SendMessage(method, ...)
-	for _, component in pairs(self.__components) do
+	for _, component in pairs(self.components) do
 		if component[method] then
 			component[method](component, ...)
 		end
 	end
 end
 
-function Class:AddFixture(shape, density)
-	local fixture = love.physics.newFixture(self.__body, shape, density)
-	fixture:setSensor(self.trigger)
-	fixture:setUserData(self)
-	
-	return fixture
-end
-
-function Class:SetTrigger(bool)
-	self.trigger = bool
-	
-	for k, v in pairs(self.__body:getFixtureList()) do
-		v:setSensor(bool)
-	end
-end
-
+--[[
 function Class:Render()
 	if DEBUG then
 		love.graphics.setColor(0, 255, 0, 100)
@@ -138,3 +121,4 @@ function Class:Render()
 		love.graphics.setColor(255,255,255,255)
 	end
 end
+]]

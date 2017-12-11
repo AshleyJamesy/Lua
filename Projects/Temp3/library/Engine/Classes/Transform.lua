@@ -5,7 +5,7 @@ function Class:New(gameObject, x, y)
 	Class:Base().New(self, gameObject)
 	
 	self.parent 	= nil
-	gameObject.scene.__roots[self.__id] = self
+	gameObject.scene.__roots[self:GetInstanceID()] = self
 	
 	self.transform 	= self
 	
@@ -74,6 +74,8 @@ function Class:Update()
 		self.position.y = body:getY()
 		self.rotation 	= body:getAngle()
 	end
+	
+	self.globalScale:Set(self.scale.x, self.scale.y)
 	
 	if self.parent then
 		self.globalRotation = self.parent.globalRotation + self.rotation

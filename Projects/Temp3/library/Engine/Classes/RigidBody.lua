@@ -9,13 +9,14 @@ function Class:New(gameObject)
 	self.gravityScale 	= 1.0
 	self.isKinematic 	= false
 	
-	self.gameObject.__rigidBody = self
+	self.__body = love.physics.newBody(self.scene.__world, self.transform.globalPosition.x, self.transform.globalPosition.y, "static")
+	self.__body:setUserData(self)
 end
 
 function Class:ApplyForce(fx, fy)
-	self.gameObject.__body:applyForce(fx, fy)
+	self.__body.__body:applyForce(fx, fy)
 end
 
 function Class:ApplyForceAtPosition(fx, fy, x, y)
-	self.gameObject.__body:applyForce(fx, fy, x, y)
+	self.__body.__body:applyForce(fx, fy, x, y)
 end

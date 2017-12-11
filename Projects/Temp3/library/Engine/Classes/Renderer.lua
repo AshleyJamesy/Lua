@@ -6,8 +6,6 @@ function Class:New(gameObject)
 	self.bounds 			= Rect(0,0,0,0)
 	self.enabled 			= false
 	self.isVisible 			= false
-	self.sortingLayerID 	= 0
-	self.sortingLayerName 	= ""
 	self.sortingOrder 		= 0
 end
 

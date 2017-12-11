@@ -62,9 +62,10 @@ Time.Elapsed 				= 0.0
 Time.MaxFrameRate 			= 60
 Time.TimeScale 				= 1.0
 Time.Delta 					= 0.0
-Time.FixedTimeStep 			= 0.02
-Time.MaximumAllowedTimeStep = 0.3333333
+Time.FixedTimeStep 			= 0.016
+Time.MaximumAllowedTimeStep = 0.333333
 Time.Alpha 					= 1.0
+Time.Cycle 					= 0
 
 function love.run()
 	if love.math then
@@ -84,6 +85,8 @@ function love.run()
 
 	-- Main loop time.
 	while true do
+		Time.Cycle = Time.Cycle + 1
+		
 		-- Process events.
 		if love.event then
 			love.event.pump()

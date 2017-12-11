@@ -5,6 +5,8 @@ function Class:New(gameObject)
 	
 	self.tag 		= ""
 	
+	self.__destroy 	= false
+	
 	--Set by GameObject:AddComponent
 	--self.gameObject 	= gameObject
 	--self.transform 	= gameObject and gameObject.transform or nil

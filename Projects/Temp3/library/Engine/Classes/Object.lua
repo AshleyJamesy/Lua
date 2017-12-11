@@ -4,16 +4,12 @@ local UUID 	= 1
 function Class:New(id)
 	self.hideflag 	= {}
 	self.name 		= self:Type()
-
+	
 	self.__id = UUID
 	UUID = UUID + 1
-
+	
 	if self.__batch == nil or self.__batch == true then
-		if SceneManager:GetActiveScene().__objects[self.__typename] == nil then
-			SceneManager:GetActiveScene().__objects[self.__typename] = {}
-		end
-		
-		SceneManager:GetActiveScene().__objects[self.__typename][id or self.__id] = self
+		table.insert(SceneManager:GetActiveScene().__inactive, 1, self)
 	end
 end
 

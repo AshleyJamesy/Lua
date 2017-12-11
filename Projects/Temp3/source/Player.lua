@@ -1,51 +1,46 @@
 local Class = class.NewClass("Player", "MonoBehaviour")
 
-function Class:Awake()
-	self.ridgidBody = self.gameObject:GetComponent("RigidBody")
-
-	self.ridgidBody.angularDrag	= 0.0
-end
-
+local layer = 0
 function Class:Update()
-	Camera.main.transform.position = Vector2.Lerp(Camera.main.transform.position, self.transform.globalPosition, Time.Delta)
-	Camera.main.transform.rotation = Vector2.Lerp(Camera.main.transform.rotation, self.transform.globalRotation, Time.Delta)
-	if self.ridgidBody then
-		if love.keyboard.isDown("a") then
-			self.ridgidBody:ApplyForceAtPosition(self.transform.right.x * -1 * self.ridgidBody.mass, self.transform.right.y * -1 * self.ridgidBody.mass, 
-				self.transform.globalPosition.x + self.transform.up.x, self.transform.globalPosition.y + self.transform.up.y)
-
-			self.ridgidBody:ApplyForceAtPosition(self.transform.right.x * 1 * self.ridgidBody.mass, self.transform.right.y * 1 * self.ridgidBody.mass, 
-				self.transform.globalPosition.x - self.transform.up.x, self.transform.globalPosition.y - self.transform.up.y)
-		end
-
-		if love.keyboard.isDown("d") then
-			self.ridgidBody:ApplyForceAtPosition(self.transform.right.x * 1 * self.ridgidBody.mass, self.transform.right.y * 1 * self.ridgidBody.mass, 
-				self.transform.globalPosition.x + self.transform.up.x, self.transform.globalPosition.y + self.transform.up.y)
-
-			self.ridgidBody:ApplyForceAtPosition(self.transform.right.x * -1 * self.ridgidBody.mass, self.transform.right.y * -1 * self.ridgidBody.mass, 
-				self.transform.globalPosition.x - self.transform.up.x, self.transform.globalPosition.y - self.transform.up.y)
-		end
-
-		if love.keyboard.isDown("w") then
-			self.ridgidBody:ApplyForce(self.transform.up.x * 100 * self.ridgidBody.mass, self.transform.up.y * 100 * self.ridgidBody.mass)
-		end
-
-		if love.keyboard.isDown("s") then
-			self.ridgidBody:ApplyForce(self.transform.up.x * -100 * self.ridgidBody.mass, self.transform.up.y * -100 * self.ridgidBody.mass)
-		end
+	if Input.GetKeyDown("up") then
+		layer = layer + 1
+		print(layer)
 	end
 
-	if love.mouse.isDown(1) then
-		local object = GameObject(Camera.main:ScreenToWorld(love.mouse.getX(), love.mouse.getY()))
-		object:AddComponent("RigidBody")
-		object:AddFixture(love.physics.newRectangleShape(0, 0, 50, 50, 0), 1)
+	if Input.GetKeyDown("down") then
+		layer = layer - 1
+		print(layer)
 	end
-end
 
-function Class:Render()
-	love.graphics.line(self.transform.globalPosition.x, self.transform.globalPosition.y, 
-		self.transform.globalPosition.x + self.transform.up.x  * 20, self.transform.globalPosition.y + self.transform.up.y * 20)
+	if Input.GetMouseButton(1) then
+		local object = GameObject(Camera.main:ScreenToWorld(Input.mousePosition.x, Input.mousePosition.y))
+		local sr = object:AddComponent("SpriteRenderer")
 
-	love.graphics.line(self.transform.globalPosition.x, self.transform.globalPosition.y, 
-		self.transform.globalPosition.x + self.transform.right.x  * 20, self.transform.globalPosition.y + self.transform.right.y * 20)
+		object.layer = layer
+		sr.colour:Set(255, 0, 0, 255)
+		sr:PlayAnimation("idle")
+		sr:SetDirty()
+		local s = math.random() * 4
+		object.transform.scale:Set(s, s)
+	end
+
+	if Input.GetMouseButtonDown(2) then
+		local object = GameObject(Camera.main:ScreenToWorld(Input.mousePosition.x, Input.mousePosition.y))
+		local sr = object:AddComponent("SpriteRenderer")
+
+		object.layer = layer
+		sr.colour:Set(0, 255, 0, 255)
+		sr:PlayAnimation("idle")
+		sr:SetDirty()
+		object.transform.scale:Set(5, 5)
+	end
+
+	if Input.GetMouseButton(5) then
+		local object = GameObject(Camera.main:ScreenToWorld(Input.mousePosition.x, Input.mousePosition.y))
+		local sr = object:AddComponent("SpriteRenderer")
+
+		object.layer = layer
+		sr.colour:Set(0, 0, 255, 255)
+		sr:SetDirty()
+	end
 end
