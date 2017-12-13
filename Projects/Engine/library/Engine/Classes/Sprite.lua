@@ -4,14 +4,14 @@ function Class:New(path)
 	self.source = love.graphics.newImage(GetProjectDirectory() .. path)
 	self.source:setFilter("nearest", "nearest")
 
-	self.width 	= self.source:getWidth()
-	self.height = self.source:getHeight()
-
-	self.frames 	= {}
-	self.animations = {}
-
-	self.frame 	= Rect(0, 0, self.source:getDimensions())
-	self.quad 	= love.graphics.newQuad(0, 0, self.width, self.height, self.width, self.height)	
+	self.width 			= self.source:getWidth()
+	self.height 		= self.source:getHeight()
+	self.pixelPerUnit 	= 100
+	self.frames 		= {}
+	self.animations 	= {}
+	
+	self.frame 			= Rect(0, 0, self.source:getDimensions())
+	self.quad 			= love.graphics.newQuad(0, 0, self.width, self.height, self.width, self.height)
 end
 
 function Class:NewFrame(x,y,w,h)

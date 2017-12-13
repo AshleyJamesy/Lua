@@ -41,7 +41,9 @@ s:NewFrame(64, 80, 16, 16)
 s:NewFrame(80, 80, 16, 16)
 s:NewFrame(96, 80, 16, 16)
 
-s:NewAnimation("idle", Animation(1.0, true, { 1, 2, 3, 4}))
+s.pixelPerUnit = 32
+
+s:NewAnimation("idle", Animation(1.0, true, { 1, 2, 3, 4 }))
 
 local default = Sprite("resources/engine/default.png")
 function Class:New(gameObject)
@@ -57,10 +59,10 @@ function Class:New(gameObject)
 	self.speed 				= 1.0
 	self.animation_index 	= 1
 	self.timer 				= 0.0
-	self.animation 			= ""
+	self.animation 			= "idle"
 	self.playing			= false
 
-	self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
+	self.hash 				= self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
 end
 
 function Class:ResetAnimation(name)
@@ -116,37 +118,60 @@ function Class:Update()
 				end
 			end
 		end
+	end
 end
 
 function Class:Render(camera)
- local sprite = self.sprite
+	 	local sprite = self.sprite
 		
-	local frame = sprite:GetFrame(self.animation_index)
-	sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
-		
+		local frame = sprite:GetFrame(self.animation_index)
+		sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
+			
 		local transform = self.transform
 		local scale 	= transform.globalScale
 		local position 	= transform.globalPosition
 		local rotation 	= transform.globalRotation
 		
-		local x, y, w, h = sprite.quad:getViewport()
-		
-		self.bounds:Set(position.x - w * 0.5 * scale.x, position.y - h * 0.5 * scale.y, w * scale.x, h * scale.y)
-		
-		if Rect.Intersect(camera.bounds, self.bounds) then
+		local x, y, w, h 	= sprite.quad:getViewport()
+		local pixel_scale 	= 100 / sprite.pixelPerUnit
+
+		self.gameObject:SetBounds(
+			position.x - (w * 0.5 * scale.x) * pixel_scale, 
+			position.y - (h * 0.5 * scale.y) * pixel_scale, 
+			w * scale.x * pixel_scale, 
+			h * scale.y * pixel_scale)
+
+	if not DEBUG then
+		if Rect.Intersect(camera.bounds, self.gameObject.__bounds) then
 			love.graphics.setColor(self.colour:Unpack())
 			love.graphics.draw(sprite.source, 
 					sprite.quad, 
 					position.x, 
 					position.y, 
 					rotation, 
-					scale.x * (self.flipX and -1 or 1), 
-					scale.y * (self.flipY and -1 or 1),
+					scale.x * (self.flipX and -1 or 1) * pixel_scale, 
+					scale.y * (self.flipY and -1 or 1) * pixel_scale,
 					w * 0.5, 
 					h * 0.5
 			)
 		end
+	end
+end
+
+function Class:OnDrawGizmos(camera)
+	if DEBUG or self.gameObject.__selected then
+		local bounds = self.gameObject.__bounds
+		if Rect.Intersect(camera.bounds, bounds) then
+			love.graphics.setColor(255,255,255,125)
+			love.graphics.rectangle("line", bounds.x, bounds.y, bounds.w, bounds.h)
+			
+			love.graphics.setColor(75,75,255,255)
+			--love.graphics.circle("fill", bounds.x, bounds.y, 5)
+			--love.graphics.circle("fill", bounds.x + bounds.w, bounds.y, 5)
+			--love.graphics.circle("fill", bounds.x + bounds.w, bounds.y + bounds.h, 5)
+			--love.graphics.circle("fill", bounds.x, bounds.y + bounds.h, 5)
 		end
+	end
 end
 
 local function sort(a, b)

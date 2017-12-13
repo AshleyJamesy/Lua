@@ -6,7 +6,7 @@ CameraType = enum{
 	"Preview" 		--Used to indicate a camera that is used for rendering previews in the Editor.
 }
 
-function Class:New(gameObject)
+function Class:New(gameObject, texture)
 	Class:Base().New(self, gameObject)
 	
 	if Class.main then
@@ -15,18 +15,23 @@ function Class:New(gameObject)
 	end
 
 	self.scene 				= gameObject.scene
-	self.backgroundColour 	= Colour(150, 150, 150, 255)
+	self.backgroundColour 	= Colour(75, 75, 75, 255)
 	self.cameraType 		= CameraType.SceneView
 	self.cullingMask 		= {}
 	self.zoom 				= Vector2(1, 1)
-	self.texture 			= love.graphics.newCanvas()
+	
+	if texture == nil then 
+		self.texture = Canvas()
+	else
+		self.texture = nil
+	end
 
 	self.bounds 			= Rect(0,0,0,0)
 end
 
 local ignore_table = { "Camera" }
 
-local function grid(camera)
+local function grid(camera, w, h)
 	--[[
 	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth()) 	* 0.5
  local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight()) 	 * 0.5
@@ -50,10 +55,7 @@ local function grid(camera)
 	]]
 
 	local r,g,b,a = camera.backgroundColour:Unpack()
-	love.graphics.setColor(a - r, a - g, a - b, 100)
-
-	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth())
-    local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight())
+	love.graphics.setColor(a - r, a - g, a - b, 10)
 
     local zx = 100
     local zy = 100
@@ -97,8 +99,8 @@ function Class:Render()
 	
 	love.graphics.push()
 	
-	local w = (self.texture and self.texture:getWidth()  or love.graphics.getWidth()) * 0.5
-	local h = (self.texture and self.texture:getHeight() or love.graphics.getHeight()) * 0.5
+	local w = (self.texture and self.texture.width  or love.graphics.getWidth()) * 0.5
+	local h = (self.texture and self.texture.height or love.graphics.getHeight()) * 0.5
 	
 	self.bounds:Set(self.transform.globalPosition.x - w, self.transform.globalPosition.y - h, w * 2, h * 2)
 	
@@ -106,10 +108,10 @@ function Class:Render()
 	love.graphics.rotate(-self.transform.globalRotation)
 	love.graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
 	love.graphics.translate(-self.transform.globalPosition.x, -self.transform.globalPosition.y)
-	
+
 	--if texture then render to texture else render normally
 	if self.texture then
-		love.graphics.setCanvas(self.texture)
+		love.graphics.setCanvas(self.texture.source)
 		love.graphics.clear(self.backgroundColour.r, self.backgroundColour.g, self.backgroundColour.b, self.backgroundColour.a)
 
 		--Screen Space
@@ -118,14 +120,12 @@ function Class:Render()
 
 		if self.cameraType == CameraType.SceneView then
 			self.transform.rotation = 0
-			grid(self)
+			grid(self, w * 2, h * 2)
 		end
 
 		love.graphics.pop()
 
 		love.graphics.setColor(255, 255, 255, 255)
-		
-		love.graphics.circle("line", 0, 0, 10)
 
 		CallFunctionOnAll("Render", ignore_table, self)
 		CallFunctionOnAll("OnDrawGizmos", nil, self)
@@ -140,14 +140,12 @@ function Class:Render()
 
 		if self.cameraType == CameraType.SceneView then
 			self.transform.rotation = 0
-			grid(self)
+			grid(self, w * 2, h * 2)
 		end
 
 		love.graphics.pop()
 
 		love.graphics.setColor(255, 255, 255, 255)
-		
-		love.graphics.circle("line", 0, 0, 10)
 		
 		CallFunctionOnAll("Render", ignore_table, self)
 		CallFunctionOnAll("OnDrawGizmos", nil, self)
@@ -162,14 +160,19 @@ function Class:Render()
 end
 
 function Class:OnDrawGizmos(camera)
-	if self ~= camera then
-		love.graphics.circle("fill", self.transform.position.x, self.transform.position.y, 10)
+	if Camera.main == camera and camera.cameraType == CameraType.SceneView then
+	--if camera.cameraType == CameraType.SceneView and self.cameraType == CameraType.Game then
+		--local w = (self.texture and self.texture.width  or love.graphics.getWidth()) * 0.5
+		--local h = (self.texture and self.texture.height or love.graphics.getHeight()) * 0.5
+
+		--love.graphics.rectangle("line", self.transform.globalPosition.x - w, self.transform.globalPosition.y - h, w * 2, h * 2)
+		love.graphics.rectangle("line", self.bounds.x, self.bounds.y, self.bounds.w, self.bounds.h)
 	end
 end
 
 function Class:ScreenToWorld(x, y)
-	return (x * self.zoom.x + self.transform.globalPosition.x) - (self.texture and self.texture:getWidth()  or love.graphics.getWidth()) * 0.5 * self.zoom.x,
-    	(y * self.zoom.y + self.transform.globalPosition.y) - (self.texture and self.texture:getHeight() or love.graphics.getHeight()) * 0.5 * self.zoom.y
+	return (x * self.zoom.x + self.transform.globalPosition.x) - (self.texture and self.texture.width  or love.graphics.getWidth()) * 0.5 * self.zoom.x,
+    	(y * self.zoom.y + self.transform.globalPosition.y) - (self.texture and self.texture.height or love.graphics.getHeight()) * 0.5 * self.zoom.y
 end
 
 function Class:WorldToScreen(x, y)

@@ -10,6 +10,14 @@ function Class:New(x, y)
 	self.scene 				= SceneManager:GetActiveScene()
 	self.components 		= {}
 	self.transform 			= self:AddComponent("Transform", x, y)
+
+	self.__bounds 			= Rect(0,0,0,0)
+	self.__handles 			= {}
+	self.__selected 		= false
+end
+
+function Class:SetBounds(x, y, w, h)
+	self.__bounds:Set(x, y, w, h)
 end
 
 function Class:AddComponent(typename, ...)

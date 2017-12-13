@@ -4,6 +4,7 @@ Class.__mouse = {}
 Class.__keyboard = {}
 Class.__touch = {}
 Class.mousePosition = Vector2(0, 0)
+Class.mouseWheel 	= Vector2(0, 0)
 Class.anyKey = false
 Class.anyKeyDown = false
 
@@ -35,6 +36,14 @@ end
 
 function Class.GetMouseButtonUp(button)
 	return Class.__mouse[button] == nil
+end
+
+function Class.GetMousePosition()
+	return Class.mousePosition.x, Class.mousePosition.y
+end
+
+function Class.GetMouseWheel()
+	return Class.mouseWheel.x, Class.mouseWheel.y
 end
 
 function Class.GetTouch(id)
@@ -98,6 +107,8 @@ function Class.LateUpdate()
 	        Class.__touchCount = Class.__touchCount - 1
 	    end
 	end
+
+	Class.mouseWheel:Set(0, 0)
 end
 
 hook.Add("KeyPressed", "Input", function(key, scancode, isrepeat)
@@ -165,4 +176,8 @@ hook.Add("TouchReleased", "Input", function(id, x, y, dx, dy, pressure)
     touch.touch = nil
     touch.position:Set(x, y)
     touch.delta:Set(dx, dy)
+end)
+
+hook.Add("MouseWheelMoved", "Input",	function(x, y)
+	Class.mouseWheel:Set(x, y)
 end)

@@ -92,3 +92,24 @@ function Class:Update()
 		v:Update()
 	end
 end
+
+--[[
+function Class:OnDrawGizmos(camera)
+	if Camera.main.transform ~= self and Camera.main == camera and camera.cameraType == CameraType.SceneView then
+		local bounds = self.gameObject.__bounds
+
+		love.graphics.setLineWidth(2.0)
+
+		love.graphics.setColor(0,0,255,125)
+		love.graphics.circle("line", self.globalPosition.x, self.globalPosition.y, 0.8 * math.abs(math.max(bounds.x - bounds.w, bounds.y - bounds.h)))
+		
+		love.graphics.setColor(255,0,0,125)
+		love.graphics.line(self.globalPosition.x, self.globalPosition.y, self.globalPosition.x, self.globalPosition.y + 0.6 * (bounds.y - bounds.h))
+
+		love.graphics.setColor(0,255,0,125)
+		love.graphics.line(self.globalPosition.x, self.globalPosition.y, self.globalPosition.x - 0.6 * (bounds.x - bounds.w), self.globalPosition.y)
+
+		love.graphics.setLineWidth(1.0)
+	end
+end
+]]

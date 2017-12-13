@@ -31,8 +31,7 @@ function Class:New(name)
 	self.__inactive = {}
 	self.__objects 	= {}
 	self.__roots 	= {}
-	self.__world 	= love.physics.newWorld(0, 9.8 * 100, true)
-	
+	self.__world 	= love.physics.newWorld(0, 0, true)
 	self.__world:setCallbacks(BeginContact, EndContact, PreSolve, PostSolve)
 end
 
@@ -70,4 +69,8 @@ end
 
 function Class:Render()
 	CallFunctionOnType("Camera", "Render")
+end
+
+function Class:GetCount(typename)
+	return self.__objects[typename] and #self.__objects[typename] or 0
 end

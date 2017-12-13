@@ -92,8 +92,7 @@ end
 
 -- Public values and functions.
 
-function encode(obj, i, as_key)
-	local i = i or 1
+function string(obj, as_key)
 	local s = {}  -- We'll build the string as an array of strings to be concatenated.
 	local kind = kind_of(obj)  -- This is 'array' if it's an array or type(obj) otherwise.
 	if kind == 'array' then
@@ -101,36 +100,36 @@ function encode(obj, i, as_key)
 			error('Can\'t encode array as key.')
 		end
 
-		s[#s + 1] = '[\n'
+		s[#s + 1] = '['
 
-		for key, val in ipairs(obj) do
-			if key > 1 then 
-				s[#s + 1] = ',\n'
+		for i, val in ipairs(obj) do
+			if i > 1 then 
+				s[#s + 1] = ', ' 
 			end
 
-			s[#s + 1] = string.rep('\t', i) .. json.encode(val, i + 1)
+			s[#s + 1] = json.string(val)
 		end
 
-		s[#s + 1] = '\n' .. string.rep('\t', i - 1) .. ']'
+		s[#s + 1] = ']'
 
 	elseif kind == 'table' then
 		if as_key then 
 			error('Can\'t encode table as key.')
 		end
 
-		s[#s + 1] = '{\n'
+		s[#s + 1] = '{'
 
-		for key, v in pairs(obj) do
+		for k, v in pairs(obj) do
 			if #s > 1 then 
-				s[#s + 1] = ',\n' 
+				s[#s + 1] = ', ' 
 			end
 
-			s[#s + 1] = string.rep('\t', i) .. json.encode(key, i + 1, true)
+			s[#s + 1] = json.string(k, true)
 			s[#s + 1] = ':'
-			s[#s + 1] = json.encode(v, i + 1)
+			s[#s + 1] = json.string(v)
 		end
 
-		s[#s + 1] = '\n' .. string.rep('\t', i - 1) .. '}'
+		s[#s + 1] = '}'
 
 	elseif kind == 'string' then
 		return '"' .. escape_str(obj) .. '"'
@@ -153,7 +152,7 @@ end
 
 json.null = {}  -- This is a one-off table to represent the null value.
 
-function decode(str, pos, end_delim)
+function parse(str, pos, end_delim)
 	pos = pos or 1
 	if pos > #str then 
 		error('Reached unexpected end of input.') 
@@ -167,7 +166,7 @@ function decode(str, pos, end_delim)
 		pos = pos + 1
 
 		while true do
-			key, pos = json.decode(str, pos, '}')
+			key, pos = json.parse(str, pos, '}')
 			if key == nil then 
 				return obj, pos 
 			end
@@ -177,7 +176,7 @@ function decode(str, pos, end_delim)
 			end
 
 			pos 				= skip_delim(str, pos, ':', true)  -- true -> error if missing.
-			obj[key], pos 		= json.decode(str, pos)
+			obj[key], pos 		= json.parse(str, pos)
 			pos, delim_found 	= skip_delim(str, pos, ',')
 		end
 	elseif first == '[' then  -- Parse an array.
@@ -185,7 +184,7 @@ function decode(str, pos, end_delim)
 		pos = pos + 1
 
 		while true do
-			val, pos = json.decode(str, pos, ']')
+			val, pos = json.parse(str, pos, ']')
 			if val == nil then 
 				return arr, pos 
 			end
