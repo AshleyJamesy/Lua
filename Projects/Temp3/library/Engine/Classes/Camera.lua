@@ -15,7 +15,7 @@ function Class:New(gameObject)
 	end
 
 	self.scene 				= gameObject.scene
-	self.backgroundColour 	= Colour(73, 73, 73, 255)
+	self.backgroundColour 	= Colour(150, 150, 150, 255)
 	self.cameraType 		= CameraType.SceneView
 	self.cullingMask 		= {}
 	self.zoom 				= Vector2(1, 1)
@@ -29,9 +29,10 @@ local ignore_table = { "Camera" }
 local function grid(camera)
 	--[[
 	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth()) 	* 0.5
-    local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight()) 	* 0.5
-
-	love.graphics.setColor(255, 255, 255, 20)
+ local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight()) 	 * 0.5
+	
+	local r,g,b,a = love.graphics.getColor()
+	love.graphics.setColor(0,0,0, 255)
 
 	local sx 	= 100
 	local sy 	= 100
@@ -48,7 +49,8 @@ local function grid(camera)
 	end
 	]]
 
-	love.graphics.setColor(150, 150, 150, 20)
+	local r,g,b,a = camera.backgroundColour:Unpack()
+	love.graphics.setColor(a - r, a - g, a - b, 100)
 
 	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth())
     local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight())
@@ -80,8 +82,7 @@ end
 		Render
 --]]
 function Class:Render()
-	self.bounds:Set(self.transform.globalPosition.x - 400, self.transform.globalPosition.y - 300, 800, 600)
-
+	
 	--hook.Call("OnPreCull")			--Called before the camera culls the scene. Culling determines which objects are visible to the camera. OnPreCull is called just before culling takes place.
 	--hook.Call("OnBecameVisible")		--Called when an object becomes visible/invisible to any camera.
 	--hook.Call("OnBecameInvisible")	--Called when an object becomes visible/invisible to any camera.
@@ -98,6 +99,8 @@ function Class:Render()
 	
 	local w = (self.texture and self.texture:getWidth()  or love.graphics.getWidth()) * 0.5
 	local h = (self.texture and self.texture:getHeight() or love.graphics.getHeight()) * 0.5
+	
+	self.bounds:Set(self.transform.globalPosition.x - w, self.transform.globalPosition.y - h, w * 2, h * 2)
 	
 	love.graphics.translate(w, h)
 	love.graphics.rotate(-self.transform.globalRotation)
@@ -121,6 +124,8 @@ function Class:Render()
 		love.graphics.pop()
 
 		love.graphics.setColor(255, 255, 255, 255)
+		
+		love.graphics.circle("line", 0, 0, 10)
 
 		CallFunctionOnAll("Render", ignore_table, self)
 		CallFunctionOnAll("OnDrawGizmos", nil, self)
@@ -141,6 +146,8 @@ function Class:Render()
 		love.graphics.pop()
 
 		love.graphics.setColor(255, 255, 255, 255)
+		
+		love.graphics.circle("line", 0, 0, 10)
 		
 		CallFunctionOnAll("Render", ignore_table, self)
 		CallFunctionOnAll("OnDrawGizmos", nil, self)

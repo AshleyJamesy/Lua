@@ -1,3 +1,7 @@
+if Application.Mobile then
+    return
+end
+
 require "imgui"
 
 local function Update()

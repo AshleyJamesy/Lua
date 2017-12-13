@@ -67,6 +67,8 @@ function CallFunctionOnAll(method, ignore, ...)
 end
 
 function love.load(args)
+    Input.Update()
+    Input.LateUpdate()
 	--hook.Call("Awake")
 	--hook.Call("OnEnable")
 	--hook.Call("OnLevelWasLoaded")
@@ -81,6 +83,9 @@ function love.load(args)
 	object:AddComponent("Player")
 	
 	camera.texture = nil
+	
+	local object = GameObject()
+	object:AddComponent("SpriteRenderer")
 end
 
 function love.update()
@@ -126,9 +131,13 @@ function love.update()
 	hook.Call("LateUpdate")
 	scene:LateUpdate()
 	
+	T1 = Input.GetTouchStatus(1)
+	T2 = Input.GetTouchStatus(2)
+	
 	Input.LateUpdate()
 end
 
+D = 0
 function love.draw()
 	local scene = SceneManager:GetActiveScene()
 
@@ -148,6 +157,10 @@ function love.draw()
 
 	love.graphics.print("FPS: ".. 		tostring(love.timer.getFPS()), 10, 10)
 	love.graphics.print("Sprite Count: " .. tostring(scene.__objects["SpriteRenderer"] ~= nil and #scene.__objects["SpriteRenderer"] or 0), 10, 25)
+ 
+ love.graphics.print("Touch 1: ".. 		T1, 10, 40)
+ love.graphics.print("Touch 2: ".. 		T2, 10, 55) 	
+ love.graphics.print("Zoom: ".. 		D, 10, 70) 
 end
 
 function love.directorydropped(path)
@@ -233,7 +246,7 @@ function love.touchmoved(id, x, y, dx, dy, pressure)
 end
 
 function love.touchreleased(id, x, y, dx, dy, pressure)
-	hook.Call("TouchMoved", id, x, y, dx, dy, pressure)
+	hook.Call("TouchReleased", id, x, y, dx, dy, pressure)
 end
 
 function love.quit()

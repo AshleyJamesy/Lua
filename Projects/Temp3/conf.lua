@@ -24,8 +24,8 @@ function include(file)
 			if 		extenstion == "lua" then
 				include(file .. filename)
 			elseif 	extenstion == "" then
-				local full_path = GetProjectDirectory() .. file .. filename
-				if love.filesystem.isDirectory(full_path) then
+				local full_path = file .. filename
+				if love.filesystem.isDirectory(GetProjectDirectory() .. full_path) then
 					include(full_path .. "/")
 				end
 			else
@@ -66,6 +66,10 @@ Time.FixedTimeStep 			= 0.016
 Time.MaximumAllowedTimeStep = 0.333333
 Time.Alpha 					= 1.0
 Time.Cycle 					= 0
+
+Application = {}
+Application.Platform = love.system.getOS()
+Application.Mobile   = Application == "Android" or "iPhone"
 
 function love.run()
 	if love.math then

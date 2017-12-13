@@ -92,16 +92,11 @@ function Class:StopAnimation()
 	self.animation = ""
 end
 
-function Class:SetDirty()
-	self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
-end
-
-function Class:Render(camera)
-	self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
-	
-	local sprite = self.sprite
-	--Animation
-	if sprite then
+function Class:Update()
+    self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
+    
+    local sprite = self.sprite
+    if sprite then
 		local animation = sprite:GetAnimation(self.animation)
 		
 		if animation then
@@ -119,12 +114,15 @@ function Class:Render(camera)
 						self.playing 			= false
 					end
 				end
-
-				local frame = sprite:GetFrame(self.animation_index)
-				
-				sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
 			end
 		end
+end
+
+function Class:Render(camera)
+ local sprite = self.sprite
+		
+	local frame = sprite:GetFrame(self.animation_index)
+	sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
 		
 		local transform = self.transform
 		local scale 	= transform.globalScale
@@ -148,9 +146,7 @@ function Class:Render(camera)
 					h * 0.5
 			)
 		end
-		
-		love.graphics.rectangle("line", self.bounds.x, self.bounds.y, self.bounds.w, self.bounds.h)
-	end
+		end
 end
 
 local function sort(a, b)

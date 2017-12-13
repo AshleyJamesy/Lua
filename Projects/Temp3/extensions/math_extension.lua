@@ -17,3 +17,7 @@ end
 function math.round(n, i)
 	return (n + i * 0.5) / (i * i)
 end
+
+function math.lerp(a, b, t)
+    return a + (b - a) * t
+end
