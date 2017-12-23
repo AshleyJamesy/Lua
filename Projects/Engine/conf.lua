@@ -75,7 +75,7 @@ function love.run()
 	end
 	
 	Application.Platform = love.system.getOS()
-	Application.Mobile   = Application == "Android" or "iPhone"
+	Application.Mobile   = (Application == "Android") or (Application == "iPhone")
 	
 	if love.load then
 		love.load(arg) 
@@ -139,8 +139,8 @@ function love.run()
 				love.graphics.clear(love.graphics.getBackgroundColor())
 				love.graphics.origin()
 				
-				if love.draw then 
-					love.draw(Time.Alpha)
+				if love.render then 
+					love.render(Time.Alpha)
 				end
 				
 				love.graphics.present()

@@ -8,144 +8,6 @@ class.Load()
 
 include("source/")
 
-function love.load()
-	triangle 	= { 0.0, -0.55, 0.5, 0.45, -0.5, 0.45 }
-	square 		= { -0.5, -0.5, 0.5, -0.5, 0.5, 0.5,-0.5, 0.5 }
-	
-	spartial = SpartialHash()
-
-	mouse = Polygon(triangle)
-	mouse.scale = 50.0
-
-	spartial:Insert(mouse)
-
-	local time = os.clock()
-
-	local a = Vector2(0,0)
-	for i = 1, 100000 do
-		a = a * Vector2(1,1)
-	end
-
-	print(os.clock() - time .. "ms")
-	print(a)
-end
-
-switch = false
-
-function love.update(dt)
-	mouse.x = love.mouse.getX()
-	mouse.y = love.mouse.getY()
-
-	if love.mouse.isDown(1) then
-		local object = Polygon(triangle)
-		object.x = love.mouse.getX()
-		object.y = love.mouse.getY()
-		object.scale = math.random() * 50
-		object.group = math.floor(math.random() * 3)
-		spartial:Insert(object)
-	end
-	
-	if switch then
-		spartial:Clear()
-		
-		for k, v in pairs(spartial.list) do
-			spartial:Insert(v, v:GetAABB())
-		end
-		
-		for bucket_key, bucket in pairs(spartial.hash) do
-			for i = 1, #bucket do
-				for j = i, #bucket do
-					local objectA = bucket[i]
-					local objectB = bucket[j]
-
-					if objectA ~= objectB and objectA.group ~= objectB.group then
-						local result, mx, my = Polygon.Overlapping(objectA, objectB)
-						if result then
-							objectA.x = objectA.x - mx * 0.5
-							objectA.y = objectA.y - my * 0.5
-							objectB.x = objectB.x + mx * 0.5
-							objectB.y = objectB.y + my * 0.5
-						end
-					end
-				end
-			end
-		end
-	else
-		for i = 1, #spartial.list do
-			for j = i, #spartial.list do
-				local objectA = spartial.list[i]
-				local objectB = spartial.list[j]
-
-				if objectA ~= objectB and objectA.group ~= objectB.group then
-					local result, mx, my = Polygon.Overlapping(objectA, objectB)
-					if result then
-						objectA.x = objectA.x - mx * 0.5
-						objectA.y = objectA.y - my * 0.5
-						objectB.x = objectB.x + mx * 0.5
-						objectB.y = objectB.y + my * 0.5
-					end
-				end
-			end
-		end
-	end
-end
-
-function love.fixedupdate(dt)
-	--[[
-	for bucket_key, bucket in pairs(spartial.hash) do
-
-		for i = 1, #bucket do
-			for j = i, #bucket do
-				local objectA = bucket[i]
-				local objectB = bucket[j]
-
-				if objectA ~= objectB then
-					local result, mx, my = Collision.Overlapping(objectA, objectB)
-					if result then
-						objectA.x = objectA.x - mx * 0.5
-						objectA.y = objectA.y - my * 0.5
-						objectB.x = objectB.x + mx * 0.5
-						objectB.y = objectB.y + my * 0.5
-					end
-				end
-			end
-		end
-	end
-	]]
-end
-
-function love.draw()
-	spartial:Draw()
-
-	for k, v in pairs(spartial.list) do
-		v:Draw(false)
-	end
-
-	love.graphics.print("FPS: ".. tostring(love.timer.getFPS()), 10, 10)
-	love.graphics.print("Count:" .. tostring(#spartial.list), 10, 25)
-end
-
-function love.keypressed(key, scancode, isrepeat)
-	if key == "up" 		then spartial.power = spartial.power + 1 end
-	if key == "down" 	then spartial.power = spartial.power - 1 end
-
-	if key == "d" then
-		switch = not switch
-	end
-end
-
-function love.mousepressed(x, y, button, istouch)
-	if button == 2 then
-		local object = Collision(triangle)
-		object.x = love.mouse.getX()
-		object.y = love.mouse.getY()
-		object.scale = math.random() * 50
-		object.group = math.floor(math.random() * 3)
-		spartial:Insert(object)
-	end
-end
-
---[[
 myShader = love.graphics.newShader("resources/shaders/myshader.glsl")
 
 function love.load()
@@ -171,11 +33,13 @@ love.graphics.canvases.post 	= love.graphics.newCanvas()
 love.graphics.canvases.glow 	= love.graphics.newCanvas()
 
 keyboard = {}
+toggle = {}
 
 function love.keypressed(key, scancode, isrepeat)
 	hook.Call("KeyPressed", key, scancode, isrepeat)
 
 	keyboard[key] = 1
+	toggle[key] = not toggle[key]
 end
 
 function love.keyreleased(key, scancode)
@@ -204,7 +68,7 @@ function love.draw()
 	love.graphics.clear()
 	love.graphics.setShader(LOVE_POSTSHADER_CONTRAST)
 	love.graphics.setBlendMode("screen")
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(255, 0, 0, 255)
 	love.graphics.draw(image2, 50, 50, 0, 1, 1)
 	
 	--BLOOM
@@ -287,4 +151,3 @@ function blur(x, y)
 	love.graphics.setBlendMode(mode, alphamode)
 	love.graphics.setColor(r,g,b,a)
 end
-]]

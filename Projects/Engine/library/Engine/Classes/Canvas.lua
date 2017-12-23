@@ -5,3 +5,4 @@ function Class:New(w, h)
 	self.width 	= self.source:getWidth()
 	self.height = self.source:getHeight()
 end
+

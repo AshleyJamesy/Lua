@@ -1,3 +1,33 @@
+local function grid(camera, w, h, unit)
+	--[[
+		TODO: Subdivisons
+	]]
+	local r,g,b,a = camera.backgroundColour:Unpack()
+	graphics.setLineStyle("rough")
+	graphics.setColor(a - r, a - g, a - b, 10)
+
+	local unit = unit or 100
+
+	local ix = math.floor(w / unit)
+	local iy = math.floor(h / unit)
+	
+	local cx = (0 * unit) - (camera.transform.globalPosition.x % unit)
+	local cy = (0 * unit) - (camera.transform.globalPosition.y % unit) 
+
+	for x = 0, ix do
+		cx = (x * unit) - (camera.transform.globalPosition.x % unit)
+		graphics.line(cx, 0, cx, h)
+
+		for y = 0, iy do
+			cy = (y * unit) - (camera.transform.globalPosition.y % unit)
+			graphics.line(0, cy, w, cy)
+		end
+	end
+
+	graphics.setColor(255, 255, 255, 255)
+	graphics.setLineStyle("smooth")
+end
+
 local Class = class.NewClass("Camera", "Behaviour")
 
 CameraType = enum{
@@ -6,7 +36,7 @@ CameraType = enum{
 	"Preview" 		--Used to indicate a camera that is used for rendering previews in the Editor.
 }
 
-function Class:New(gameObject, texture)
+function Class:New(gameObject)
 	Class:Base().New(self, gameObject)
 	
 	if Class.main then
@@ -20,61 +50,14 @@ function Class:New(gameObject, texture)
 	self.cullingMask 		= {}
 	self.zoom 				= Vector2(1, 1)
 	
-	if texture == nil then 
-		self.texture = Canvas()
-	else
-		self.texture = nil
-	end
-
-	self.bounds 			= Rect(0,0,0,0)
-end
-
-local ignore_table = { "Camera" }
-
-local function grid(camera, w, h)
-	--[[
-	local w = (camera.texture and camera.texture:getWidth()  or love.graphics.getWidth()) 	* 0.5
- local h = (camera.texture and camera.texture:getHeight() or love.graphics.getHeight()) 	 * 0.5
+	self.canvases = 
+	{
+		colour 		= Canvas(),
+		emission 	= Canvas(),
+		post 		= Canvas()
+	}
 	
-	local r,g,b,a = love.graphics.getColor()
-	love.graphics.setColor(0,0,0, 255)
-
-	local sx 	= 100
-	local sy 	= 100
-	local c 	= 0
-
-	for x = 0, (w * 2) / 100 do
-		c = (math.floor(camera.transform.globalPosition.x / sx) * sx) + (x * sx) - w
-		love.graphics.line(c, camera.transform.globalPosition.y - h, c, camera.transform.globalPosition.y + h)
-
-		for y = 0, (h * 2) / 100 do
-			c = (math.floor(camera.transform.globalPosition.y / sy) * sy) + (y * sy) - h
-			love.graphics.line(camera.transform.globalPosition.x - w, c, camera.transform.globalPosition.x + w, c)
-		end
-	end
-	]]
-
-	local r,g,b,a = camera.backgroundColour:Unpack()
-	love.graphics.setColor(a - r, a - g, a - b, 10)
-
-    local zx = 100
-    local zy = 100
-
-    local ix = math.floor(w / zx)
-    local iy = math.floor(h / zy)
-    
-    local cx = (0 * zx) - (camera.transform.globalPosition.x % zx)
-    local cy = (0 * zy) - (camera.transform.globalPosition.y % zy) 
-
-	for x = 0, ix do
-		cx = (x * zx) - (camera.transform.globalPosition.x % zx)
-		love.graphics.line(cx, 0, cx, h)
-
-		for y = 0, iy do
-			cy = (y * zy) - (camera.transform.globalPosition.y % zy)
-			love.graphics.line(0, cy, w, cy)
-		end
-	end
+	self.bounds = Rect(0,0,0,0)
 end
 
 --Public Methods
@@ -83,8 +66,71 @@ end
 		Get all renderable objects
 		Render
 --]]
-function Class:Render()
+
+local ignore_table 	= { "Camera" }
+
+local function DoRender(camera, w, h)
+	graphics.setColor(255, 255, 255, 255)
 	
+	CallFunctionOnAll("Render", ignore_table, camera)
+	
+	graphics.push()
+	graphics.origin()
+	
+	CallFunctionOnAll("RenderUI", ignore_table, camera)
+	
+	graphics.pop()
+	
+	CallFunctionOnAll("OnDrawGizmos", nil, camera)
+
+	graphics.setColor(255, 255, 255, 255)
+end
+
+local effect_canvas = love.graphics.newCanvas()
+local LOVE_POSTSHADER_BLURH = love.graphics.newShader("resources/shaders/blurh.glsl")
+local LOVE_POSTSHADER_BLURV = love.graphics.newShader("resources/shaders/blurv.glsl")
+
+function blur(target, x, y, passes, intensity)
+	local old 				= love.graphics.getCanvas()
+	local shader 			= love.graphics.getShader()
+	local mode, alphamode 	= love.graphics.getBlendMode()
+	local r,g,b,a 			= love.graphics.getColor()
+
+	love.graphics.setCanvas(effect_canvas)
+	love.graphics.clear()
+	love.graphics.setShader()
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(255,255,255,255)
+
+	for i = 1, passes do
+		love.graphics.setCanvas(effect_canvas)
+		love.graphics.clear()
+		LOVE_POSTSHADER_BLURV:send("screen", Screen.Dimensions)
+		LOVE_POSTSHADER_BLURV:send("steps", x and x > 0 and x or 1.0)
+		LOVE_POSTSHADER_BLURV:send("intensity", 1.0 + intensity * 0.01)
+		love.graphics.setShader(LOVE_POSTSHADER_BLURV)
+		love.graphics.draw(target)
+		
+		love.graphics.setCanvas(target)
+		LOVE_POSTSHADER_BLURH:send("screen", Screen.Dimensions)
+		LOVE_POSTSHADER_BLURH:send("steps", y and y > 0 and y or 1.0)
+		LOVE_POSTSHADER_BLURH:send("intensity", 1.0 + intensity * 0.01)
+		love.graphics.setShader(LOVE_POSTSHADER_BLURH)
+
+		love.graphics.draw(effect_canvas)
+	end
+	
+	love.graphics.setCanvas(old)
+	love.graphics.setShader(shader)
+	love.graphics.setBlendMode(mode, alphamode)
+	love.graphics.setColor(r,g,b,a)
+end
+
+passes = 8
+bx = 4
+by = 4
+intensity = 1.0
+function Class:Render()
 	--hook.Call("OnPreCull")			--Called before the camera culls the scene. Culling determines which objects are visible to the camera. OnPreCull is called just before culling takes place.
 	--hook.Call("OnBecameVisible")		--Called when an object becomes visible/invisible to any camera.
 	--hook.Call("OnBecameInvisible")	--Called when an object becomes visible/invisible to any camera.
@@ -97,76 +143,97 @@ function Class:Render()
 	--hook.Call("OnPreCull", self)
 	--hook.Call("PreRender", self)
 	
-	love.graphics.push()
+	self.zoom.x = math.clamp(self.zoom.x, 0.01, math.huge)
+	self.zoom.y = math.clamp(self.zoom.y, 0.01, math.huge)
 	
-	local w = (self.texture and self.texture.width  or love.graphics.getWidth()) * 0.5
-	local h = (self.texture and self.texture.height or love.graphics.getHeight()) * 0.5
+	local w = (self.texture and self.texture.width  or graphics.getWidth()) * 0.5
+	local h = (self.texture and self.texture.height or graphics.getHeight()) * 0.5
 	
-	self.bounds:Set(self.transform.globalPosition.x - w, self.transform.globalPosition.y - h, w * 2, h * 2)
+	self.bounds:Set(self.transform.globalPosition.x - w * self.zoom.x, self.transform.globalPosition.y - h * self.zoom.y, (w * self.zoom.x) * 2, (h * self.zoom.y) * 2)
 	
-	love.graphics.translate(w, h)
-	love.graphics.rotate(-self.transform.globalRotation)
-	love.graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
-	love.graphics.translate(-self.transform.globalPosition.x, -self.transform.globalPosition.y)
+	graphics.push()
 
-	--if texture then render to texture else render normally
-	if self.texture then
-		love.graphics.setCanvas(self.texture.source)
-		love.graphics.clear(self.backgroundColour.r, self.backgroundColour.g, self.backgroundColour.b, self.backgroundColour.a)
-
-		--Screen Space
-		love.graphics.push()
-		love.graphics.origin()
-
-		if self.cameraType == CameraType.SceneView then
-			self.transform.rotation = 0
-			grid(self, w * 2, h * 2)
-		end
-
-		love.graphics.pop()
-
-		love.graphics.setColor(255, 255, 255, 255)
-
-		CallFunctionOnAll("Render", ignore_table, self)
-		CallFunctionOnAll("OnDrawGizmos", nil, self)
-
-		love.graphics.setCanvas()
-	else
-		love.graphics.clear(self.backgroundColour.r, self.backgroundColour.g, self.backgroundColour.b, self.backgroundColour.a)
-
-		--Screen Space
-		love.graphics.push()
-		love.graphics.origin()
-
-		if self.cameraType == CameraType.SceneView then
-			self.transform.rotation = 0
-			grid(self, w * 2, h * 2)
-		end
-
-		love.graphics.pop()
-
-		love.graphics.setColor(255, 255, 255, 255)
-		
-		CallFunctionOnAll("Render", ignore_table, self)
-		CallFunctionOnAll("OnDrawGizmos", nil, self)
+	graphics.translate(w, h)
+	graphics.rotate(-self.transform.globalRotation)
+	graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
+	graphics.translate(-self.transform.globalPosition.x, -self.transform.globalPosition.y)
+	
+	for k, v in pairs(self.canvases) do
+		graphics.setCanvas(v.source)
+		graphics.clear(0, 0, 0, 0)
 	end
 
-	love.graphics.pop()
+	graphics.setCanvas(self.canvases.colour.source, self.canvases.emission.source)
+
+	DoRender(self, w, h)
+	
+	graphics.pop()
+	
+	graphics.setCanvas(self.canvases.post.source)
+	graphics.clear(self.backgroundColour.r, self.backgroundColour.g, self.backgroundColour.b, self.backgroundColour.a)
+
+	--Grid
+	if self.cameraType == CameraType.SceneView then
+		graphics.push()
+		graphics.origin()
+
+		self.transform.rotation = 0
+		grid(self, w * 2, h * 2)
+
+		graphics.pop()
+	end
+
+	graphics.setColor(255, 255, 255, 255)
+	graphics.setShader()
+
+	--diffuse
+	graphics.setBlendMode("alpha")
+	graphics.draw(Camera.main.canvases.colour.source, 0, 0, 0, 1, 1)
+
+	--emission
+	graphics.setBlendMode("screen")
+
+	graphics.draw(Camera.main.canvases.emission.source, 0, 0, 0, 1, 1)
+
+	if Input.GetKeyDown("up") then
+		passes = passes + 1
+	end
+
+	if Input.GetKeyDown("down") then
+		passes = passes - 1
+	end
+
+	if Input.GetKeyDown("right") then
+		bx = bx + 1
+	end
+
+	if Input.GetKeyDown("left") then
+		bx = bx - 1
+	end
+
+	local wx, wy = Input.GetMouseWheel()
+	intensity = intensity + wy
+
+	blur(Camera.main.canvases.emission.source, bx, bx, passes, intensity)
+
+	graphics.draw(Camera.main.canvases.emission.source, 0, 0, 0, 1, 1)
+
+	graphics.setCanvas()
+
+	graphics.setBlendMode("alpha")
 
 	CallFunctionOnAll("OnRenderObject", self)
 	CallFunctionOnAll("OnPostRender", self)
-
-	love.graphics.setColor(255, 255, 255, 255)
 end
 
 function Class:OnDrawGizmos(camera)
-	if Camera.main == camera and camera.cameraType == CameraType.SceneView then
+	if self ~= camera and camera.cameraType == CameraType.SceneView then
 	--if camera.cameraType == CameraType.SceneView and self.cameraType == CameraType.Game then
 		--local w = (self.texture and self.texture.width  or love.graphics.getWidth()) * 0.5
 		--local h = (self.texture and self.texture.height or love.graphics.getHeight()) * 0.5
-
+		
 		--love.graphics.rectangle("line", self.transform.globalPosition.x - w, self.transform.globalPosition.y - h, w * 2, h * 2)
-		love.graphics.rectangle("line", self.bounds.x, self.bounds.y, self.bounds.w, self.bounds.h)
+		graphics.rectangle("line", self.bounds.x, self.bounds.y, self.bounds.w, self.bounds.h)
 	end
 end
 

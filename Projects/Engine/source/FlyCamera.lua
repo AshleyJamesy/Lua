@@ -21,7 +21,6 @@ function Class:Awake()
 	self.camera 	= self.gameObject:GetComponent("Camera")
 end
 
-DEBUG = false
 function Class:Update()
 	self.transform.position:Set(self.transform.globalPosition.x, self.transform.globalPosition.y)
 
@@ -46,21 +45,23 @@ function Class:Update()
 		self.transform.position.y = self.transform.position.y + speed * Time.Delta
 	end
 
+	if Input.GetKeyDown("escape") then
+		Menu = not Menu
+	end
+	
 	if Input.GetMouseButton(1) then
 		local object = GameObject()
-		object:AddComponent("SpriteRenderer")
+		local sr = object:AddComponent("SpriteRenderer")
+		sr.sprite 	= Sprite("resources/sprites/hero.png")
+		sr.emission = Sprite("resources/sprites/hero_gray.png")
 		object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
 	end
 
 	local wx, wy = Input.GetMouseWheel()
 
 	local zoom = Camera.main.zoom
-	zoom.x = zoom.x - wy * 0.1
-	zoom.y = zoom.y - wy * 0.1
-
-	if Input.GetKeyDown("space") then
-		DEBUG = not DEBUG
-	end
+	--zoom.x = zoom.x - wy * 0.1
+	--zoom.y = zoom.y - wy * 0.1
 
 	--[[
 	if Application.Mobile then

@@ -2,6 +2,7 @@ FFI = require("ffi")
 
 include("extensions/")
 include("util/")
+include("callbacks")
 include("library/class")
 include("library/containers/")
 include("library/math/")
@@ -9,6 +10,8 @@ include("library/")
 include("source/")
 
 class.Load()
+
+graphics = love.graphics
 
 function CallFunctionOnType(typename, method, ...)
 	local batch = SceneManager:GetActiveScene().__objects[typename]
@@ -48,171 +51,120 @@ function CallFunctionOnAll(method, ignore, ...)
 	end
 end
 
-function love.load(args)
-	--love.window.setFullscreen(true, "exclusive")
+local hero = Sprite("resources/sprites/hero.png")
+hero:NewFrame(16, 16, 16, 16)
+hero:NewFrame(32, 16, 16, 16)
+hero:NewFrame(48, 16, 16, 16)
+hero:NewFrame(64, 16, 16, 16)
+hero:NewFrame(80, 16, 16, 16)
+hero:NewFrame(96, 16, 16, 16)
+hero:NewFrame(16, 32, 16, 16)
+hero:NewFrame(32, 32, 16, 16)
+hero:NewFrame(48, 32, 16, 16)
+hero:NewFrame(64, 32, 16, 16)
+hero:NewFrame(80, 32, 16, 16)
+hero:NewFrame(96, 32, 16, 16)
+hero:NewFrame(16, 48, 16, 16)
+hero:NewFrame(32, 48, 16, 16)
+hero:NewFrame(48, 48, 16, 16)
+hero:NewFrame(64, 48, 16, 16)
+hero:NewFrame(96, 48, 16, 16)
+hero:NewFrame(16, 64, 16, 16)
+hero:NewFrame(32, 64, 16, 16)
+hero:NewFrame(48, 64, 16, 16)
+hero:NewFrame(64, 64, 16, 16)
+hero:NewFrame(80, 64, 16, 16)
+hero:NewFrame(96, 64, 16, 16)
+hero:NewFrame(16, 80, 16, 16)
+hero:NewFrame(32, 80, 16, 16)
+hero:NewFrame(48, 80, 16, 16)
+hero:NewFrame(64, 80, 16, 16)
+hero:NewFrame(80, 80, 16, 16)
+hero:NewFrame(96, 80, 16, 16)
 
-    Input.Update()
-    Input.LateUpdate()
-	--hook.Call("Awake")
-	--hook.Call("OnEnable")
-	--hook.Call("OnLevelWasLoaded")
+hero.pixelPerUnit = 16
+
+hero:NewAnimation("idle", Animation(1.0, true, { 1, 2, 3, 4 }))
+
+local hero_emission = Sprite("resources/sprites/hero_gray.png")
+
+hook.Add("love.load", "game", function()
+	if Application.Mobile then
+	else
+		include("steamworks")
+	end
 	
-	--hook.Call("Start")
+	Input.Update()
+	Input.LateUpdate()
 
 	SceneManager:GetActiveScene()
 
 	local object = GameObject()
 	object:AddComponent("Camera")
 	object:AddComponent("FlyCamera")
-end
 
-function love.update()
+	steamid = steamworks.user.GetSteamID()
+	user 	= steamworks.GetFriendObjectFromSteamID(steamid)
+
+	if steamworks then
+		local image = user:GetMediumAvatar()
+
+		local love_image = love.image.newImageData(64, 64)
+		steamworks.utils.GetImageRGBA(image, love_image:getPointer(), love_image:getSize())
+
+		steam_image = love.graphics.newImage(love_image)
+	end
+
+	ui = love.graphics.newCanvas()
+end)
+
+hook.Add("love.update", "game", function()
 	local scene = SceneManager:GetActiveScene()
 	
 	Input.Update()
-
-	--[[
-	scene.__world:update(Time.Delta)
-	
-	for k, v in pairs(scene.__inactive) do
-		if scene.__objects[v.__typename] == nil then
-			scene.__objects[v.__typename] = {}
-		end
-
-		table.insert(scene.__objects[v.__typename], 1, v)
-
-		if v.IsMonoBehaviour then
-			v:Awake()
-			v:Start()
-			v:Enable()
-		end
-
-		v.enabled = true
-
-		table.remove(scene.__inactive, k)
-	end
-
-	for k, v in pairs(scene.__roots) do
-		v:Update()
-	end
-
-	CallFunctionOnAll("Update", { "Transform" })
-	hook.Call("Update")
-
-	CallFunctionOnAll("LateUpdate")
-	hook.Call("LateUpdate")
-	]]
 
 	hook.Call("Update")
 	scene:Update()
 	
 	hook.Call("LateUpdate")
 	scene:LateUpdate()
-	
-	Input.LateUpdate()
-end
 
-function love.draw()
+end)
+
+Menu = false
+hook.Add("love.render", "game", function()
 	local scene = SceneManager:GetActiveScene()
-
+	
 	hook.Call("OnPreRender")
-
+	
 	scene:Render()
 	
 	hook.Call("OnPostRender")
 	hook.Call("OnRenderImage")
+	
+	if Menu then
+		love.graphics.setCanvas(ui)
+		love.graphics.clear(0,0,0,0)
 
-	love.graphics.draw(Camera.main.texture.source, 0, 0, 0, 1, 1)
-	love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
-	love.graphics.print("Count: " .. SceneManager:GetActiveScene():GetCount("SpriteRenderer"), 10, 25)
-end
+		blur(Camera.main.canvases.post.source, 3, 3, 5, 1.0)
+		love.graphics.draw(Camera.main.canvases.post.source, 0, 0, 0, 1, 1)
 
-function love.directorydropped(path)
-	hook.Call("DirectoryDropped", path)
-end
+		love.graphics.setCanvas()
 
-function love.filedropped(file)
-	hook.Call("FileDropped", file)
-end
+		love.graphics.setColor(220, 220, 220, 255)
+		love.graphics.draw(ui, 0, 0, 0, 1, 1)
+		love.graphics.setColor(255, 255, 255, 255)
 
-function love.focus(focus)
-	if focus then
-		hook.Call("WindowFocus")
+		love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
+		love.graphics.print("Count: " .. SceneManager:GetActiveScene():GetCount("SpriteRenderer"), 10, 25)
+		love.graphics.print("Steam Name: " .. user:GetPersonaName(), 10, 40)
+
+		if steamworks then
+			love.graphics.draw(steam_image, 10, 60, 0, 1, 1)
+		end
 	else
-		hook.Call("WindowLostFocus")
+		love.graphics.draw(Camera.main.canvases.post.source, 0, 0, 0, 1, 1)
 	end
-end
 
-function love.resize(w, h)
-	hook.Call("WindowResize", w, h)
-end
-
-function love.lowmemory()
-	hook.Call("LowMemory")
-end
-
-function love.keypressed(key, scancode, isrepeat)
-	hook.Call("KeyPressed", key, scancode, isrepeat)
-end
-
-function love.keyreleased(key, scancode)
-	hook.Call("KeyReleased", key, scancode)
-end
-
-function love.mousefocus(focus)
-	if focus then
-		hook.Call("MouseFocus")
-	else
-		hook.Call("MouseLostFocus")
-	end
-end
-
-function love.mousepressed(x, y, button, istouch)
-	hook.Call("MousePressed", x, y, button, istouch)
-end
-
-function love.mousemoved(x, y, dx, dy, istouch)
-	hook.Call("MouseMoved", x, y, dx, dy, istouch)
-end
-
-function love.mousereleased(x, y, button, istouch)
-	hook.Call("MouseReleased", x, y, button, istouch)
-end
-
-function love.wheelmoved(x, y)
-	hook.Call("MouseWheelMoved", x, y)
-end
-
-function love.textedited(text, start, length)
-	hook.Call("TextEdited", text, start, length)
-end
-
-function love.textinput(char)
-	hook.Call("TextInput", char)
-end
-
-function love.textedited(text, start, length)
-	if length then
-		hook.Call("TextEdited", text, start, length)
-	end
-end
-
-function love.visible(visible)
-	hook.Call("WindowVisible", visible)
-end
-
-function love.touchpressed(id, x, y, dx, dy, pressure)
-	hook.Call("TouchPressed", id, x, y, dx, dy, pressure)
-end
-
-function love.touchmoved(id, x, y, dx, dy, pressure)
-	hook.Call("TouchMoved", id, x, y, dx, dy, pressure)
-end
-
-function love.touchreleased(id, x, y, dx, dy, pressure)
-	hook.Call("TouchReleased", id, x, y, dx, dy, pressure)
-end
-
-function love.quit()
-	hook.Call("Quit")
-end
+	Input.LateUpdate()
+end)

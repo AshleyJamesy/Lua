@@ -81,9 +81,11 @@ function Class.Update()
 
 	Class.anyKey = Class.__keyboardCount > 0 or Class.__mouseCount > 0 or Class.__touchCount > 0
  
- Class.acceleration.x = joystick:getAxis(1)
- Class.acceleration.y = joystick:getAxis(2)
- Class.acceleration.z = joystick:getAxis(3)
+	if Application.Mobile then
+		Class.acceleration.x = joystick:getAxis(1)
+		Class.acceleration.y = joystick:getAxis(2)
+		Class.acceleration.z = joystick:getAxis(3)
+	end
 end
 
 function Class.LateUpdate()

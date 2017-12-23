@@ -1,17 +1,23 @@
 local Class = class.NewClass("Sprite")
+Class.Sprites = {}
+
+love.graphics.setDefaultFilter("nearest", "nearest")
 
 function Class:New(path)
-	self.source = love.graphics.newImage(GetProjectDirectory() .. path)
-	self.source:setFilter("nearest", "nearest")
+	if Class.Sprites[path] then 
+		return Class.Sprites[path] 
+	end
 
-	self.width 			= self.source:getWidth()
-	self.height 		= self.source:getHeight()
+	self.image 			= Image(path)
+	
+	self.rect 			= Rect(0, 0, self.image.width, self.image.height)
 	self.pixelPerUnit 	= 100
 	self.frames 		= {}
 	self.animations 	= {}
 	
-	self.frame 			= Rect(0, 0, self.source:getDimensions())
-	self.quad 			= love.graphics.newQuad(0, 0, self.width, self.height, self.width, self.height)
+	self.quad 			= love.graphics.newQuad(0, 0, self.image.width, self.image.height, self.image.width, self.image.height)
+	
+	Class.Sprites[path] = self
 end
 
 function Class:NewFrame(x,y,w,h)
@@ -19,7 +25,7 @@ function Class:NewFrame(x,y,w,h)
 end
 
 function Class:GetFrame(index)
-	return self.frames[index] or self.frame
+	return self.frames[index] or self.rect
 end
 
 function Class:NewAnimation(name, animation)

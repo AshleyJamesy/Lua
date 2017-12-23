@@ -12,7 +12,6 @@ function Class:New(x, y)
 	self.transform 			= self:AddComponent("Transform", x, y)
 
 	self.__bounds 			= Rect(0,0,0,0)
-	self.__handles 			= {}
 	self.__selected 		= false
 end
 

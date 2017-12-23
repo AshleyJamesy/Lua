@@ -5,6 +5,8 @@ function Class:New(id)
 	self.hideflag 	= {}
 	self.name 		= self:Type()
 	
+	self.__handles = {}
+
 	self.__id = UUID
 	UUID = UUID + 1
 	

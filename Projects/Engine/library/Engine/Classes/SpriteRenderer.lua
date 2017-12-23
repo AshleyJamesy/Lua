@@ -6,62 +6,29 @@ SpriteDrawMode = enum{
 	"Tiled"		--The SpriteRenderer will render the sprite as a 9-slice image where the corners will remain constant and the other sections will tile.
 }
 
-local s = Sprite("resources/sprites/hero.png")
-s:NewFrame(16, 16, 16, 16)
-s:NewFrame(32, 16, 16, 16)
-s:NewFrame(48, 16, 16, 16)
-s:NewFrame(64, 16, 16, 16)
-s:NewFrame(80, 16, 16, 16)
-s:NewFrame(96, 16, 16, 16)
-
-s:NewFrame(16, 32, 16, 16)
-s:NewFrame(32, 32, 16, 16)
-s:NewFrame(48, 32, 16, 16)
-s:NewFrame(64, 32, 16, 16)
-s:NewFrame(80, 32, 16, 16)
-s:NewFrame(96, 32, 16, 16)
-
-s:NewFrame(16, 48, 16, 16)
-s:NewFrame(32, 48, 16, 16)
-s:NewFrame(48, 48, 16, 16)
-s:NewFrame(64, 48, 16, 16)
-s:NewFrame(96, 48, 16, 16)
-
-s:NewFrame(16, 64, 16, 16)
-s:NewFrame(32, 64, 16, 16)
-s:NewFrame(48, 64, 16, 16)
-s:NewFrame(64, 64, 16, 16)
-s:NewFrame(80, 64, 16, 16)
-s:NewFrame(96, 64, 16, 16)
-
-s:NewFrame(16, 80, 16, 16)
-s:NewFrame(32, 80, 16, 16)
-s:NewFrame(48, 80, 16, 16)
-s:NewFrame(64, 80, 16, 16)
-s:NewFrame(80, 80, 16, 16)
-s:NewFrame(96, 80, 16, 16)
-
-s.pixelPerUnit = 32
-
-s:NewAnimation("idle", Animation(1.0, true, { 1, 2, 3, 4 }))
-
 local default = Sprite("resources/engine/default.png")
 function Class:New(gameObject)
 	Class:Base().New(self, gameObject)
 
-	self.colour 	= Colour(255,255,255,255)
+	self.colours 	= {
+		diffuse 	= Colour(255,255,255,255),
+		emission 	= Colour(math.random() * 255, math.random() * 255, math.random() * 255, math.random() * 255)
+	}
+	
 	self.drawMode 	= SpriteDrawMode.None
 	self.flipX 		= false
 	self.flipY 		= false
-	self.sprite 	= s
-
+	
+	self.sprite 	= default
+	self.emission 	= nil
+	
 	--animation
 	self.speed 				= 1.0
 	self.animation_index 	= 1
 	self.timer 				= 0.0
 	self.animation 			= "idle"
 	self.playing			= false
-
+	
 	self.hash 				= self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
 end
 
@@ -95,18 +62,18 @@ function Class:StopAnimation()
 end
 
 function Class:Update()
-    self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
-    
-    local sprite = self.sprite
-    if sprite then
+	self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
+
+	local sprite = self.sprite
+	if sprite then
 		local animation = sprite:GetAnimation(self.animation)
 		
 		if animation then
 			self.timer = self.timer - (Time.Delta * self.speed)
 
 			if self.timer <= 0 then
-				self.animation_index = self.animation_index + 1
-				self.timer = 1 / animation.fps
+				self.animation_index 	= self.animation_index + 1
+				self.timer 				= 1 / animation.fps
 
 				if self.animation_index > #animation.frames then
 					if animation.loop then
@@ -121,56 +88,69 @@ function Class:Update()
 	end
 end
 
+local sprite_shader = Shader("resources/shaders/material.glsl")
+
 function Class:Render(camera)
-	 	local sprite = self.sprite
+	local sprite = self.sprite
+	if sprite then
+		local attributes 	= sprite.attributes
+		local frame 		= sprite:GetFrame(self.animation_index)
+		local transform 	= self.transform
+		local scale 		= transform.globalScale
+		local position 		= transform.globalPosition
+		local rotation 		= transform.globalRotation
 		
-		local frame = sprite:GetFrame(self.animation_index)
-		sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
-			
-		local transform = self.transform
-		local scale 	= transform.globalScale
-		local position 	= transform.globalPosition
-		local rotation 	= transform.globalRotation
-		
-		local x, y, w, h 	= sprite.quad:getViewport()
 		local pixel_scale 	= 100 / sprite.pixelPerUnit
-
+		
 		self.gameObject:SetBounds(
-			position.x - (w * 0.5 * scale.x) * pixel_scale, 
-			position.y - (h * 0.5 * scale.y) * pixel_scale, 
-			w * scale.x * pixel_scale, 
-			h * scale.y * pixel_scale)
+			position.x - (frame.w * 0.5 * scale.x) * pixel_scale, 
+			position.y - (frame.h * 0.5 * scale.y) * pixel_scale, 
+			frame.w * scale.x * pixel_scale, 
+			frame.h * scale.y * pixel_scale)
 
-	if not DEBUG then
 		if Rect.Intersect(camera.bounds, self.gameObject.__bounds) then
-			love.graphics.setColor(self.colour:Unpack())
-			love.graphics.draw(sprite.source, 
-					sprite.quad, 
-					position.x, 
-					position.y, 
-					rotation, 
-					scale.x * (self.flipX and -1 or 1) * pixel_scale, 
-					scale.y * (self.flipY and -1 or 1) * pixel_scale,
-					w * 0.5, 
-					h * 0.5
+			self.isVisible = true
+			
+			sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
+
+			sprite_shader:Use()
+
+			if self.emission then
+				sprite_shader:Send("emission", self.emission.image.source)
+				sprite_shader:SendColour("emission_colour", { self.colours.emission:Unpack() })
+			end
+
+			graphics.setColor(self.colours.diffuse:Unpack())
+			
+			graphics.draw(self.sprite.image.source, 
+				sprite.quad, 
+				position.x, 
+				position.y, 
+				rotation, 
+				scale.x * (self.flipX and -1 or 1) * pixel_scale, 
+				scale.y * (self.flipY and -1 or 1) * pixel_scale,
+				frame.w * 0.5, 
+				frame.h * 0.5
 			)
+
+			Shader:Default()
+		else
+			self.isVisible = false
 		end
 	end
 end
 
-function Class:OnDrawGizmos(camera)
-	if DEBUG or self.gameObject.__selected then
-		local bounds = self.gameObject.__bounds
-		if Rect.Intersect(camera.bounds, bounds) then
-			love.graphics.setColor(255,255,255,125)
-			love.graphics.rectangle("line", bounds.x, bounds.y, bounds.w, bounds.h)
-			
-			love.graphics.setColor(75,75,255,255)
-			--love.graphics.circle("fill", bounds.x, bounds.y, 5)
-			--love.graphics.circle("fill", bounds.x + bounds.w, bounds.y, 5)
-			--love.graphics.circle("fill", bounds.x + bounds.w, bounds.y + bounds.h, 5)
-			--love.graphics.circle("fill", bounds.x, bounds.y + bounds.h, 5)
-		end
+function Class:OnDrawGizmosSelected(camera)
+	local bounds = self.gameObject.__bounds
+	if Rect.Intersect(camera.bounds, bounds) then
+		graphics.setColor(255,255,255,125)
+		graphics.rectangle("line", bounds.x, bounds.y, bounds.w, bounds.h)
+		
+		graphics.setColor(75,75,255,255)
+		--love.graphics.circle("fill", bounds.x, bounds.y, 5)
+		--love.graphics.circle("fill", bounds.x + bounds.w, bounds.y, 5)
+		--love.graphics.circle("fill", bounds.x + bounds.w, bounds.y + bounds.h, 5)
+		--love.graphics.circle("fill", bounds.x, bounds.y + bounds.h, 5)
 	end
 end
 
