@@ -131,6 +131,10 @@ hook.Add("love.update", "game", function()
 
 end)
 
+local ripple = Shader("resources/shaders/ripple.glsl")
+
+local text = love.graphics.newImage("resources/love-big-ball.png")
+
 Menu = false
 hook.Add("love.render", "game", function()
 	local scene = SceneManager:GetActiveScene()
@@ -146,15 +150,17 @@ hook.Add("love.render", "game", function()
 		love.graphics.setCanvas(ui)
 		love.graphics.clear(0,0,0,0)
 
-		blur(Camera.main.canvases.post.source, 3, 3, 5, 1.0)
-		love.graphics.draw(Camera.main.canvases.post.source, 0, 0, 0, 1, 1)
+		--blur(Camera.main.canvases.post.source, 3, 3, 5, 1.0)
+		--ripple:Use()
+		--ripple:Send("screen", Screen.Dimensions)
+		--ripple:Send("time", Time.Elapsed)
+
+		love.graphics.draw(text, 400, 400, 0, 1, 1)
+
+		--ripple:Default()
 
 		love.graphics.setCanvas()
-
-		love.graphics.setColor(220, 220, 220, 255)
 		love.graphics.draw(ui, 0, 0, 0, 1, 1)
-		love.graphics.setColor(255, 255, 255, 255)
-
 		love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
 		love.graphics.print("Count: " .. SceneManager:GetActiveScene():GetCount("SpriteRenderer"), 10, 25)
 		love.graphics.print("Steam Name: " .. user:GetPersonaName(), 10, 40)

@@ -9,15 +9,16 @@ end
 
 function love.load(args)
    background = love.graphics.newImage(backgroundFile)
-   love.window.setMode(background:getWidth(), background:getHeight(), {fullscreen = false})
+   love.window.setMode(background:getWidth(), background:getHeight(), { fullscreen = false })
    loadShader()
 end
 
 
 function love.draw()
    love.graphics.setShader(shader)
-   strength = math.sin(love.timer.getTime()*2)
-   shader:send("abberationVector", {strength*math.sin(love.timer.getTime()*7)/200, strength*math.cos(love.timer.getTime()*7)/200})
+   --strength = math.sin(love.timer.getTime()*2)
+   strength = 0.05
+   shader:send("abberationVector", {strength * 0.05, strength * 0.05})
    love.graphics.draw(background)
    love.graphics.setShader()
 end
