@@ -6,18 +6,25 @@ function Class:New(path)
 		return Class.Shaders[path] 
 	end
 	
-	self.source 	= love.graphics.newShader(GetProjectDirectory() .. path)
-	self.variables 	= {}
+	local status, shader = pcall(love.graphics.newShader, GetProjectDirectory() .. path)	
+	
+	if status then
+	else
+	    shader = Shader("resources/shaders/default.glsl").source
+	end
+	
+	self.source     = shader
+	self.variables  = {}
 
 	Class.Shaders[path] = self
 end
 
 function Class:Send(name, ...)
-	self.source:send(name, ...)
+    pcall(self.source.send, self.source, name, ...)
 end
 
 function Class:SendColour(name, ...)
-	self.source:sendColor(name, ...)
+	   pcall(self.source.sendColor, self.source, name, ...)
 end
 
 --[[

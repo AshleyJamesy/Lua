@@ -44,26 +44,17 @@ function Class:Update()
 	if Input.GetKey(self.keys and self.keys[2]  or "s") then
 		self.transform.position.y = self.transform.position.y + speed * Time.Delta
 	end
-
-	if Input.GetKeyDown("escape") then
-		Menu = not Menu
-	end
 	
 	if Input.GetMouseButton(1) then
-		local object = GameObject()
-		local sr = object:AddComponent("SpriteRenderer")
-		sr.sprite 	= Sprite("resources/sprites/hero.png")
-		sr.emission = Sprite("resources/sprites/hero_gray.png")
-		object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
+		
 	end
-
+ 
 	local wx, wy = Input.GetMouseWheel()
 
 	local zoom = Camera.main.zoom
 	--zoom.x = zoom.x - wy * 0.1
 	--zoom.y = zoom.y - wy * 0.1
 
-	--[[
 	if Application.Mobile then
 		if self.camera then
 			if not self.scaling then
@@ -75,6 +66,14 @@ function Class:Update()
 					self.distance = f_distance(ax, ay, bx, by)
 					self.center:Set(find_center(ax, ay, bx, by))
 					self.z = self.zoom
+				else
+				    if Input.GetTouchDown(1) then
+				        local object = GameObject()
+				        local sr = object:AddComponent("SpriteRenderer")
+				        sr.sprite 	= Sprite("resources/sprites/hero.png")
+				        sr.emission = Sprite("resources/sprites/hero_gray.png")
+				        object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
+				    end
 				end
 			else
 				if Input.GetTouchMoved(1) or Input.GetTouchMoved(2) then
@@ -95,5 +94,4 @@ function Class:Update()
 			end
 		end
 	end
-	]]
 end
