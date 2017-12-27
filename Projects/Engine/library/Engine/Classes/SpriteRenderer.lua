@@ -88,8 +88,6 @@ function Class:Update()
 	end
 end
 
-local sprite_shader = Shader("resources/shaders/material.glsl")
-
 function Class:Render(camera)
 	local sprite = self.sprite
 	if sprite then
@@ -113,11 +111,9 @@ function Class:Render(camera)
 			
 			sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
 
-			sprite_shader:Use()
-
 			if self.emission then
-				sprite_shader:Send("emission", self.emission.image.source)
-				sprite_shader:SendColour("emission_colour", { self.colours.emission:Unpack() })
+				--sprite_shader:Send("emission", self.emission.image.source)
+				--sprite_shader:SendColour("emission_colour", { self.colours.emission:Unpack() })
 			end
 
 			graphics.setColor(self.colours.diffuse:Unpack())
@@ -132,8 +128,6 @@ function Class:Render(camera)
 				frame.w * 0.5, 
 				frame.h * 0.5
 			)
-
-			Shader:Default()
 		else
 			self.isVisible = false
 		end
@@ -158,10 +152,15 @@ local function sort(a, b)
 	return a.hash == b.hash and (a.__id < b.__id) or (a.hash < b.hash)
 end
 
-local function PreRender()
+function Class:PreRender(camera)
 	local group = SceneManager:GetActiveScene().__objects["SpriteRenderer"]
 	if group then
 		table.sort(group, sort)
 	end
+	
+    Shader("resources/shaders/material.glsl"):Use()
 end
-hook.Add("OnPreRender", "SpriteRenderer", PreRender)
+
+function Class:PostRender(camera)
+    Shader("resources/shaders/material.glsl"):Default()
+end

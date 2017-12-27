@@ -72,7 +72,48 @@ local ignore_table 	= { "Camera" }
 local function DoRender(camera, w, h)
 	graphics.setColor(255, 255, 255, 255)
 	
-	CallFunctionOnAll("Render", ignore_table, camera)
+	--CallFunctionOnAll("Render", ignore_table, camera)
+	
+	for name, batch in pairs(SceneManager:GetActiveScene().__objects) do
+			if table.HasValue(ignore_table, name) then
+			else
+			    if batch then
+	    		    local f = nil
+		    	    local index, component = next(batch, nil)
+		    	    local post = nil
+		    	    
+		    	    while index do
+			            if f == nil then
+			                f = component["Render"]
+			                
+			                if f == nil or type(f) ~= "function" then
+	    		                f = nil
+	    		                break
+		    	            end
+		    	            
+		    	            if component.PreRender then
+		    	                component.PreRender(camera)
+		    	            end
+		    	            
+		    	            post = component.PostRender
+		    	        end
+			        
+		    	        if component.enabled == nil or component.enabled == true then
+		    	            f(component, camera)
+		    	        end
+			            
+	    		        index, component = next(batch, index)
+	    		        
+	    		        if index == nil then
+	    		            if post then
+		    	                post(camera)
+		    	                post = nil
+		    	            end
+	    		        end
+			       end
+			    end
+			end
+ end
 	
 	graphics.push()
 	graphics.origin()
@@ -87,8 +128,6 @@ local function DoRender(camera, w, h)
 end
 
 local effect_canvas = love.graphics.newCanvas()
-local LOVE_POSTSHADER_BLURH = love.graphics.newShader("resources/shaders/blurh.glsl")
-local LOVE_POSTSHADER_BLURV = love.graphics.newShader("resources/shaders/blurv.glsl")
 
 function blur(target, x, y, passes, intensity)
 	local old 				= love.graphics.getCanvas()
@@ -102,20 +141,23 @@ function blur(target, x, y, passes, intensity)
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setColor(255,255,255,255)
 
+ local blurv = Shader("resources/shaders/blurv.glsl")
+ local blurh = Shader("resources/shaders/blurh.glsl")
+	
 	for i = 1, passes do
 		love.graphics.setCanvas(effect_canvas)
 		love.graphics.clear()
-		LOVE_POSTSHADER_BLURV:send("screen", Screen.Dimensions)
-		LOVE_POSTSHADER_BLURV:send("steps", x and x > 0 and x or 1.0)
-		LOVE_POSTSHADER_BLURV:send("intensity", 1.0 + intensity * 0.01)
-		love.graphics.setShader(LOVE_POSTSHADER_BLURV)
+		blurv:Send("screen", Screen.Dimensions)
+		blurv:Send("steps", x and x > 0 and x or 1.0)
+		blurv:Send("intensity", 1.0 + intensity * 0.01)
+		blurv:Use()
 		love.graphics.draw(target)
 		
 		love.graphics.setCanvas(target)
-		LOVE_POSTSHADER_BLURH:send("screen", Screen.Dimensions)
-		LOVE_POSTSHADER_BLURH:send("steps", y and y > 0 and y or 1.0)
-		LOVE_POSTSHADER_BLURH:send("intensity", 1.0 + intensity * 0.01)
-		love.graphics.setShader(LOVE_POSTSHADER_BLURH)
+		blurh:Send("screen", Screen.Dimensions)
+		blurh:Send("steps", y and y > 0 and y or 1.0)
+		blurh:Send("intensity", 1.0 + intensity * 0.01)
+		blurh:Use()
 
 		love.graphics.draw(effect_canvas)
 	end
@@ -192,29 +234,6 @@ function Class:Render()
 
 	--emission
 	graphics.setBlendMode("screen")
-
-	graphics.draw(Camera.main.canvases.emission.source, 0, 0, 0, 1, 1)
-
-	if Input.GetKeyDown("up") then
-		passes = passes + 1
-	end
-
-	if Input.GetKeyDown("down") then
-		passes = passes - 1
-	end
-
-	if Input.GetKeyDown("right") then
-		bx = bx + 1
-	end
-
-	if Input.GetKeyDown("left") then
-		bx = bx - 1
-	end
-
-	local wx, wy = Input.GetMouseWheel()
-	intensity = intensity + wy
-
-	blur(Camera.main.canvases.emission.source, bx, bx, passes, intensity)
 
 	graphics.draw(Camera.main.canvases.emission.source, 0, 0, 0, 1, 1)
 

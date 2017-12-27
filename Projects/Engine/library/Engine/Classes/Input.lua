@@ -27,11 +27,11 @@ function Class.GetKeyUp(key)
 end
 
 function Class.GetMouseButton(button)
-	return Class.__mouse[button] ~= nil or Class.__touch[button] ~= nil
+	return Class.__mouse[button] ~= nil or Class.GetTouch(button)
 end
 
 function Class.GetMouseButtonDown(button)
-	return Class.__mouse[button] == nil and false or Class.__mouse[button] == Time.Cycle
+	return Class.__mouse[button] == nil and Class.GetTouchDown(button) or Class.__mouse[button] == Time.Cycle
 end
 
 function Class.GetMouseButtonUp(button)
@@ -80,12 +80,12 @@ function Class.Update()
 	Class.mousePosition:Set(love.mouse.getX(), love.mouse.getY())
 
 	Class.anyKey = Class.__keyboardCount > 0 or Class.__mouseCount > 0 or Class.__touchCount > 0
- 
-	if Application.Mobile then
-		Class.acceleration.x = joystick:getAxis(1)
-		Class.acceleration.y = joystick:getAxis(2)
-		Class.acceleration.z = joystick:getAxis(3)
-	end
+
+    if Application.Mobile then
+        Class.acceleration.x = joystick:getAxis(1)
+        Class.acceleration.y = joystick:getAxis(2)
+        Class.acceleration.z = joystick:getAxis(3)
+    end
 end
 
 function Class.LateUpdate()

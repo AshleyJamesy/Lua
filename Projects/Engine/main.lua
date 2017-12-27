@@ -1,5 +1,17 @@
 FFI = require("ffi")
 
+--[[
+features = love.graphics.getSupported()
+for k, v in pairs(features) do
+    print(k,v)
+end
+
+limits = love.graphics.getSystemLimits()
+for k, v in pairs(limits) do
+    print(k, v)
+end
+]]--
+
 include("extensions/")
 include("util/")
 include("callbacks")
@@ -89,11 +101,6 @@ hero:NewAnimation("idle", Animation(1.0, true, { 1, 2, 3, 4 }))
 local hero_emission = Sprite("resources/sprites/hero_gray.png")
 
 hook.Add("love.load", "game", function()
-	if Application.Mobile then
-	else
-		include("steamworks")
-	end
-	
 	Input.Update()
 	Input.LateUpdate()
 
@@ -102,20 +109,6 @@ hook.Add("love.load", "game", function()
 	local object = GameObject()
 	object:AddComponent("Camera")
 	object:AddComponent("FlyCamera")
-
-	steamid = steamworks.user.GetSteamID()
-	user 	= steamworks.GetFriendObjectFromSteamID(steamid)
-
-	if steamworks then
-		local image = user:GetMediumAvatar()
-
-		local love_image = love.image.newImageData(64, 64)
-		steamworks.utils.GetImageRGBA(image, love_image:getPointer(), love_image:getSize())
-
-		steam_image = love.graphics.newImage(love_image)
-	end
-
-	ui = love.graphics.newCanvas()
 end)
 
 hook.Add("love.update", "game", function()
@@ -131,11 +124,9 @@ hook.Add("love.update", "game", function()
 
 end)
 
-local ripple = Shader("resources/shaders/ripple.glsl")
+local testCanvas1 = graphics.newCanvas()
+local testCanvas2 = graphics.newCanvas()
 
-local text = love.graphics.newImage("resources/love-big-ball.png")
-
-Menu = false
 hook.Add("love.render", "game", function()
 	local scene = SceneManager:GetActiveScene()
 	
@@ -143,34 +134,22 @@ hook.Add("love.render", "game", function()
 	
 	scene:Render()
 	
+	graphics.draw(Camera.main.canvases.post.source, 0, 0)
+	
 	hook.Call("OnPostRender")
 	hook.Call("OnRenderImage")
 	
-	if Menu then
-		love.graphics.setCanvas(ui)
-		love.graphics.clear(0,0,0,0)
-
-		--blur(Camera.main.canvases.post.source, 3, 3, 5, 1.0)
-		--ripple:Use()
-		--ripple:Send("screen", Screen.Dimensions)
-		--ripple:Send("time", Time.Elapsed)
-
-		love.graphics.draw(text, 400, 400, 0, 1, 1)
-
-		--ripple:Default()
-
-		love.graphics.setCanvas()
-		love.graphics.draw(ui, 0, 0, 0, 1, 1)
-		love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
-		love.graphics.print("Count: " .. SceneManager:GetActiveScene():GetCount("SpriteRenderer"), 10, 25)
-		love.graphics.print("Steam Name: " .. user:GetPersonaName(), 10, 40)
-
-		if steamworks then
-			love.graphics.draw(steam_image, 10, 60, 0, 1, 1)
-		end
-	else
-		love.graphics.draw(Camera.main.canvases.post.source, 0, 0, 0, 1, 1)
+	stats = graphics.getStats()
+	stats.fps = love.timer.getFPS()
+	stats.memory = string.format("%.2f MB", stats.texturememory / 1024 / 1024)
+	stats.x = Application.Mobile
+	local t = ""
+	for k, v in pairs(stats) do
+	    t = t .. k .. ": " .. tostring(v) .. "\n"
 	end
-
+	graphics.print(t, 10, 10, 0, 2.5, 2.5)
+	
 	Input.LateUpdate()
+	
+	love.graphics.present()
 end)
