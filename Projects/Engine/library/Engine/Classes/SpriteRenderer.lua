@@ -112,8 +112,8 @@ function Class:Render(camera)
 			sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
 
 			if self.emission then
-				--sprite_shader:Send("emission", self.emission.image.source)
-				--sprite_shader:SendColour("emission_colour", { self.colours.emission:Unpack() })
+				Shader("resources/shaders/material.glsl"):Send("emission", self.emission.image.source)
+				Shader("resources/shaders/material.glsl"):SendColour("emission_colour", { self.colours.emission:Unpack() })
 			end
 
 			graphics.setColor(self.colours.diffuse:Unpack())

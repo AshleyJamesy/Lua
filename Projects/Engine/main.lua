@@ -1,17 +1,5 @@
 FFI = require("ffi")
 
---[[
-features = love.graphics.getSupported()
-for k, v in pairs(features) do
-    print(k,v)
-end
-
-limits = love.graphics.getSystemLimits()
-for k, v in pairs(limits) do
-    print(k, v)
-end
-]]--
-
 include("extensions/")
 include("util/")
 include("callbacks")
@@ -24,6 +12,19 @@ include("source/")
 class.Load()
 
 graphics = love.graphics
+
+function PrintStats()
+	stats 			= graphics.getStats()
+	stats.fps 		= love.timer.getFPS()
+	stats.memory 	= string.format("%.2f MB", stats.texturememory / 1024 / 1024)
+
+	local text = ""
+	for k, v in pairs(stats) do
+		text = text .. k .. ": " .. tostring(v) .. "\n"
+	end
+
+	graphics.print(text, 10, 10, 0)
+end
 
 function CallFunctionOnType(typename, method, ...)
 	local batch = SceneManager:GetActiveScene().__objects[typename]
@@ -124,9 +125,70 @@ hook.Add("love.update", "game", function()
 
 end)
 
-local testCanvas1 = graphics.newCanvas()
-local testCanvas2 = graphics.newCanvas()
+local shader_code = [[
+	extern Image texture_cubemap;
+	extern Image texture_emission;
+	extern Image texture_refraction;
+	extern float time;
 
+	float opacity 		= 0.0;
+
+	vec4 base			= vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 emission		= vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 normal			= vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 refraction 	= vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 frag_Colour 	= vec4(1.0, 1.0, 1.0, 1.0);
+	
+	vec4 effect(vec4 colour, Image texture_diffuse, vec2 uv_coords, vec2 screen_coords)
+	{
+		float sx = (screen_coords.x - 0.5) / 800.0;
+		float sy = (screen_coords.y - 0.5) / 600.0;
+		
+		base = Texel(texture_diffuse, uv_coords.xy);
+
+		vec4 refraction = Texel(texture_refraction, uv_coords.xy);
+		refraction 	= Texel(texture_cubemap, vec2(
+				sx - (sx * ((refraction.r - 0.5) * 2.0) * 0.01 * 8.0) - 0.00392156862 * 2.0, 
+				sy - (sy * ((refraction.b - 0.5) * 2.0) * 0.01 * 8.0) - 0.00392156862 * 2.0
+			)
+		);
+		
+		frag_Colour = mix(base, refraction, 1.0 - opacity) * colour;
+		
+		return frag_Colour;
+	}
+]]
+local shader_source 	= graphics.newShader(shader_code)
+local background 		= graphics.newImage("resources/loveforge/background.jpg")
+local refraction 		= graphics.newImage("resources/loveforge/refraction.png")
+local colour_map 		= graphics.newCanvas()
+
+hook.Add("love.render", "game", function()
+	graphics.setCanvas(colour_map)
+	graphics.clear(0.0, 0.0, 0.0, 0.0)
+	graphics.draw(background)
+	graphics.setCanvas()
+
+	graphics.clear(0.0, 0.0, 0.0, 0.0)
+
+	graphics.draw(colour_map)
+
+	graphics.setShader(shader_source)
+
+	shader_source:send("texture_cubemap", colour_map)
+	shader_source:send("texture_refraction", refraction)
+
+	graphics.setColor(100, 255, 255, 255)
+	graphics.draw(hero.image.source, 666, 182)
+	
+	graphics.setColor(255, 255, 0, 255)
+	graphics.draw(hero.image.source, Input.mousePosition.x, Input.mousePosition.y, 0, 1.0, 1.0, hero.image.width * 0.5, hero.image.height * 0.5)
+
+	graphics.setColor(255, 255, 255, 255)
+	graphics.setShader()
+end)
+
+--[[
 hook.Add("love.render", "game", function()
 	local scene = SceneManager:GetActiveScene()
 	
@@ -139,17 +201,8 @@ hook.Add("love.render", "game", function()
 	hook.Call("OnPostRender")
 	hook.Call("OnRenderImage")
 	
-	stats = graphics.getStats()
-	stats.fps = love.timer.getFPS()
-	stats.memory = string.format("%.2f MB", stats.texturememory / 1024 / 1024)
-	stats.x = Application.Mobile
-	local t = ""
-	for k, v in pairs(stats) do
-	    t = t .. k .. ": " .. tostring(v) .. "\n"
-	end
-	graphics.print(t, 10, 10, 0, 2.5, 2.5)
-	
 	Input.LateUpdate()
 	
-	love.graphics.present()
+	PrintStats()
 end)
+]]

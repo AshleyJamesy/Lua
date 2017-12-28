@@ -46,7 +46,11 @@ function Class:Update()
 	end
 	
 	if Input.GetMouseButton(1) then
-		
+		local object = GameObject()
+		local sr = object:AddComponent("SpriteRenderer")
+		sr.sprite 	= Sprite("resources/sprites/hero.png")
+		sr.emission = Sprite("resources/sprites/hero_gray.png")
+		object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
 	end
  
 	local wx, wy = Input.GetMouseWheel()

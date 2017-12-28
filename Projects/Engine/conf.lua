@@ -141,6 +141,7 @@ function love.run()
 				
 				if love.render then 
 					love.render(Time.Alpha)
+					love.graphics.present()
 				end
 			end
 		end
