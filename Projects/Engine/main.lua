@@ -126,6 +126,7 @@ hook.Add("love.update", "game", function()
 end)
 
 local shader_code = [[
+	extern vec2 screen_dimensions;
 	extern Image texture_cubemap;
 	extern Image texture_emission;
 	extern Image texture_refraction;
@@ -141,8 +142,8 @@ local shader_code = [[
 	
 	vec4 effect(vec4 colour, Image texture_diffuse, vec2 uv_coords, vec2 screen_coords)
 	{
-		float sx = (screen_coords.x - 0.5) / 800.0;
-		float sy = (screen_coords.y - 0.5) / 600.0;
+		float sx = (screen_coords.x - 0.5) / screen_dimensions.x;
+		float sy = (screen_coords.y - 0.5) / screen_dimensions.y;
 		
 		base = Texel(texture_diffuse, uv_coords.xy);
 
@@ -175,6 +176,7 @@ hook.Add("love.render", "game", function()
 
 	graphics.setShader(shader_source)
 
+	shader_source:send("screen_dimensions", Screen.Dimensions)
 	shader_source:send("texture_cubemap", colour_map)
 	shader_source:send("texture_refraction", refraction)
 
