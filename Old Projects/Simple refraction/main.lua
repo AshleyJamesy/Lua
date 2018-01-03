@@ -72,6 +72,9 @@ function love.draw()
    love.graphics.setShader(shader)
    shader:send("geometryOffset", {mouseX/canvas:getWidth(), mouseY/canvas:getHeight()})
    love.graphics.draw(geometry, mouseX, mouseY)
+
+   shader:send("geometryOffset", {100/canvas:getWidth(), 100/canvas:getHeight()})
+   love.graphics.draw(geometry, 100, 100)
    love.graphics.setShader()
 end
 
