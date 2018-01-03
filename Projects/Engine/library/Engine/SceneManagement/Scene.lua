@@ -50,8 +50,8 @@ function Class:Update()
 		table.insert(self.__objects[v.__typename], 1, v)
 
 		if v.IsMonoBehaviour then
-			v:Awake()
-			v:Start()
+			--v:Awake()
+			--v:Start()
 			v:Enable()
 		end
 

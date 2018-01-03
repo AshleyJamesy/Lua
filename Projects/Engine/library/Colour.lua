@@ -86,6 +86,14 @@ function Class:Set(r,g,b,a)
     self:New(r,g,b,a)
 end
 
+function Class:Use()
+    love.graphics.setColor(self.r, self.g, self.b, self.a)
+end
+
+function Class:Reset()
+    love.graphics.setColor(255, 255, 255, 255)
+end
+
 function Class:ToString()
 	return self.r .. ", " .. self.g .. ", " .. self.b .. ", " .. self.a
 end

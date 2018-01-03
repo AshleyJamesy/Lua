@@ -15,7 +15,7 @@ function Class:New(path)
 	self.frames 		= {}
 	self.animations 	= {}
 	
-	self.quad 			= love.graphics.newQuad(0, 0, self.image.width, self.image.height, self.image.width, self.image.height)
+	self.quad = love.graphics.newQuad(0, 0, self.image.width, self.image.height, self.image.width, self.image.height)
 	
 	Class.Sprites[path] = self
 end

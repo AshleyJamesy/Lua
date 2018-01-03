@@ -62,6 +62,8 @@ function Class:StopAnimation()
 end
 
 function Class:Update()
+ self.a = self.transform.position.x
+ 
 	self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
 
 	local sprite = self.sprite

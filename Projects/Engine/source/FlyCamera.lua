@@ -22,7 +22,7 @@ function Class:Awake()
 end
 
 function Class:Update()
-	self.transform.position:Set(self.transform.globalPosition.x, self.transform.globalPosition.y)
+	--self.transform.position:Set(self.transform.globalPosition.x, self.transform.globalPosition.y)
 
 	local speed = 100
 	if Input.GetKey("lshift") then
@@ -48,7 +48,7 @@ function Class:Update()
 	if Input.GetMouseButton(1) then
 		local object = GameObject()
 		local sr = object:AddComponent("SpriteRenderer")
-		sr.sprite 	= Sprite("resources/sprites/hero.png")
+		sr.sprite 	= Sprite("resources/face.png")
 		sr.emission = Sprite("resources/sprites/hero_gray.png")
 		object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
 	end
@@ -74,7 +74,7 @@ function Class:Update()
 				    if Input.GetTouchDown(1) then
 				        local object = GameObject()
 				        local sr = object:AddComponent("SpriteRenderer")
-				        sr.sprite 	= Sprite("resources/sprites/hero.png")
+				        sr.sprite 	= Sprite("resources/face.png")
 				        sr.emission = Sprite("resources/sprites/hero_gray.png")
 				        object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
 				    end

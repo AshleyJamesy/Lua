@@ -32,6 +32,8 @@ end
 
 function love.lowmemory()
 	hook.Call("LowMemory")
+	
+	collectgarbage()
 end
 
 function love.keypressed(key, scancode, isrepeat)

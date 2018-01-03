@@ -15,9 +15,11 @@ local function grid(camera, w, h, unit)
 	local cy = (0 * unit) - (camera.transform.globalPosition.y % unit) 
 
 	for x = 0, ix do
+	 graphics.setLineWidth(4.0)
+	 
 		cx = (x * unit) - (camera.transform.globalPosition.x % unit)
 		graphics.line(cx, 0, cx, h)
-
+		
 		for y = 0, iy do
 			cy = (y * unit) - (camera.transform.globalPosition.y % unit)
 			graphics.line(0, cy, w, cy)
@@ -25,6 +27,7 @@ local function grid(camera, w, h, unit)
 	end
 
 	graphics.setColor(255, 255, 255, 255)
+	graphics.setLineWidth(1.0)
 	graphics.setLineStyle("smooth")
 end
 
@@ -188,8 +191,8 @@ function Class:Render()
 	self.zoom.x = math.clamp(self.zoom.x, 0.01, math.huge)
 	self.zoom.y = math.clamp(self.zoom.y, 0.01, math.huge)
 	
-	local w = (self.texture and self.texture.width  or graphics.getWidth()) * 0.5
-	local h = (self.texture and self.texture.height or graphics.getHeight()) * 0.5
+	local w = Screen.width * 0.5
+	local h = Screen.height * 0.5
 	
 	self.bounds:Set(self.transform.globalPosition.x - w * self.zoom.x, self.transform.globalPosition.y - h * self.zoom.y, (w * self.zoom.x) * 2, (h * self.zoom.y) * 2)
 	
@@ -257,8 +260,8 @@ function Class:OnDrawGizmos(camera)
 end
 
 function Class:ScreenToWorld(x, y)
-	return (x * self.zoom.x + self.transform.globalPosition.x) - (self.texture and self.texture.width  or love.graphics.getWidth()) * 0.5 * self.zoom.x,
-    	(y * self.zoom.y + self.transform.globalPosition.y) - (self.texture and self.texture.height or love.graphics.getHeight()) * 0.5 * self.zoom.y
+	return (x * self.zoom.x + self.transform.globalPosition.x) - Screen.width * 0.5 * self.zoom.x,
+    	(y * self.zoom.y + self.transform.globalPosition.y) - Screen.height * 0.5 * self.zoom.y
 end
 
 function Class:WorldToScreen(x, y)
