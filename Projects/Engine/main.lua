@@ -25,7 +25,7 @@ function PrintStats()
 		text = text .. k .. ": " .. tostring(v) .. "\n"
 	end
 
-	graphics.print(text, 10, 10, 0, 2.0, 2.0)
+	graphics.print(text, 10, 10, 0, 1.0, 1.0)
 end
 
 function CallFunctionOnType(typename, method, ...)
@@ -243,14 +243,13 @@ scanline_shader = graphics.newShader(scanlines)
 pixels = [[
     vec4 effect(vec4 colour, Image texture, vec2 uv_coords, vec2 screen_coords)
     {
-    	    vec2 pixel  = uv_coords * love_ScreenSize.xy;
-    	    vec4 result = Texel(texture, uv_coords);
-    	    
-    	    return result;
-    	}
+    	return vec4(1.0, 1.0, 1.0, 1.0);
+    }
 ]]
 
 pixels_shader = graphics.newShader(pixels)
+
+--love.graphics.setWireframe(true)
 
 hook.Add("love.render", "game", function()
 	local scene = SceneManager:GetActiveScene()
@@ -268,9 +267,7 @@ hook.Add("love.render", "game", function()
 	else
 	    graphics.draw(Camera.main.canvases.post.source, 0, 0, 0)
 	end
-	
-	Image("resources/face.png"):Render(300, 300, 100, 100)
-	
+
 	hook.Call("OnPostRender")
 	hook.Call("OnRenderImage")
 	
@@ -278,5 +275,3 @@ hook.Add("love.render", "game", function()
 	
 	PrintStats()
 end)
-
-ja, jb = 0, 0
