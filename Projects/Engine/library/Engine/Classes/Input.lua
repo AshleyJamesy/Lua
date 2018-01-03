@@ -8,6 +8,8 @@ Class.mouseWheel 	= Vector2(0, 0)
 Class.anyKey = false
 Class.anyKeyDown = false
 
+Class.__joysticks = {}
+
 Class.__keyboardCount 	= 0
 Class.__mouseCount	= 0
 Class.__touchCount = 0
@@ -75,20 +77,47 @@ function Class.GetTouchPosition(id)
     return 0, 0
 end
 
+function Class.GetAxis(id, direction)
+    local joystick = Class.__joysticks[id]
+    
+    if joystick then
+        if joystick.axis[direction] then
+            return joystick.axis[direction]
+        end
+    end
+    
+    return 0
+end
+
+function Class.GetJoystickButton(joystick, button)
+	return Class.__joysticks[joystick].buttons[button] ~= nil
+end
+
+function Class.GetJoystickButtonDown(joystick, button)
+	return Class.__joysticks[joystick].buttons[button] == nil and false or Class.__joysticks[joystick].buttons[button] == Time.Cycle
+end
+
+function Class.GetJoystickButtonUp(joystick, button)
+	return Class.__joysticks[joystick].buttons[button] == nil
+end
+
+
 local joystick = love.joystick.getJoysticks()[1]
 function Class.Update()
-	Class.mousePosition:Set(love.mouse.getX(), love.mouse.getY())
-
+ local x, y = Screen.GetPoint(love.mouse.getX(), love.mouse.getY())
+ 
 	Class.anyKey = Class.__keyboardCount > 0 or Class.__mouseCount > 0 or Class.__touchCount > 0
 
     if Application.Mobile then
-    	if Class.GetTouch(1) then
-    		Class.mousePosition:Set(love.mouse.getX(), love.mouse.getY())
-    	end
-    	
+        if Class.GetTouch(1) then
+            Class.mousePosition:Set(x, y)
+    	    end
+    	    
         Class.acceleration.x = joystick:getAxis(1)
         Class.acceleration.y = joystick:getAxis(2)
         Class.acceleration.z = joystick:getAxis(3)
+    else
+        Class.mousePosition:Set(x, y)
     end
 end
 
@@ -114,6 +143,7 @@ function Class.LateUpdate()
 	    end
 	end
 
+ Class.mousePosition:Set(0,0)
 	Class.mouseWheel:Set(0, 0)
 end
 
@@ -150,14 +180,17 @@ hook.Add("TouchPressed", "Input", function(id, x, y, dx, dy, pressure)
     local uid = string.gsub(tostring(id), "userdata: ", "")
     if uid == "NULL" then uid = 1 else uid = tonumber(uid) + 1 end
     
-    Class.__touch[uid] = { 
+    Class.__touch[uid] = {
+        id        = uid,
         state     = "Pressed",
         touch     = id,
-        position  = Vector2(x,y),
+        position  = Vector2(Screen.GetPoint(x, y)),
         delta     = Vector2(dx,dy)
     }
     
     Class.anyKeyDown 	= true
+    
+    hook.Call("IPointerDownHandler", Class.__touch[uid])
 end)
 
 hook.Add("TouchMoved", "Input", function(id, x, y, dx, dy, pressure)
@@ -167,9 +200,12 @@ hook.Add("TouchMoved", "Input", function(id, x, y, dx, dy, pressure)
     local touch = Class.__touch[uid]
     
     touch.state = "Moved"
+    touch.id    = uid
     touch.touch = id
-    touch.position:Set(x, y)
+    touch.position:Set(Vector2(Screen.GetPoint(x, y)))
     touch.delta:Set(dx, dy)
+    
+    hook.Call("IDrag", touch)
 end)
 
 hook.Add("TouchReleased", "Input", function(id, x, y, dx, dy, pressure)
@@ -179,11 +215,35 @@ hook.Add("TouchReleased", "Input", function(id, x, y, dx, dy, pressure)
     local touch = Class.__touch[uid]
     
     touch.state = "Released"
+    touch.id    = uid
     touch.touch = nil
-    touch.position:Set(x, y)
+    touch.position:Set(Vector2(Screen.GetPoint(x, y)))
     touch.delta:Set(dx, dy)
+    
+    hook.Call("IPointerUpHandler", touch)
 end)
 
 hook.Add("MouseWheelMoved", "Input",	function(x, y)
 	Class.mouseWheel:Set(x, y)
 end)
+
+hook.Add("JoystickAdded", "Input", function(joystick)
+    if Class.__joysticks[joystick] == nil then
+        Class.__joysticks[joystick]         = {}
+        Class.__joysticks[joystick].axis    = {}
+        Class.__joysticks[joystick].buttons = {}
+    end
+end)
+
+hook.Add("GamepadPressed", "Input", function(joystick, button)
+    Class.__joysticks[joystick].buttons[button] = Time.Cycle
+end)
+
+hook.Add("GamepadReleased", "Input", function(joystick, button)
+    Class.__joysticks[joystick].buttons[button] = nil
+end)
+
+hook.Add("JoystickAxis", "Input", function(joystick, axis, value)
+    Class.__joysticks[joystick].axis[axis] = value
+end)
+

@@ -14,16 +14,18 @@ class.Load()
 graphics = love.graphics
 
 function PrintStats()
-	stats 			= graphics.getStats()
-	stats.fps 		= love.timer.getFPS()
-	stats.memory 	= string.format("%.2f MB", stats.texturememory / 1024 / 1024)
-
+	stats                 = graphics.getStats()
+	stats.fps             = love.timer.getFPS()
+	stats.memory          = string.format("%.2f MB", stats.texturememory / 1024 / 1024)
+	stats.texturememory   = nil
+	stats.mouse = Vector2(Input.GetMousePosition())
+ stats.screen = Vector2(Screen.width, Screen.height)
 	local text = ""
 	for k, v in pairs(stats) do
 		text = text .. k .. ": " .. tostring(v) .. "\n"
 	end
 
-	graphics.print(text, 10, 10, 0)
+	graphics.print(text, 10, 10, 0, 2.0, 2.0)
 end
 
 function CallFunctionOnType(typename, method, ...)
@@ -102,14 +104,21 @@ hero:NewAnimation("idle", Animation(1.0, true, { 1, 2, 3, 4 }))
 local hero_emission = Sprite("resources/sprites/hero_gray.png")
 
 hook.Add("love.load", "game", function()
+	Screen.Flip()
+	
 	Input.Update()
 	Input.LateUpdate()
 
 	SceneManager:GetActiveScene()
-
-	local object = GameObject()
+	
+	object = GameObject()
 	object:AddComponent("Camera")
-	object:AddComponent("FlyCamera")
+	
+	object = GameObject()
+	local renderer                = object:AddComponent("SpriteRenderer")
+	renderer.sprite               = Sprite("resources/face.png")
+	renderer.sprite.pixelPerUnit  = 256
+	object:AddComponent("Player")
 end)
 
 hook.Add("love.update", "game", function()
@@ -131,9 +140,10 @@ local shader_code = [[
 	extern Image texture_emission;
 	extern Image texture_refraction;
 	extern float time;
-
+	extern float strength;
+	
 	float opacity 		= 0.0;
-
+	
 	vec4 base			= vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 emission		= vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 normal			= vec4(0.0, 0.0, 0.0, 1.0);
@@ -149,8 +159,8 @@ local shader_code = [[
 
 		vec4 refraction = Texel(texture_refraction, uv_coords.xy);
 		refraction 	= Texel(texture_cubemap, vec2(
-				sx - (sx * ((refraction.r - 0.5) * 2.0) * 0.01 * 8.0) - 0.00392156862 * 2.0, 
-				sy - (sy * ((refraction.b - 0.5) * 2.0) * 0.01 * 8.0) - 0.00392156862 * 2.0
+				sx - (sx * ((refraction.r - 0.5) * 2.0) * 0.01 * strength), 
+				sy - (sy * ((refraction.b - 0.5) * 2.0) * 0.01 * strength)
 			)
 		);
 		
@@ -159,38 +169,89 @@ local shader_code = [[
 		return frag_Colour;
 	}
 ]]
-local shader_source 	= graphics.newShader(shader_code)
-local background 		= graphics.newImage("resources/loveforge/background.jpg")
-local refraction 		= graphics.newImage("resources/loveforge/refraction.png")
-local colour_map 		= graphics.newCanvas()
 
-hook.Add("love.render", "game", function()
-	graphics.setCanvas(colour_map)
-	graphics.clear(0.0, 0.0, 0.0, 0.0)
-	graphics.draw(background)
-	graphics.setCanvas()
+blur_code = [[
+    #ifndef GL_ES
+    #define lowp
+    #define mediump
+    #define highp
+    #endif
+    
+    extern float steps;
+    extern float intensity;
+    
+    vec4 effect(vec4 colour, Image texture, vec2 uv_coords, vec2 screen_coords)
+    {
+        vec2 size   = 1.0 / love_ScreenSize.xy;
+        vec4 result = Texel(texture, uv_coords);
+       
+        for(float i = 1.0; i <= steps; i += 1.0)
+        {
+        	    result = result + Texel(texture, vec2(uv_coords.x, uv_coords.y - size.y * i));
+        	    result = result + Texel(texture, vec2(uv_coords.x, uv_coords.y + size.y * i));
+        }
+    
+        result   = result / (steps * 2.0 + 1.0) * intensity;
+        result.a = 1.0;
+        
+        return result;
+    }
+]]
+blur_shader = graphics.newShader(blur_code)
 
-	graphics.clear(0.0, 0.0, 0.0, 0.0)
+scanlines = [[
+    extern float pixels;
+    extern float intensity;
+    extern float time;
+    
+    vec4 effect(vec4 colour, Image texture, vec2 uv_coords, vec2 screen_coords)
+    {
+        vec2 size = 1.0 / love_ScreenSize.xy;
+        
+        float brightness  = 1.0;
+        float amplitude   = sign(cos(time * 80.0));
+        
+        vec4 diffuse = Texel(texture,
+        	    vec2(
+        	        uv_coords.x + (step(mod(uv_coords.y * love_ScreenSize.y, pixels), pixels * 0.5) - 0.5) * 2.0 * 0.001 * intensity * sin(time * 5.0),
+        	        	uv_coords.y
+        	    )
+        	);
+        
+        float red     = diffuse.r;
+        float green   = diffuse.g;
+        float blue    = diffuse.b;
+        
+        vec4 result = vec4(diffuse.xyz, 1.0) * brightness;
+    
+        if(mod((uv_coords.y + mod(time * 0.08, 2.0)) * love_ScreenSize.y, pixels) < pixels * 0.5)
+        {
+            result = result * 0.75;
+            result.r = result.r * 0.25;
+        }
+        else
+        {
+        	    result.b = result.b * 0.5;
+        }
+        	
+        return vec4(result.xyz, 1.0);
+    }
+]]
 
-	graphics.draw(colour_map)
+scanline_shader = graphics.newShader(scanlines)
 
-	graphics.setShader(shader_source)
+pixels = [[
+    vec4 effect(vec4 colour, Image texture, vec2 uv_coords, vec2 screen_coords)
+    {
+    	    vec2 pixel  = uv_coords * love_ScreenSize.xy;
+    	    vec4 result = Texel(texture, uv_coords);
+    	    
+    	    return result;
+    	}
+]]
 
-	shader_source:send("screen_dimensions", Screen.Dimensions)
-	shader_source:send("texture_cubemap", colour_map)
-	shader_source:send("texture_refraction", refraction)
+pixels_shader = graphics.newShader(pixels)
 
-	graphics.setColor(100, 255, 255, 255)
-	graphics.draw(hero.image.source, 666, 182)
-	
-	graphics.setColor(255, 255, 0, 255)
-	graphics.draw(hero.image.source, Input.mousePosition.x, Input.mousePosition.y, 0, 1.0, 1.0, hero.image.width * 0.5, hero.image.height * 0.5)
-
-	graphics.setColor(255, 255, 255, 255)
-	graphics.setShader()
-end)
-
---[[
 hook.Add("love.render", "game", function()
 	local scene = SceneManager:GetActiveScene()
 	
@@ -198,7 +259,17 @@ hook.Add("love.render", "game", function()
 	
 	scene:Render()
 	
-	graphics.draw(Camera.main.canvases.post.source, 0, 0)
+	scanline_shader:send("pixels", 8)
+	scanline_shader:send("time", Time.Elapsed * 0.5)
+	scanline_shader:send("intensity", 0.5)
+	
+	if Screen.flipped then
+	    graphics.draw(Camera.main.canvases.post.source, Screen.height * 0.5, Screen.width * 0.5, math.rad(-90), 1.0, 1.0, Screen.width * 0.5, Screen.height * 0.5)
+	else
+	    graphics.draw(Camera.main.canvases.post.source, 0, 0, 0)
+	end
+	
+	Image("resources/face.png"):Render(300, 300, 100, 100)
 	
 	hook.Call("OnPostRender")
 	hook.Call("OnRenderImage")
@@ -207,4 +278,5 @@ hook.Add("love.render", "game", function()
 	
 	PrintStats()
 end)
-]]
+
+ja, jb = 0, 0

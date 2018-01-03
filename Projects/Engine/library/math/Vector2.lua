@@ -61,7 +61,7 @@ end
 function Class:Normalised()
 	local _magnitude = self:Magnitude()
 
-	return Class.Quick("Vector2", {
+	return class.Quick("Vector2", {
 		x = math.abs(self.x) > 0 and self.x / _magnitude or 0, 
 		y = math.abs(self.y) > 0 and self.y / _magnitude or 0
 	})

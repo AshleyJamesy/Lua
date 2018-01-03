@@ -29,7 +29,7 @@ function Class:AddComponent(typename, ...)
 				if typename == TypeOf(self.components[i]) then
 					j = j + 1
 					
-					if j >= c.__limit then
+					if c.__limit ~= nil and j >= c.__limit then
 						return self.components[i]
 					end
 				end
@@ -43,11 +43,11 @@ function Class:AddComponent(typename, ...)
 			c.New(instance, self, ...)
 			
 			--This is done in by the Scene
-			--if instance.IsMonoBehaviour then
-			--	instance:Awake()
-			--	instance:Start()
-			--	instance:Enable()
-			--end
+			if instance.IsMonoBehaviour then
+			  instance:Awake()
+			  instance:Start()
+			--instance:Enable()
+			end
 
 			--instance.enabled = true
 						

@@ -21,7 +21,7 @@ function Class:CompareTag(tag)
 end
 
 function Class:GetComponent(typename)
-	
+    return self.gameObject:GetComponent(typename)
 end
 
 function Class:GetComponentInChildren(typename)
