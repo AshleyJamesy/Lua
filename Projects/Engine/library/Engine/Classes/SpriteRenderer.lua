@@ -136,7 +136,7 @@ function Class:Render(camera)
 	end
 end
 
-function Class:OnDrawGizmosSelected(camera)
+function Class:OnDrawGizmos(camera)
 	local bounds = self.gameObject.__bounds
 	if Rect.Intersect(camera.bounds, bounds) then
 		graphics.setColor(255,255,255,125)
@@ -159,7 +159,6 @@ function Class:PreRender(camera)
 	if group then
 		table.sort(group, sort)
 	end
-	
     Shader("resources/shaders/material.glsl"):Use()
 end
 

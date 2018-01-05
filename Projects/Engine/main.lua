@@ -11,21 +11,34 @@ include("source/")
 
 class.Load()
 
-graphics = love.graphics
+stats     = {}
+graphics  = love.graphics
 
-function PrintStats()
-	stats                 = graphics.getStats()
-	stats.fps             = love.timer.getFPS()
-	stats.memory          = string.format("%.2f MB", stats.texturememory / 1024 / 1024)
-	stats.texturememory   = nil
-	stats.mouse = Vector2(Input.GetMousePosition())
- stats.screen = Vector2(Screen.width, Screen.height)
-	local text = ""
-	for k, v in pairs(stats) do
-		text = text .. k .. ": " .. tostring(v) .. "\n"
-	end
+function rep(s, n)
+    local out = ""
+    
+    for i = 1, n do
+        out = out .. s
+    end
+    
+    return out
+end
 
-	graphics.print(text, 10, 10, 0, 1.0, 1.0)
+function table_serialise(t, depth)
+    local output = ""
+    if type(t) == "table" then
+        for k, v in pairs(t) do
+            if (depth or 0) > 0 then
+                output = output .. "\n" .. rep("\t", (depth or 0)) .. tostring(k) .. ":" .. table_serialise(v, (depth or 0) + 1)
+            else
+                output = output .. rep("\t", (depth or 0)) .. tostring(k) .. ":" .. table_serialise(v, (depth or 0) + 1)
+            end
+        end
+    else
+        output = output .. " " .. tostring(t)
+    end
+    
+    return output
 end
 
 function CallFunctionOnType(typename, method, ...)
@@ -249,8 +262,6 @@ pixels = [[
 
 pixels_shader = graphics.newShader(pixels)
 
---love.graphics.setWireframe(true)
-
 hook.Add("love.render", "game", function()
 	local scene = SceneManager:GetActiveScene()
 	
@@ -262,16 +273,27 @@ hook.Add("love.render", "game", function()
 	scanline_shader:send("time", Time.Elapsed * 0.5)
 	scanline_shader:send("intensity", 0.5)
 	
-	if Screen.flipped then
-	    graphics.draw(Camera.main.canvases.post.source, Screen.height * 0.5, Screen.width * 0.5, math.rad(-90), 1.0, 1.0, Screen.width * 0.5, Screen.height * 0.5)
-	else
-	    graphics.draw(Camera.main.canvases.post.source, 0, 0, 0)
-	end
+	Screen.Draw(Camera.main.canvases.post.source, 0, 0, 0)
+	
+	--if Screen.flipped then
+	--    graphics.draw(, Screen.height * 0.5, Screen.width * 0.5, math.rad(-90), 1.0, 1.0, Screen.width * 0.5, Screen.height * 0.5)
+	--else
+	--    graphics.draw(Camera.main.canvases.post.source, 0, 0, 0)
+	--end
 
 	hook.Call("OnPostRender")
 	hook.Call("OnRenderImage")
 	
 	Input.LateUpdate()
 	
-	PrintStats()
+ Screen.Print(table_serialise(stats), 10, 10, 3.0, 3.0)
+end)
+
+hook.Add("OnRenderImage", "debug", function()
+	stats.graphics = graphics.getStats()
+	stats.graphics.fps             = love.timer.getFPS()
+	stats.graphics.memory          = string.format("%.2f MB", stats.graphics.texturememory / 1024 / 1024)
+	stats.graphics.texturememory   = nil
+	stats.graphics.mouse = Vector2(Input.GetMousePosition())
+ stats.graphics.screen = Vector2(Screen.width, Screen.height)
 end)

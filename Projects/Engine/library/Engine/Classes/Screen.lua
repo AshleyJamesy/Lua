@@ -26,6 +26,22 @@ function Class.GetPoint(x, y)
     end
 end
 
+function Class.Print(text, x, y, sx, sy)
+    if Screen.flipped then
+        graphics.print(text, y, Class.width - x, math.rad(-90), sx, sy)
+    else
+        graphics.print(text, x, y, 0, sx, sy)
+    end
+end
+
+function Class.Draw(object, x, y, r, ...)
+    if Screen.flipped then
+        graphics.draw(object, y, Class.width - x, math.rad(-90) + r, ...)
+    else
+        graphics.draw(object, x, y, r, ...)
+    end
+end
+
 hook.Add("WindowResize", "Screen", function(w, h)
 	Class.dimensions[1] = w
 	Class.dimensions[2] = h
