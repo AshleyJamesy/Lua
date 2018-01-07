@@ -1,5 +1,5 @@
 function math.clamp(value, min, max)
-	return math.min(math.max(value, min), max);
+	return math.min(math.max(value, math.min(min, max)), math.max(min, max))
 end
 
 function math.inrange(value, min, max)

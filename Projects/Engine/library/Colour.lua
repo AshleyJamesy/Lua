@@ -36,7 +36,7 @@ function Class.Lerp(a, b, t)
 	       r = math.clamp(a.r + (b.r - a.r) * t, 0, 255),
 	       g = math.clamp(a.g + (b.g - a.g) * t, 0, 255),
 	       b = math.clamp(a.b + (b.b - a.b) * t, 0, 255),
-	       r = math.clamp(a.a + (b.a - a.a) * t, 0, 255)
+	       a = math.clamp(a.a + (b.a - a.a) * t, 0, 255)
     })
 end
 
@@ -46,7 +46,7 @@ function Class.__add(a,b)
 	    r = math.clamp((a.r or 0) + (b.r or 0), 0, 255),
 	    g = math.clamp((a.g or 0) + (b.g or 0), 0, 255),
 	    b = math.clamp((a.b or 0) + (b.b or 0), 0, 255),
-	    r = math.clamp((a.a or 0) + (b.a or 0), 0, 255)
+	    a = math.clamp((a.a or 0) + (b.a or 0), 0, 255)
 	})
 end
 
@@ -56,7 +56,7 @@ function Class.__sub(a,b)
 	    r = math.clamp((a.r or 0) - (b.r or 0), 0, 255),
 	    g = math.clamp((a.g or 0) - (b.g or 0), 0, 255),
 	    b = math.clamp((a.b or 0) - (b.b or 0), 0, 255),
-	    r = math.clamp((a.a or 0) - (b.a or 0), 0, 255)
+	    a = math.clamp((a.a or 0) - (b.a or 0), 0, 255)
 	})
 end
 
@@ -67,7 +67,7 @@ function Class.__mul(a,b)
 	        r = math.clamp(b.r * a, 0, 255),
 	        g = math.clamp(b.g * a, 0, 255),
 	        b = math.clamp(b.b * a, 0, 255),
-	        r = math.clamp(b.a * a, 0, 255)
+	        a = math.clamp(b.a * a, 0, 255)
 	    })
 	end
 
@@ -77,7 +77,7 @@ function Class.__mul(a,b)
 	        r = math.clamp(a.r * b, 0, 255),
 	        g = math.clamp(a.g * b, 0, 255),
 	        b = math.clamp(a.b * b, 0, 255),
-	        r = math.clamp(a.a * b, 0, 255)
+	        a = math.clamp(a.a * b, 0, 255)
 	   })
     end
 end
@@ -96,6 +96,16 @@ end
 
 function Class:ToString()
 	return self.r .. ", " .. self.g .. ", " .. self.b .. ", " .. self.a
+end
+
+local colour_data = { 0, 0, 0, 0 }
+function Class:GetTable()
+	colour_data[1] = self.r
+	colour_data[2] = self.g
+	colour_data[3] = self.b
+	colour_data[4] = self.a
+	
+	return colour_data
 end
 
 function Class:Unpack()

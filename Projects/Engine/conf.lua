@@ -147,9 +147,9 @@ function love.run()
 		end
 		
 		if love.timer then
-			--if Time.MaxFrameRate > 0 then
-			--	love.timer.sleep((1 / Time.MaxFrameRate) - accumulator)
-			--end
+			if Time.MaxFrameRate > 0 then
+				--love.timer.sleep((1 / Time.MaxFrameRate) - accumulator)
+			end
 		end
 	end
 end
@@ -173,7 +173,7 @@ function love.conf(t)
 	t.window.minheight 		= 1             -- Minimum window height if the window is resizable (number)
 	t.window.fullscreen 	= false         -- Enable fullscreen (boolean)
 	t.window.fullscreentype = "desktop" 	-- Choose between "desktop" fullscreen or "exclusive" fullscreen mode (string)
-	t.window.vsync 			= false         -- Enable vertical sync (boolean)
+	t.window.vsync 			= true          -- Enable vertical sync (boolean)
 	t.window.msaa 			= 0             -- The number of samples to use with multi-sampled antialiasing (number)
 	t.window.display 		= 1             -- Index of the monitor to show the window in (number)
 	t.window.highdpi 		= false         -- Enable high-dpi mode for the window on a Retina display (boolean)
@@ -189,7 +189,7 @@ function love.conf(t)
 	t.modules.keyboard 		= true          -- Enable the keyboard module (boolean)
 	t.modules.math 			= true          -- Enable the math module (boolean)
 	t.modules.mouse 		= true          -- Enable the mouse module (boolean)
-	t.modules.physics 		= true         -- Enable the physics module (boolean)
+	t.modules.physics 		= true          -- Enable the physics module (boolean)
 	t.modules.sound 		= true          -- Enable the sound module (boolean)
 	t.modules.system 		= true          -- Enable the system module (boolean)
 	t.modules.timer 		= true          -- Enable the timer module (boolean), Disabling it will result 0 delta time in love.update

@@ -19,5 +19,5 @@ void effects(vec4 colour, Image texture, vec2 texture_coords, vec2 pixel_coords)
 		love_Canvases[1] = vec4(0,0,0,1) * d.a;
 	}
 
-	love_Canvases[0] = d * colour * vec4(0.01,0.01,0.01,1.0);
+	love_Canvases[0] = d * colour;
 }

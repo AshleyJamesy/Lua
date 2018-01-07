@@ -5,11 +5,11 @@ function Class:New(path)
     if Class.Images[path] then 
         return Class.Images[path]
     end
-
+    
 	self.source = love.graphics.newImage(GetProjectDirectory() .. path)
 	self.source:setFilter("nearest", "nearest")
-
-	self.width 	 = self.source:getWidth()
+	
+	self.width 	= self.source:getWidth()
 	self.height = self.source:getHeight()
 	
 	local w, h = self.width * 0.33, self.height * 0.33

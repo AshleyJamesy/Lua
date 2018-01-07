@@ -1,49 +1,41 @@
 local Class = class.NewClass("Shader")
 Class.Shaders = {}
 
-function Class:New(path)
+function Class:New(path, code)
 	if Class.Shaders[path] then 
 		return Class.Shaders[path] 
 	end
 	
-	local status, shader = pcall(love.graphics.newShader, GetProjectDirectory() .. path)	
-	
+	local status, shader
+	if code then
+		status, shader = pcall(love.graphics.newShader, code)
+		self.code = code
+	else
+		status, shader = pcall(love.graphics.newShader, GetProjectDirectory() .. path)
+		self.code = love.filesystem.read(GetProjectDirectory() .. path)
+	end
+
 	if status then
 	else
-	    shader = Shader("resources/shaders/default.glsl").source
+		print(path, shader)
+
+		return
 	end
 	
-	self.source     = shader
-	self.variables  = {}
-
+	self.source 	= shader
+	self.properties = {}
+	
 	Class.Shaders[path] = self
 end
 
 function Class:Send(name, ...)
-    pcall(self.source.send, self.source, name, ...)
+	local status, err = pcall(self.source.send, self.source, name, ...)
 end
 
 function Class:SendColour(name, ...)
-	   pcall(self.source.sendColor, self.source, name, ...)
+	local status, err = pcall(self.source.sendColor, self.source, name, ...)
 end
 
---[[
-	for runtime shader editing
-]]
-function Class:Update()
-	for k, v in pairs(self.variables) do
-		self.source:send(k, v)
-	end
-end
-
-function Class:SetVariable(name, ...)
-	self.variables[name] = ...
-end
-
-function Class:Use()
+function Class:Use(shader)
 	love.graphics.setShader(self.source)
-end
-
-function Class:Default()
-	love.graphics.setShader()
 end

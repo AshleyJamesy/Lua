@@ -18,3 +18,7 @@ end
 function Class:OnBecameVisible(camera)
 	
 end
+
+function Class:PostRender(camera)
+	Shader:Use()
+end

@@ -56,25 +56,6 @@ function Class:RemoveChild(child)
 end
 
 function Class:Update()
-	local rb = self.gameObject.__rigidBody
-	if rb then
-		local body = self.gameObject.__body
-		
-		body:setMass(rb.mass)
-		body:setLinearDamping(rb.linearDrag)
-		body:setAngularDamping(rb.angularDrag)
-		
-		if rb.isKinematic then
-			body:setType("kinematic")
-		else
-			body:setType("dynamic")
-		end
-		
-		self.position.x = body:getX()
-		self.position.y = body:getY()
-		self.rotation 	= body:getAngle()
-	end
-	
 	self.globalScale:Set(self.scale.x, self.scale.y)
 	
 	if self.parent then

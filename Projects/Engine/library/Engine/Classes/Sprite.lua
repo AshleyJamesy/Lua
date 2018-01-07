@@ -7,7 +7,7 @@ function Class:New(path)
 	if Class.Sprites[path] then 
 		return Class.Sprites[path] 
 	end
-
+	
 	self.image 			= Image(path)
 	
 	self.rect 			= Rect(0, 0, self.image.width, self.image.height)
@@ -15,7 +15,8 @@ function Class:New(path)
 	self.frames 		= {}
 	self.animations 	= {}
 	
-	self.quad = love.graphics.newQuad(0, 0, self.image.width, self.image.height, self.image.width, self.image.height)
+	self.quad 			= love.graphics.newQuad(0, 0, self.image.width, self.image.height, self.image.width, self.image.height)
+	self.batch 			= love.graphics.newSpriteBatch(self.image.source, 1000, "stream")
 	
 	Class.Sprites[path] = self
 end

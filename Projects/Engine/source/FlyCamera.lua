@@ -22,8 +22,6 @@ function Class:Awake()
 end
 
 function Class:Update()
-	--self.transform.position:Set(self.transform.globalPosition.x, self.transform.globalPosition.y)
-
 	local speed = 100
 	if Input.GetKey("lshift") then
 		speed = 300
@@ -44,21 +42,33 @@ function Class:Update()
 	if Input.GetKey(self.keys and self.keys[2]  or "s") then
 		self.transform.position.y = self.transform.position.y + speed * Time.Delta
 	end
-	
-	if Input.GetMouseButton(1) then
-		local object = GameObject()
-		local sr = object:AddComponent("SpriteRenderer")
-		sr.sprite 	= Sprite("resources/face.png")
-		sr.emission = Sprite("resources/sprites/hero_gray.png")
-		object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
-	end
- 
-	local wx, wy = Input.GetMouseWheel()
 
-	local zoom = Camera.main.zoom
+	local wx, wy = Input.GetMouseWheel()
+	--local zoom = Camera.main.zoom
 	--zoom.x = zoom.x - wy * 0.1
 	--zoom.y = zoom.y - wy * 0.1
 
+	if Input.GetMouseButtonDown(1) then
+		local x, y = Camera.main:ScreenToWorld(Input.mousePosition.x, Input.mousePosition.y)
+		
+		object = GameObject(x, y)
+		object:AddComponent("Light")
+	end
+
+	if Input.GetMouseButtonDown(2) then
+		local x, y = Camera.main:ScreenToWorld(Input.mousePosition.x, Input.mousePosition.y)
+		
+		object = GameObject(x, y)
+		local renderer 					= object:AddComponent("SpriteRenderer")
+		renderer.sprite 				= Sprite("resources/led.png")
+		renderer.material 				= Material("testMat", "Sprites/Default")
+
+		renderer.material:Set("_Normal", "Image", Image("resources/led_normal.png").source)
+		renderer.material:Set("_Emission", "Image", Image("resources/led_glow.png").source)
+
+		renderer.sprite.pixelPerUnit 	= 32
+	end
+	
 	if Application.Mobile then
 		if self.camera then
 			if not self.scaling then
@@ -70,14 +80,6 @@ function Class:Update()
 					self.distance = f_distance(ax, ay, bx, by)
 					self.center:Set(find_center(ax, ay, bx, by))
 					self.z = self.zoom
-				else
-				    if Input.GetTouchDown(1) then
-				        local object = GameObject()
-				        local sr = object:AddComponent("SpriteRenderer")
-				        sr.sprite 	= Sprite("resources/face.png")
-				        sr.emission = Sprite("resources/sprites/hero_gray.png")
-				        object.transform.position:Set(Camera.main:ScreenToWorld(Input.GetMousePosition()))
-				    end
 				end
 			else
 				if Input.GetTouchMoved(1) or Input.GetTouchMoved(2) then

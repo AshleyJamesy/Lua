@@ -134,6 +134,29 @@ function table.GetComponent(t, index, stride, offset)
 	return j
 end
 
+function table.ToString(o, i)
+    local i         = i or 0
+    local output    = ""
+
+    if type(o) == "table" then
+        for k, v in pairs(o) do
+            if type(v) == "table" then
+                output = output .. string.rep("\t", i)  .. tostring(k) .. ":\n" .. table.ToString(v, i + 1)
+            else
+                output = output .. string.rep("\t", i)  .. tostring(k) .. ":" .. table.ToString(v, i + 1) .. "\n"
+            end
+        end
+    else
+        if type(o) == "string" then
+            output = string.rep("\t", i) .. tostring(o)
+        else
+            output = string.rep("\t", i) .. tostring(o)
+        end
+    end
+    
+    return output
+end
+
 --[[
 local meta_readOnly = {}
 meta_readOnly.__newindex = function()

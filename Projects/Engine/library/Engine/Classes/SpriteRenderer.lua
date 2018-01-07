@@ -6,21 +6,19 @@ SpriteDrawMode = enum{
 	"Tiled"		--The SpriteRenderer will render the sprite as a 9-slice image where the corners will remain constant and the other sections will tile.
 }
 
-local default = Sprite("resources/engine/default.png")
 function Class:New(gameObject)
 	Class:Base().New(self, gameObject)
 
-	self.colours 	= {
-		diffuse 	= Colour(255,255,255,255),
-		emission 	= Colour(math.random() * 255, math.random() * 255, math.random() * 255, math.random() * 255)
-	}
+	self.colour 	= Colour(255,255,255,255)
 	
 	self.drawMode 	= SpriteDrawMode.None
+	self.batch 		= false
+	self.batchid 	= 0
+
+	self.sprite 	= nil
 	self.flipX 		= false
 	self.flipY 		= false
-	
-	self.sprite 	= default
-	self.emission 	= nil
+	self.material 	= Material("Sprites/Default")
 	
 	--animation
 	self.speed 				= 1.0
@@ -62,10 +60,6 @@ function Class:StopAnimation()
 end
 
 function Class:Update()
- self.a = self.transform.position.x
- 
-	self.hash = self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
-
 	local sprite = self.sprite
 	if sprite then
 		local animation = sprite:GetAnimation(self.animation)
@@ -93,7 +87,6 @@ end
 function Class:Render(camera)
 	local sprite = self.sprite
 	if sprite then
-		local attributes 	= sprite.attributes
 		local frame 		= sprite:GetFrame(self.animation_index)
 		local transform 	= self.transform
 		local scale 		= transform.globalScale
@@ -106,21 +99,26 @@ function Class:Render(camera)
 			position.x - (frame.w * 0.5 * scale.x) * pixel_scale, 
 			position.y - (frame.h * 0.5 * scale.y) * pixel_scale, 
 			frame.w * scale.x * pixel_scale, 
-			frame.h * scale.y * pixel_scale)
-
+			frame.h * scale.y * pixel_scale
+		)
+		
 		if Rect.Intersect(camera.bounds, self.gameObject.__bounds) then
-			self.isVisible = true
+			self.hash 		= self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
+			self.isVisible 	= true
 			
 			sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
-
-			if self.emission then
-				Shader("resources/shaders/material.glsl"):Send("emission", self.emission.image.source)
-				Shader("resources/shaders/material.glsl"):SendColour("emission_colour", { self.colours.emission:Unpack() })
-			end
-
-			graphics.setColor(self.colours.diffuse:Unpack())
 			
-			graphics.draw(self.sprite.image.source, 
+			local material = Class.material
+			if self.material and Class.material ~= self.material then
+				material = self.material
+			end
+			
+			material:Use()
+			material:Set("u_projection", "mat4", Camera.GetProjectionMatrix(Screen.width, 0, Screen.height, 0, 0.0, 1000.0))
+			material:Set("u_view", "mat4", Camera.main:GetViewMatrix())
+			
+			graphics.setColor(self.colour:GetTable())
+			graphics.draw(sprite.image.source, 
 				sprite.quad, 
 				position.x, 
 				position.y, 
@@ -130,13 +128,17 @@ function Class:Render(camera)
 				frame.w * 0.5, 
 				frame.h * 0.5
 			)
+
+			if material ~= Class.material then
+				Class.material:Use()
+			end
 		else
 			self.isVisible = false
 		end
 	end
 end
 
-function Class:OnDrawGizmos(camera)
+function Class:OnDrawGizmosSelected(camera)
 	local bounds = self.gameObject.__bounds
 	if Rect.Intersect(camera.bounds, bounds) then
 		graphics.setColor(255,255,255,125)
@@ -159,9 +161,6 @@ function Class:PreRender(camera)
 	if group then
 		table.sort(group, sort)
 	end
-    Shader("resources/shaders/material.glsl"):Use()
-end
-
-function Class:PostRender(camera)
-    Shader("resources/shaders/material.glsl"):Default()
+	
+    Class.material:Use()
 end
