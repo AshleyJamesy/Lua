@@ -55,9 +55,11 @@ function Class:New(gameObject)
 	
 	self.buffers = 
 	{
-		colour 		= ImageBuffer(),
-		emission 	= ImageBuffer(),
-		post 		= ImageBuffer()
+		colour    = ImageBuffer(),
+		emission  = ImageBuffer(),
+		light     = ImageBuffer(),
+		post      = ImageBuffer(),
+		back      = ImageBuffer()
 	}
 
 	self.view = {
@@ -136,8 +138,7 @@ local function DoRender(camera, w, h)
 end
 
 local effect_canvas = love.graphics.newCanvas()
-local LOVE_POSTSHADER_BLURH = love.graphics.newShader("resources/shaders/blurh.glsl")
-local LOVE_POSTSHADER_BLURV = love.graphics.newShader("resources/shaders/blurv.glsl")
+
 
 function blur(target, x, y, passes, intensity)
 	local old 				= love.graphics.getCanvas()
@@ -145,6 +146,9 @@ function blur(target, x, y, passes, intensity)
 	local mode, alphamode 	= love.graphics.getBlendMode()
 	local r,g,b,a 			= love.graphics.getColor()
 
+ local LOVE_POSTSHADER_BLURH = Shader("resources/shaders/blurh.glsl").source
+ local LOVE_POSTSHADER_BLURV = Shader("resources/shaders/blurv.glsl").source
+	
 	love.graphics.setCanvas(effect_canvas)
 	love.graphics.clear()
 	love.graphics.setShader()
@@ -246,7 +250,7 @@ function Class:Render()
 	--emission
 	graphics.setBlendMode("add")
 	graphics.draw(self.buffers.emission.source, 0, 0, 0, 1, 1)
-
+ 
 	if Input.GetKeyDown("up") then
 		passes = passes + 1
 	end
@@ -270,8 +274,10 @@ function Class:Render()
 
 	graphics.draw(self.buffers.emission.source, 0, 0, 0, 1, 1)
 	
+	graphics.reset()
+	graphics.setCanvas(self.buffers.back.source)
+	graphics.draw(self.buffers.post.source)
 	graphics.setCanvas()
-	graphics.setBlendMode("alpha")
 	
 	SceneManager:GetActiveScene():CallFunctionOnAll("OnRenderObject", self)
 	SceneManager:GetActiveScene():CallFunctionOnAll("OnPostRender", self)
@@ -297,48 +303,47 @@ local projection =
 }
 local x, y, z, w = 1, 2, 3, 4
 function Class.GetProjectionMatrix(r, l, t, b, n, f)
-	projection[x][x] = 2.0 / (r - l)
-	projection[x][y] = 0.0
-	projection[x][z] = 0.0
-	projection[x][w] = 0.0
-
-	projection[y][x] = 0.0
-	projection[y][y] = 2.0 / (t - b)
-	projection[y][z] = 0.0
-	projection[y][w] = 0.0
-
-	projection[z][x] = 0.0
-	projection[z][y] = 0.0
-	projection[z][z] = 2.0 / (f - n)
-	projection[z][w] = 0.0
-
-	projection[w][x] = -(r + l) / (r - l)
-	projection[w][y] = -(t + b) / (t - b)
-	projection[w][z] = -(f + n) / (f - n)
-	projection[w][w] = 1.0;
+	projection[1][1] = 2.0 / (r - l)
+	projection[1][2] = 0.0
+	projection[1][3] = 0.0
+	projection[1][4] = 0.0
+	projection[2][1] = 0.0
+	projection[2][2] = 2.0 / (t - b)
+	projection[2][3] = 0.0
+	projection[2][4] = 0.0
+	projection[3][1] = 0.0
+	projection[3][2] = 0.0
+	projection[3][3] = 2.0 / (f - n)
+	projection[3][4] = 0.0
+	projection[4][1] = -(r + l) / (r - l)
+	projection[4][2] = -(t + b) / (t - b)
+	projection[4][3] = -(f + n) / (f - n)
+	projection[4][4] = 1.0;
 
 	return projection
 end
 
 function Class:GetViewMatrix()
 	local view = self.view
-
-	view[x][x] = (1.0 / Camera.main.zoom.x) * math.cos(self.transform.globalRotation)
-	view[x][y] = (1.0 / Camera.main.zoom.x) * -math.sin(self.transform.globalRotation)
-	view[x][z] = 0.0
-	view[x][w] = 0.0
-	view[y][x] = (1.0 / Camera.main.zoom.y) * math.sin(self.transform.globalRotation)
-	view[y][y] = (1.0 / Camera.main.zoom.y) * math.cos(self.transform.globalRotation)
-	view[y][z] = 0.0
-	view[y][w] = 0.0
-	view[z][x] = 0.0
-	view[z][y] = 0.0
-	view[z][z] = 1.0
-	view[z][w] = 0.0
-	view[w][x] = -self.transform.globalPosition.x
-	view[w][y] = -self.transform.globalPosition.y
-	view[w][z] = 0.0
-	view[w][w] = 1.0
+ local cos  = math.cos(self.transform.globalRotation)
+ local sin  = math.sin(self.transform.globalRotation)
+ 
+	view[1][1] = (1.0 / Camera.main.zoom.x) *  cos
+	view[1][2] = (1.0 / Camera.main.zoom.x) * -sin
+	view[1][3] = 0.0
+	view[1][4] = 0.0
+	view[2][1] = (1.0 / Camera.main.zoom.y) *  sin
+	view[2][2] = (1.0 / Camera.main.zoom.y) *  cos
+	view[2][3] = 0.0
+	view[2][4] = 0.0
+	view[3][1] = 0.0
+	view[3][2] = 0.0
+	view[3][3] = 1.0
+	view[3][4] = 0.0
+	view[4][1] = -self.transform.globalPosition.x
+	view[4][2] = -self.transform.globalPosition.y
+	view[4][3] = 0.0
+	view[4][4] = 1.0
 
 	return view
 end

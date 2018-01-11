@@ -1,5 +1,5 @@
 FFI = require("ffi")
-bit = require("bit")
+BIT = require("bit")
 
 include("extensions/")
 include("util/")

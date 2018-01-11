@@ -17,9 +17,7 @@ function Class:New(path, code)
 
 	if status then
 	else
-		print(path, shader)
-
-		return
+		error(path .. " " .. shader)
 	end
 	
 	self.source 	= shader
