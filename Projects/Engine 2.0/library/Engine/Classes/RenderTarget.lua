@@ -1,4 +1,4 @@
-local Class = class.NewClass("ImageBuffer")
+local Class = class.NewClass("RenderTarget")
 
 function Class:New(w, h)
 	self.source = love.graphics.newCanvas(Screen.width, Screen.height)

@@ -106,16 +106,10 @@ function Class:Render(camera)
 			self.hash 		= self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
 			self.isVisible 	= true
 			
+			Material("Sprites/Default"):Set("u_projection", "mat4", Camera.main:GetProjectionMatrix())
+			Material("Sprites/Default"):Set("u_view", "mat4", Camera.main:GetViewMatrix())
+
 			sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
-			
-			local material = Class.material
-			if self.material and Class.material ~= self.material then
-				material = self.material
-			end
-			
-			material:Use()
-			material:Set("u_projection", "mat4", Camera.GetProjectionMatrix(Screen.width, 0, Screen.height, 0, 0.0, 1000.0))
-			material:Set("u_view", "mat4", Camera.main:GetViewMatrix())
 			
 			graphics.setColor(self.colour:GetTable())
 			graphics.draw(sprite.image.source, 
@@ -128,10 +122,6 @@ function Class:Render(camera)
 				frame.w * 0.5, 
 				frame.h * 0.5
 			)
-
-			if material ~= Class.material then
-				Class.material:Use()
-			end
 		else
 			self.isVisible = false
 		end

@@ -53,16 +53,26 @@ function Class:New(gameObject)
 	self.cullingMask 		= {}
 	self.zoom 				= Vector2(1, 1)
 	
+	self.clipping = Vector2(0.01, 1000.0)
+
 	self.buffers = 
 	{
-		colour    = ImageBuffer(),
-		emission  = ImageBuffer(),
-		light     = ImageBuffer(),
-		post      = ImageBuffer(),
-		back      = ImageBuffer()
+		colour 				= RenderTarget(),
+		emission 			= RenderTarget(),
+		COLOR_ATTACHMENT_03 = RenderTarget(),
+		post 				= RenderTarget(),
+		back 				= RenderTarget()
 	}
 
 	self.view = {
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 }
+	}
+
+	self.viewport 	= Rect(0, 0, 1.0, 1.0)
+	self.projection = {
 		{ 0, 0, 0, 0 },
 		{ 0, 0, 0, 0 },
 		{ 0, 0, 0, 0 },
@@ -138,17 +148,15 @@ local function DoRender(camera, w, h)
 end
 
 local effect_canvas = love.graphics.newCanvas()
-
-
 function blur(target, x, y, passes, intensity)
 	local old 				= love.graphics.getCanvas()
 	local shader 			= love.graphics.getShader()
 	local mode, alphamode 	= love.graphics.getBlendMode()
 	local r,g,b,a 			= love.graphics.getColor()
 
- local LOVE_POSTSHADER_BLURH = Shader("resources/shaders/blurh.glsl").source
- local LOVE_POSTSHADER_BLURV = Shader("resources/shaders/blurv.glsl").source
-	
+	local LOVE_POSTSHADER_BLURH = Shader("resources/shaders/blurh.glsl").source
+	local LOVE_POSTSHADER_BLURV = Shader("resources/shaders/blurv.glsl").source
+
 	love.graphics.setCanvas(effect_canvas)
 	love.graphics.clear()
 	love.graphics.setShader()
@@ -169,7 +177,6 @@ function blur(target, x, y, passes, intensity)
 		LOVE_POSTSHADER_BLURH:send("steps", y and y > 0 and y or 1.0)
 		LOVE_POSTSHADER_BLURH:send("intensity", 1.0 + intensity * 0.01)
 		love.graphics.setShader(LOVE_POSTSHADER_BLURH)
-
 		love.graphics.draw(effect_canvas)
 	end
 	
@@ -184,23 +191,11 @@ bx = 4
 by = 4
 intensity = 1.0
 
-function Class:Render()
-	--hook.Call("OnPreCull")			--Called before the camera culls the scene. Culling determines which objects are visible to the camera. OnPreCull is called just before culling takes place.
-	--hook.Call("OnBecameVisible")		--Called when an object becomes visible/invisible to any camera.
-	--hook.Call("OnBecameInvisible")	--Called when an object becomes visible/invisible to any camera.
-	--hook.Call("OnWillRenderObject")	--Called once for each camera if the object is visible.
-	--hook.Call("PreRender")			--Called before the camera starts rendering the scene.
-	--hook.Call("OnRenderObject")		--Called after all regular scene rendering is done.
-	--hook.Call("OnPostRender")			--Called after a camera finishes rendering the scene.
-	--hook.Call("OnRenderImage")		--Called after scene rendering is complete to allow post-processing of the image
-
-	--hook.Call("OnPreCull", self)
-	--hook.Call("PreRender", self)
-	
+function Class:Render()	
 	self.zoom.x = math.clamp(self.zoom.x, 0.01, math.huge)
 	self.zoom.y = math.clamp(self.zoom.y, 0.01, math.huge)
 	
-	local w = Screen.width * 0.5
+	local w = Screen.width 	* 0.5
 	local h = Screen.height * 0.5
 	
 	self.bounds:Set(self.transform.globalPosition.x - w * self.zoom.x, self.transform.globalPosition.y - h * self.zoom.y, (w * self.zoom.x) * 2, (h * self.zoom.y) * 2)
@@ -243,41 +238,18 @@ function Class:Render()
 	graphics.setColor(255, 255, 255, 255)
 	graphics.setShader()
 
+	--MERGING!
 	--diffuse
 	graphics.setBlendMode("alpha")
 	graphics.draw(self.buffers.colour.source, 0, 0, 0, 1, 1)
 	
 	--emission
-	graphics.setBlendMode("add")
-	graphics.draw(self.buffers.emission.source, 0, 0, 0, 1, 1)
- 
-	if Input.GetKeyDown("up") then
-		passes = passes + 1
-	end
+	--graphics.setBlendMode("add")
+	--graphics.draw(self.buffers.emission.source, 0, 0, 0, 1, 1)
 
-	if Input.GetKeyDown("down") then
-		passes = passes - 1
-	end
-
-	if Input.GetKeyDown("right") then
-		bx = bx + 1
-	end
-
-	if Input.GetKeyDown("left") then
-		bx = bx - 1
-	end
-
-	local wx, wy = Input.GetMouseWheel()
-	intensity = intensity + wy
-
-	blur(self.buffers.emission.source, bx, bx, passes, intensity)
-
-	graphics.draw(self.buffers.emission.source, 0, 0, 0, 1, 1)
+	--blur(self.buffers.emission.source, bx, bx, passes, intensity)
 	
 	graphics.reset()
-	graphics.setCanvas(self.buffers.back.source)
-	graphics.draw(self.buffers.post.source)
-	graphics.setCanvas()
 	
 	SceneManager:GetActiveScene():CallFunctionOnAll("OnRenderObject", self)
 	SceneManager:GetActiveScene():CallFunctionOnAll("OnPostRender", self)
@@ -285,72 +257,112 @@ end
 
 function Class:OnDrawGizmos(camera)
 	if self ~= camera and camera.cameraType == CameraType.SceneView then
-	--if camera.cameraType == CameraType.SceneView and self.cameraType == CameraType.Game then
-		--local w = (self.texture and self.texture.width  or love.graphics.getWidth()) * 0.5
-		--local h = (self.texture and self.texture.height or love.graphics.getHeight()) * 0.5
-		
-		--love.graphics.rectangle("line", self.transform.globalPosition.x - w, self.transform.globalPosition.y - h, w * 2, h * 2)
 		graphics.rectangle("line", self.bounds.x, self.bounds.y, self.bounds.w, self.bounds.h)
 	end
 end
 
-local projection = 
-{
-	{ 0, 0, 0, 0 },
-	{ 0, 0, 0, 0 },
-	{ 0, 0, 0, 0 },
-	{ 0, 0, 0, 0 }
-}
-local x, y, z, w = 1, 2, 3, 4
-function Class.GetProjectionMatrix(r, l, t, b, n, f)
-	projection[1][1] = 2.0 / (r - l)
-	projection[1][2] = 0.0
-	projection[1][3] = 0.0
-	projection[1][4] = 0.0
-	projection[2][1] = 0.0
-	projection[2][2] = 2.0 / (t - b)
-	projection[2][3] = 0.0
-	projection[2][4] = 0.0
-	projection[3][1] = 0.0
-	projection[3][2] = 0.0
-	projection[3][3] = 2.0 / (f - n)
-	projection[3][4] = 0.0
-	projection[4][1] = -(r + l) / (r - l)
-	projection[4][2] = -(t + b) / (t - b)
-	projection[4][3] = -(f + n) / (f - n)
-	projection[4][4] = 1.0;
+function Class:GetProjectionMatrix()
+	--[[
+	local projection = self.projection
+	local w, h =
+		Screen.width * self.viewport.w, Screen.height * self.viewport.h
 
-	return projection
+	projection[1][1] = 2.0 / w
+	--projection[1][2] = 0.0
+	--projection[1][3] = 0.0
+	--projection[1][4] = 0.0
+	--projection[2][1] = 0.0
+	projection[2][2] = 2.0 / -h
+	--projection[2][3] = 0.0
+	--projection[2][4] = 0.0
+	--projection[3][1] = 0.0
+	--projection[3][2] = 0.0
+	projection[3][3] = 2.0 / (self.clipping.y - self.clipping.x)
+	--projection[3][4] = 0.0
+	projection[4][1] = -1.0
+	projection[4][2] = -1.0
+	projection[4][3] = -(self.clipping.y + self.clipping.x) / (self.clipping.y - self.clipping.x)
+	projection[4][4] = 1.0;
+	]]
+
+	local x,y,z,w = 1,2,3,4
+	local r, l = Screen.width, 0
+	local b, t = 0, Screen.height
+	local f, n = 0.0, 1000.0
+
+	self.projection[x][x] = 2.0 / (r - l)
+	self.projection[x][y] = 0.0
+	self.projection[x][z] = 0.0
+	self.projection[x][w] = 0.0
+
+	self.projection[y][x] = 0.0
+	self.projection[y][y] = 2.0 / (t - b)
+	self.projection[y][z] = 0.0
+	self.projection[y][w] = 0.0
+
+	self.projection[z][x] = 0.0
+	self.projection[z][y] = 0.0
+	self.projection[z][z] = 2.0 / (f - n)
+	self.projection[z][w] = 0.0
+
+	self.projection[w][x] = -(r + l) / (r - l)
+	self.projection[w][y] = -(t + b) / (t - b)
+	self.projection[w][z] = -(f + n) / (f - n)
+	self.projection[w][w] = 1.0;
+
+	return self.projection
 end
 
 function Class:GetViewMatrix()
+	--[[
 	local view = self.view
- local cos  = math.cos(self.transform.globalRotation)
- local sin  = math.sin(self.transform.globalRotation)
+	local cos  = math.cos(self.transform.globalRotation)
+	local sin  = math.sin(self.transform.globalRotation)
  
 	view[1][1] = (1.0 / Camera.main.zoom.x) *  cos
 	view[1][2] = (1.0 / Camera.main.zoom.x) * -sin
-	view[1][3] = 0.0
-	view[1][4] = 0.0
+	--view[1][3] = 0.0
+	--view[1][4] = 0.0
 	view[2][1] = (1.0 / Camera.main.zoom.y) *  sin
 	view[2][2] = (1.0 / Camera.main.zoom.y) *  cos
-	view[2][3] = 0.0
-	view[2][4] = 0.0
-	view[3][1] = 0.0
-	view[3][2] = 0.0
+	--view[2][3] = 0.0
+	--view[2][4] = 0.0
+	--view[3][1] = 0.0
+	--view[3][2] = 0.0
 	view[3][3] = 1.0
-	view[3][4] = 0.0
+	--view[3][4] = 0.0
 	view[4][1] = -self.transform.globalPosition.x
 	view[4][2] = -self.transform.globalPosition.y
-	view[4][3] = 0.0
+	--view[4][3] = 0.0
 	view[4][4] = 1.0
+	]]
+
+	local view = self.view
+	local x,y,z,w = 1,2,3,4
+
+	view[x][x] = (1.0 / Camera.main.zoom.x) * math.cos(self.transform.globalRotation)
+	view[x][y] = (1.0 / Camera.main.zoom.x) * -math.sin(self.transform.globalRotation)
+	view[x][z] = 0.0
+	view[x][w] = 0.0
+	view[y][x] = (1.0 / Camera.main.zoom.y) * math.sin(self.transform.globalRotation)
+	view[y][y] = (1.0 / Camera.main.zoom.y) * math.cos(self.transform.globalRotation)
+	view[y][z] = 0.0
+	view[y][w] = 0.0
+	view[z][x] = 0.0
+	view[z][y] = 0.0
+	view[z][z] = 1.0
+	view[z][w] = 0.0
+	view[w][x] = -self.transform.globalPosition.x
+	view[w][y] = -self.transform.globalPosition.y
+	view[w][z] = 0.0
+	view[w][w] = 1.0
 
 	return view
 end
 
 function Class:ScreenToWorld(x, y)
-	return (x * self.zoom.x + self.transform.globalPosition.x) - Screen.width * 0.5 * self.zoom.x,
-		(y * self.zoom.y + self.transform.globalPosition.y) - Screen.height * 0.5 * self.zoom.y
+	return (x * self.zoom.x + self.transform.globalPosition.x) - (Screen.width * 0.5 * self.zoom.x),
+		(y * self.zoom.y + self.transform.globalPosition.y) - (Screen.height * 0.5 * self.zoom.y)
 end
 
 function Class:WorldToScreen(x, y)

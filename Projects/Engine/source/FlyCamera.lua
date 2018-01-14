@@ -62,7 +62,7 @@ function Class:Update()
 		local renderer 					= object:AddComponent("SpriteRenderer")
 		renderer.sprite 				= Sprite("resources/led.png")
 		renderer.material 				= Material("testMat", "Sprites/Default")
-
+		
 		renderer.material:Set("_Normal", "Image", Image("resources/led_normal.png").source)
 		renderer.material:Set("_Emission", "Image", Image("resources/led_glow.png").source)
 

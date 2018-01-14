@@ -1,5 +1,5 @@
 local Class = class.NewClass("Light", "Component")
-Class.Index = 1
+Class.Index 	= 1
 Class.MaxLights = 100
 
 Class.Lights = {
@@ -27,19 +27,19 @@ function Class:New(gameObject)
 
 	self.colour 	= Colour(math.random() * 255, math.random() * 255, math.random() * 255, 255)
 	self.distance 	= 500.0
-	self.intensity 	= 0.001
+	self.intensity 	= 1.0
 end
 
 function Class:Render(camera)
 	local position = self.transform.globalPosition
-
+	
 	self.gameObject:SetBounds(
 		position.x - self.distance * 0.5, 
 		position.y - self.distance  * 0.5, 
 		self.distance, 
 		self.distance
 	)
-
+	
 	if Rect.Intersect(camera.bounds, self.gameObject.__bounds) then
 		if Class.Index < Class.MaxLights + 1 then
 			local index = Class.Index
@@ -62,20 +62,25 @@ function Class:Render(camera)
 	end
 end
 
-function Class:OnDrawGizmosSelected()
+local icon = Image("resources/engine/gizmo_light.png")
+function Class:OnDrawGizmos()
 	local bounds = self.gameObject.__bounds
-	graphics.setColor(255,255,255,125)
-	graphics.rectangle("line", bounds.x, bounds.y, bounds.w, bounds.h)
+	graphics.draw(icon.source, bounds.x + bounds.w * 0.5, bounds.y + bounds.h * 0.5, 0, Screen.aspect, Screen.aspect, icon.width * 0.5, icon.height * 0.5)
 end
 
 function Class.SendLights()
 	local material = Material("Sprites/Default")
+
+	--material:Set("light_position", "vec3", 		{ 0, 0, 0 } , { 100, 100, 0})
+	--material:Set("light_colour", "vec3", 		{ 255, 255, 255 } , { 255, 0, 0})
+	--material:Set("light_distance", 	"float", 	500.0, 500.0)
+	--material:Set("light_intensity", "float", 	0.001, 0.001)
 	
-	material:Set("light_position", "vec3", 		unpack_ext(Class.Lights.position, Class.MaxLights))
-	material:Set("light_colour", "vec3", 		unpack_ext(Class.Lights.colour, Class.MaxLights))
-	material:Set("light_distance", "float",		unpack_ext(Class.Lights.distance, Class.MaxLights))
-	material:Set("light_intensity", "float", 	unpack_ext(Class.Lights.intensity, Class.MaxLights))
-	
+	material.shader:Send("light_position", 		unpack_ext(Class.Lights.position, Class.MaxLights))
+	material.shader:SendColour("light_colour", 		unpack_ext(Class.Lights.colour, Class.MaxLights))
+	material.shader:Send("light_distance", 	unpack_ext(Class.Lights.distance, Class.MaxLights))
+	material.shader:Send("light_intensity", 	unpack_ext(Class.Lights.intensity, Class.MaxLights))
+
 	stats.rendering_lights 	= Class.Index - 1
 	stats.lights 			= SceneManager:GetActiveScene():GetCount("Light")
 	stats.light 			= Vector2(Lights.position[1][1], Lights.position[1][2])
