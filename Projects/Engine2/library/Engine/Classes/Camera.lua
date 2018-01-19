@@ -59,7 +59,6 @@ function Class:New(gameObject)
 	{
 		colour 				= RenderTarget(),
 		emission 			= RenderTarget(),
-		COLOR_ATTACHMENT_03 = RenderTarget(),
 		post 				= RenderTarget(),
 		back 				= RenderTarget()
 	}

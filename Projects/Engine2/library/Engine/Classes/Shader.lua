@@ -107,10 +107,6 @@ function Class:New(path, code)
 		
 		return Shader("Default", [[
 			#ifdef VERTEX
-				uniform float u_TimeA;
-				uniform float u_TimeB;
-				uniform float u_TimeC;
-
 				vec4 position(mat4 _, vec4 __)
 				{
 					return ProjectionMatrix * TransformMatrix * VertexPosition;
@@ -128,7 +124,7 @@ function Class:New(path, code)
 
 	self.source 	= shader
 	self.properties = GetVariables(self.code)
-
+ 
 	Class.Shaders[path] = self
 end
 
@@ -146,6 +142,10 @@ end
 
 function Class:HasUniform(name)
 	return self.properties[name] ~= nil
+end
+
+function Class:GetUniforms()
+    return self.properties
 end
 
 function Class:Use()

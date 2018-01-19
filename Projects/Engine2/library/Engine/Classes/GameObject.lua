@@ -10,7 +10,7 @@ function Class:New(x, y)
 	self.scene 				= SceneManager:GetActiveScene()
 	self.components 		= {}
 	self.transform 			= self:AddComponent("Transform", x, y)
-
+	self.material = Material("Sprite/Default")
 	self.__bounds 			= Rect(0,0,0,0)
 	self.__selected 		= false
 end

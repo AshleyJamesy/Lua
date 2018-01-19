@@ -105,7 +105,9 @@ function Class:Render(camera)
 		if Rect.Intersect(camera.bounds, self.gameObject.__bounds) then
 			self.hash 		= self.gameObject.layer ^ 17 + self.sortingOrder ^ 17
 			self.isVisible 	= true
-
+    
+    self.gameObject.material:Use()
+    
 			sprite.quad:setViewport(frame.x, frame.y, frame.w, frame.h)
 			
 			graphics.setColor(self.colour:GetTable())
@@ -145,6 +147,4 @@ end
 
 function Class.PreRender(camera, batch)
 	table.sort(batch, sort)
-
-	
 end

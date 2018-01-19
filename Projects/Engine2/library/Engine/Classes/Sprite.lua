@@ -1,8 +1,6 @@
 local Class = class.NewClass("Sprite")
 Class.Sprites = {}
 
-love.graphics.setDefaultFilter("nearest", "nearest")
-
 function Class:New(path)
 	if Class.Sprites[path] then 
 		return Class.Sprites[path] 
