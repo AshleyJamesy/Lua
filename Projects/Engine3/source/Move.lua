@@ -19,22 +19,22 @@ function Class:Update()
 	else
 		self.spriteRenderer.flipX = true
 	end
-
+	
 	if Input.GetMouseButtonDown(1) then
 		self.seek = true
 		self.target:Set(mouse.x, mouse.y)
 	end
-
+	
 	if self.seek then
-		local a = (self.target - self.transform.position)
+		local a = (self.target - self.transform.position + Vector2(0, -40))
 		local n = a:Normalised()
 		self.transform.position.x = self.transform.position.x + n.x * self.speed * Time.Delta
 		self.transform.position.y = self.transform.position.y + n.y * self.speed * Time.Delta
 
 		self.spriteRenderer:PlayAnimation("run")
 		self.spriteRenderer.speed = self.speed / 90.0
-
-		if a:Magnitude() < 5 then
+		
+		if a:Magnitude() < 1.0 then
 			self.seek = false
 			self.target:Set(0, 0)
 			self.spriteRenderer:PlayAnimation("idle")

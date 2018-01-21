@@ -94,9 +94,9 @@ hook.Add("love.load", "game", function()
 		object = GameObject()
 		object.layer = -2
 		object:AddComponent("SpriteRenderer")
-
+		
 		object.transform.position:Set(math.random() * 1000 - 500, math.random() * 1000 - 500)
-
+		
 		local sr 	= object:GetComponent("SpriteRenderer")
 		sr.sprite 	= Sprite("resources/grass.png")
 		sr.colour:Set(50, 200, 50, 255)
