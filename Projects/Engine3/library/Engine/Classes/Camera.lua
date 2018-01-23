@@ -228,10 +228,13 @@ function Class:Render()
 	graphics.push()
 
 	graphics.translate(w, h)
-	graphics.rotate(-self.transform.globalRotation)
-	graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
-	graphics.translate(-self.transform.globalPosition.x, -self.transform.globalPosition.y)
 	
+	local inverse = self.transform.globalMatrix:InverseCopy()
+	
+	graphics.rotate(inverse:Rotation())
+	graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
+	graphics.translate(inverse:Position())
+
 	for k, v in pairs(self.buffers) do
 		graphics.setCanvas(v.source)
 		graphics.clear(0, 0, 0, 0)

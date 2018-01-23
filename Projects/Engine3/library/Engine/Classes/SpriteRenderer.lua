@@ -21,7 +21,7 @@ function Class:New(gameObject)
 	
 	--animation
 	self.speed 				= 1.0
-	self.animation_index 	= 1
+	self.index 				= 1
 	self.timer 				= 0.0
 	self.animation 			= ""
 	self.playing			= false
@@ -33,7 +33,7 @@ function Class:ResetAnimation(name)
 	local sprite 	= self.sprite
 	local animation = sprite:GetAnimation(name or self.animation)
 
-	self.animation_index = 1
+	self.index = 1
 	self.timer 			 = 1 / animation.fps
 	
 	local frame = sprite:GetFrame(1)
@@ -65,16 +65,16 @@ function Class:Update()
 		
 		if animation then
 			self.timer = self.timer - (Time.Delta * self.speed)
-
+			
 			if self.timer <= 0 then
-				self.animation_index 	= self.animation_index + 1
+				self.index 	= self.index + 1
 				self.timer 				= 1 / animation.fps
-
-				if self.animation_index > #animation.frames then
+				
+				if self.index > #animation.frames then
 					if animation.loop then
-						self.animation_index = 1
+						self.index = 1
 					else
-						self.animation_index 	= #animation.frames
+						self.index 	= #animation.frames
 						self.playing 			= false
 					end
 				end
@@ -87,7 +87,7 @@ function Class:Render(camera)
 	local sprite = self.sprite
 	if sprite then
 		local animation 	= sprite:GetAnimation(self.animation)
-		local frame 		= sprite:GetFrame(animation and animation.frames[self.animation_index] or 1)
+		local frame 		= sprite:GetFrame(animation and animation.frames[self.index] or 1)
 		local transform 	= self.transform
 		local scale 		= transform.globalScale
 		local position 		= transform.globalPosition

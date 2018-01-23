@@ -1,15 +1,17 @@
 local Class = class.NewClass("Object")
 local UUID 	= 1
 
-function Class:New(id)
+function Class:New()
 	self.hideflag 	= {}
 	self.name 		= self:Type()
 	
-	self.__handles = {}
+	self.__handles 	= {}
 
 	self.__id = UUID
 	UUID = UUID + 1
 	
+	self.scene = SceneManager:GetActiveScene()
+
 	if self.__batch == nil or self.__batch == true then
 		table.insert(SceneManager:GetActiveScene().__inactive, 1, self)
 	end
@@ -24,7 +26,9 @@ function Class:ToString()
 end
 
 function Class.Destroy(object, time)
+	object:OnDestroy()
 
+	object.scene:RemoveObject(object.__typename, object.__id)
 end
 
 function Class.DestroyImmediate(object, allowDestroyingAssets)
@@ -63,4 +67,8 @@ end
 --Returns cloned object
 function Class.Instantiate(original, position, rotation, parent)
 
+end
+
+function Class:OnDestroy()
+	object.scene:RemoveObject(object.__typename, object.__id)
 end

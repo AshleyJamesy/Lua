@@ -91,16 +91,18 @@ function Class:Update()
 			self.__objects[v.__typename] = {}
 		end
 		
-		table.insert(self.__objects[v.__typename], #self.__objects[v.__typename] + 1, v)
+		---table.insert(self.__objects[v.__typename], #self.__objects[v.__typename] + 1, v)
 		
+		self.__objects[v.__typename][v.__id] = v
+
 		if v.IsMonoBehaviour then
 			--v:Awake()
 			--v:Start()
 			v:Enable()
 		end
-
+		
 		v.enabled = true
-
+		
 		table.remove(self.__inactive, k)
 	end
 	
@@ -109,8 +111,20 @@ function Class:Update()
 			self:CallFunctionOnType(v, "Update")
 		end
 	end
+
+	for k, v in pairs(Component.Components) do
+		if v ~= "Transform" then
+			self:CallFunctionOnType(v, "LateUpdate")
+		end
+	end
 	
 	--self:CallFunctionOnAll("Update", { "Transform" })
+end
+
+function Class:RemoveObject(typename, k)
+	if self.__objects[typename][k] then
+		self.__objects[typename][k] = nil
+	end
 end
 
 function Class:LateUpdate()

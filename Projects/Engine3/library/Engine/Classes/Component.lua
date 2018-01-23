@@ -10,7 +10,7 @@ hook.Add("Initalise", class.GetClasses(), function(c)
 end)
 
 function Class:New(gameObject)
-	Class:Base().New(self, gameObject.__id)
+	Class:Base().New(self)
 	
 	self.tag 		= ""
 	

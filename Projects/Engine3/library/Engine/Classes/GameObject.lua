@@ -2,15 +2,16 @@ local Class = class.NewClass("GameObject", "Object")
 
 function Class:New(x, y)
 	Class:Base().New(self)
+	
+	self.gameObject 		= self
 
 	self.activeInHierarchy 	= false
 	self.activeSelf 		= false
 	self.isStatic			= false 	--EDITOR ONLY
 	self.layer 				= 0
-	self.scene 				= SceneManager:GetActiveScene()
 	self.components 		= {}
 	self.transform 			= self:AddComponent("Transform", x, y)
-	self.material = Material("Sprite/Default")
+	self.material 			= Material("Sprite/Default")
 	self.__bounds 			= Rect(0,0,0,0)
 	self.__selected 		= false
 end
@@ -104,6 +105,12 @@ function Class:SendMessage(method, ...)
 		if component[method] then
 			component[method](component, ...)
 		end
+	end
+end
+
+function Class:OnDestroy()
+	for _, component in pairs(self.components) do
+		Object.Destroy(component)
 	end
 end
 

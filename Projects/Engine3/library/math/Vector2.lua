@@ -1,5 +1,4 @@
 local Class = class.NewClass("Vector2")
-Class.__ctype = true
 
 --Constructor
 function Class:New(x, y)
@@ -40,7 +39,7 @@ function Class:__unm()
 	return class.Quick("Vector2", {x = -self.x, y = -self.y})
 end
 
-function Class:__tostring()
+function Class:ToString()
 	return self.x .. ", " .. self.y
 end
 
@@ -94,13 +93,8 @@ function Class.Rotation(r)
 end
 
 function Class:ToAngle()
-	local angle = math.atan2(self.y, self.x)
-	
-	if angle < 0 then
-		return math.abs(-3.1415 - angle)
-	end
-	
-	return math.abs(angle) - 3.1415
+	local angle = math.atan2(self.x, self.y)
+	return angle < 0.0 and angle + 6.28318530718 or angle
 end
 
 function Class:Unpack()
