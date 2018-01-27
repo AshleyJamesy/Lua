@@ -1,6 +1,9 @@
 FFI = require("ffi")
 BIT = require("bit")
 
+graphics  = love.graphics
+stats     = {}
+
 include("extensions/")
 include("util/")
 include("callbacks")
@@ -11,9 +14,6 @@ include("library/")
 include("source/")
 
 class.Load()
-
-stats     = {}
-graphics  = love.graphics
 
 --TODO:
 --[[
@@ -55,10 +55,10 @@ hook.Add("love.load", "game", function()
 			{
 				number alpha = 4.0 * Texel(texture, uv_coords).a;
 
-				alpha -= Texel(texture, uv_coords + vec2(u_Size, 0.0f)).a;
-				alpha -= Texel(texture, uv_coords + vec2(-u_Size, 0.0f)).a;
-				alpha -= Texel(texture, uv_coords + vec2(0.0f, u_Size)).a;
-				alpha -= Texel(texture, uv_coords + vec2(0.0f, -u_Size)).a;
+				alpha -= Texel(texture, uv_coords + vec2(u_Size, 0.0)).a;
+				alpha -= Texel(texture, uv_coords + vec2(-u_Size, 0.0)).a;
+				alpha -= Texel(texture, uv_coords + vec2(0.0, u_Size)).a;
+				alpha -= Texel(texture, uv_coords + vec2(0.0, -u_Size)).a;
 
 				return Texel(texture, uv_coords) + vec4(1.0, 1.0, 1.0, alpha) * alpha;
 			}
@@ -84,7 +84,7 @@ hook.Add("love.load", "game", function()
 	Sprite("resources/grass.png"):NewFrame(0, 0, 32, 32)
 	Sprite("resources/grass.png"):NewFrame(32, 0, 32, 32)
 	Sprite("resources/grass.png"):NewFrame(64, 0, 32, 32)
-
+ 
 	Sprite("resources/shotgun.png")
 
 	Sprite("resources/male.png")
@@ -111,7 +111,7 @@ hook.Add("love.load", "game", function()
 	
 	hook.Call("Initalise")
 	
-	--Screen.Flip()
+	Screen.Flip()
  	
 	Input.Update()
 	Input.LateUpdate()
@@ -122,6 +122,7 @@ hook.Add("love.load", "game", function()
 	object:AddComponent("Camera")
 	
 	local cam = object:GetComponent("Camera")
+	cam.zoom:Set(0.5, 0.5)
 	cam.backgroundColour:Set(130, 200, 110, 255)
 	
 	object:AddComponent("SpriteRenderer")
@@ -129,7 +130,11 @@ hook.Add("love.load", "game", function()
 	
 	local sr 		= object:GetComponent("SpriteRenderer")
 	sr.sprite 		= Sprite("resources/male.png")
-	sr:PlayAnimation("run")
+	
+	local object = GameObject()
+	object:AddComponent("Joystick")
+	local js = object:GetComponent("Joystick")
+	js.origin:Set(300, 800)
 	
 	for i = 1, 10 do
 		object = GameObject()
@@ -163,7 +168,7 @@ hook.Add("love.render", "game", function()
 	scene:Render()
 	
 	Screen.Draw(Camera.main.buffers.post.source, 0, 0, 0)
-
+ 
 	hook.Call("OnPostRender")
 	hook.Call("OnRenderImage")
 	

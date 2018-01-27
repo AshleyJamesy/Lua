@@ -1,7 +1,7 @@
 local Class = class.NewClass("Renderer", "Component")
 Class.Renderers = {
-	"SpriteRenderer",
-	"Ship"
+    "SpriteRenderer",
+    "CanvasRenderer"
 }
 
 function Class:New(gameObject)
@@ -15,6 +15,10 @@ end
 
 function Class:Render(camera)
 	
+end
+
+function Class:RenderUI(camera)
+    
 end
 
 --OnBecameInvisible is called when the object is no longer visible by any camera.

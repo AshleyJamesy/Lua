@@ -1,6 +1,7 @@
 module("hook", package.seeall)
 
-local Hooks = {}
+local Hooks     = {}
+local Captures  = {}
 
 function GetTable() 
 	return Hooks
@@ -11,7 +12,8 @@ function Add(event, id, method)
 	if not IsString(event) then return end
 	
 	if Hooks[event] == nil then
-		Hooks[event] = {}
+		Hooks[event]    = {}
+		Captures[event] = false
 	end
 	
 	Hooks[event][id] = method
@@ -30,7 +32,7 @@ function Call(event, ...)
 	if HookTable ~= nil then
 		local a, b, c, d, e, f
 		
-		for k, v in pairs(HookTable) do 
+		for k, v in pairs(HookTable) do
 			if IsString(k) then
 				a, b, c, d, e, f = v(...)
 			else
@@ -41,6 +43,12 @@ function Call(event, ...)
 				end
 			end
 			
+			if Captures[event] then
+			    Captures[event] = false
+			    
+			    break
+			end
+			
 			if a ~= nil then
 				return a, b, c, d, e, f
 			end
@@ -48,43 +56,6 @@ function Call(event, ...)
 	end
 end
 
-local meta_HookTable = {}
-meta_HookTable.__index = meta_HookTable
-meta_HookTable.__call = function(t, ...)
-	for k, v in pairs(t) do
-		if v.target then
-			v.method(v.target, ...)
-		else
-			v.method(...)
-		end
-	end
-end
-
-meta_HookTable.Subscribe = function(t, target, method)
-	if not IsFunction(method) then return end
-	for k, v in pairs(t) do
-		if v.target == target and v.method == method then
-			break
-		end
-	end
-
-	local pair = {}
-	pair.target = target
-	pair.method = method
-
-	table.insert(t, 1, pair)
-end
-
-meta_HookTable.UnSubscribe = function(t, target, method)
-	if not IsFunction(method) then return end
-	for k, v in pairs(t) do
-		if v.target == target and v.method == method then
-			table.remove(t, k)
-			break
-		end
-	end
-end
-
-function CreateHookTable()
-	return setmetatable({}, meta_HookTable)
+function Capture(event)
+    Captures[event] = true
 end

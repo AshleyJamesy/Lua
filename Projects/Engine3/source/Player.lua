@@ -13,6 +13,8 @@ function Class:Awake()
 	self.renderUI 	= false
 
 	self.pickedUp 	= false
+	
+	self.mouse = Vector2(0,0)
 end
 
 function Class:AddItem(item, amount)
@@ -26,7 +28,7 @@ end
 function Class:Update()
 	self.renderUI = false
 
-	local aimVector = (Vector2(Camera.main:MousePosition()) - self.transform.position):Normalised()
+	local aimVector = (Vector2(Camera.main:ScreenToWorld(Input.GetTouchPosition(1))) - self.transform.position):Normalised()
 	local angle = math.deg(aimVector:ToAngle())
 
 	if angle > 0 and angle < 180 then

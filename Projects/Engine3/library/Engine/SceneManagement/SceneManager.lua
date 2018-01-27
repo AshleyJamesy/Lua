@@ -4,9 +4,11 @@ Class.sceneCount 	= 0
 Class.activeScene 	= nil
 
 --Events
+--[[
 Class.activeSceneChanged 	= hook.CreateHookTable()
 Class.sceneLoaded 			= hook.CreateHookTable()
 Class.sceneUnLoaded 		= hook.CreateHookTable()
+]]
 
 OpenSceneMode = enum{
 	"Single", 					--Closes all current open scenes and loads a scene.

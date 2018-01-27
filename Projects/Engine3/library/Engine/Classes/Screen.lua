@@ -21,12 +21,12 @@ function Class.Flip(flip)
 	end
 end
 
-function Class.GetPoint(x, y)
+function Class.Point(x, y)
 	if Class.flipped then
 		return Screen.width - y, x
-	else
-		return x, y
 	end
+	
+	return x, y
 end
 
 function Class.Print(text, x, y, sx, sy)

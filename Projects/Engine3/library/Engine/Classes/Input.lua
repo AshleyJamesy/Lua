@@ -40,6 +40,13 @@ function Class.GetMouseButtonUp(button)
 	return Class.__mouse[button] == nil
 end
 
+function Class.CaptureMouseEvent(button)
+    if Class.__mouse[button] then
+        Class.__mouse[button] = nil
+        Class.__mouseCount = Class.__mouseCount - 1
+    end
+end
+
 function Class.GetMousePosition()
 	return Class.mousePosition.x, Class.mousePosition.y
 end
@@ -104,7 +111,7 @@ end
 
 local joystick = love.joystick.getJoysticks()[1]
 function Class.Update()
- local x, y = Screen.GetPoint(love.mouse.getX(), love.mouse.getY())
+ local x, y = Screen.Point(love.mouse.getX(), love.mouse.getY())
  
 	Class.anyKey = Class.__keyboardCount > 0 or Class.__mouseCount > 0 or Class.__touchCount > 0
 
@@ -142,7 +149,7 @@ function Class.LateUpdate()
 	        Class.__touchCount = Class.__touchCount - 1
 	    end
 	end
-
+ 
  Class.mousePosition:Set(0,0)
 	Class.mouseWheel:Set(0, 0)
 end
@@ -161,19 +168,17 @@ hook.Add("KeyReleased", "Input", function(key, scancode)
 end)
 
 hook.Add("MousePressed", "Input", function(x, y, button, istouch)
-	if not istouch then
 		Class.__mouse[button] = Time.Cycle
 		
 		Class.anyKeyDown 	= true
 		Class.__mouseCount 	= Class.__mouseCount + 1
-	end
+		
+		print(button)
 end)
 
 hook.Add("MouseReleased", "Input", function(x, y, button, istouch)
-	if not istouch then
 		Class.__mouse[button] = nil
 		Class.__mouseCount 	= Class.__mouseCount - 1
-	end
 end)
 
 hook.Add("TouchPressed", "Input", function(id, x, y, dx, dy, pressure)
@@ -184,13 +189,11 @@ hook.Add("TouchPressed", "Input", function(id, x, y, dx, dy, pressure)
         id        = uid,
         state     = "Pressed",
         touch     = id,
-        position  = Vector2(Screen.GetPoint(x, y)),
+        position  = Vector2(Screen.Point(x, y)),
         delta     = Vector2(dx,dy)
     }
     
     Class.anyKeyDown 	= true
-    
-    hook.Call("IPointerDownHandler", Class.__touch[uid])
 end)
 
 hook.Add("TouchMoved", "Input", function(id, x, y, dx, dy, pressure)
@@ -202,10 +205,8 @@ hook.Add("TouchMoved", "Input", function(id, x, y, dx, dy, pressure)
     touch.state = "Moved"
     touch.id    = uid
     touch.touch = id
-    touch.position:Set(Vector2(Screen.GetPoint(x, y)))
+    touch.position:Set(Screen.Point(x, y))
     touch.delta:Set(dx, dy)
-    
-    hook.Call("IDrag", touch)
 end)
 
 hook.Add("TouchReleased", "Input", function(id, x, y, dx, dy, pressure)
@@ -217,10 +218,8 @@ hook.Add("TouchReleased", "Input", function(id, x, y, dx, dy, pressure)
     touch.state = "Released"
     touch.id    = uid
     touch.touch = nil
-    touch.position:Set(Vector2(Screen.GetPoint(x, y)))
+    touch.position:Set(Screen.Point(x, y))
     touch.delta:Set(dx, dy)
-    
-    hook.Call("IPointerUpHandler", touch)
 end)
 
 hook.Add("MouseWheelMoved", "Input",	function(x, y)

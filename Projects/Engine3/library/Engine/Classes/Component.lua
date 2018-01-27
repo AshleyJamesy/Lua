@@ -53,8 +53,8 @@ function Class:GetComponentsInParent(typename)
 	
 end
 
-function Class:SendMessage(methodName, reciever, ...)
-	
+function Class:SendMessage(method, reciever, ...)
+    self.gameObject:SendMessage(method, reciever, ...)
 end
 
 function Class:SendMessageUpward(methodName, reciever, ...)
