@@ -47,7 +47,7 @@ function include(file)
 	    return includes[full_path]
 	end
 	
-	includes[full_path], err = pcall(require, full_path)
+	status, includes[full_path] = pcall(require, full_path)
 	
 	--local contents = love.filesystem.read(GetProjectDirectory() .. file .. ".lua")
 	--local _, lines = string.gsub(contents, "\n", "\n")

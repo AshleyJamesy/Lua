@@ -1,0 +1,1 @@
+local Class = class.NewClass("Application")

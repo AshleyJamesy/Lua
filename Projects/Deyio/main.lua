@@ -18,12 +18,14 @@ hook.Add("love.load", "game", function()
     State("Menu", "state_Menu")
     State("Level", "state_Level")
     State("Credits", "state_Credits")
+    
+    activeState = State("Preload")
 end)
 
 hook.Add("love.update", "game", function()
-    
+    activeState:Update()
 end)
 
 hook.Add("love.render", "game", function()
-    
+    activeState:Render()
 end)
