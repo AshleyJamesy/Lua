@@ -1,5 +1,5 @@
 local Class = class.NewClass("Network")
-Class.Connected = {}
+Class.Connections = {}
 
 function Class:Connect(address)
 	if Network.host == nil then
@@ -46,17 +46,23 @@ function Class:Send(index, data, channel, flag)
 end
 
 hook.Add("connection", "network", function(index)
-	table.insert(Class.Connected, 1, Class.host:get_peer(index))
+	table.insert(Class.Connections, 1, Class.host:get_peer(index))
 end)
 
 hook.Add("disconnection", "network", function(index)
-	for k, v in pairs(Class.Connected) do
+	for k, v in pairs(Class.Connections) do
 		if index == v:index() then
-			table.remove(Class.Connected, k)
+			table.remove(Class.Connections, k)
 		end
 	end
 end)
 
 hook.Add("incoming_packet", "network", function(index, data)
 	
+end)
+
+hook.Add("Quit", "network", function()
+	for k, v in pairs(Class.Connections) do
+		v:disconnect()
+	end
 end)

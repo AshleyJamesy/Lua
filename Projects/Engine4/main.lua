@@ -24,12 +24,12 @@ hook.Add("love.load", "game", function(parameters)
 	if Arguments.Server then
 		print("SERVER")
 		love.window.setTitle("SERVER")
-		Network:CreateServer("localhost:6898")
+		Network:CreateServer("192.168.0.109:6898", 12)
 		print(Network.host:get_socket_address())
 	else
 		print("CLIENT")
 		love.window.setTitle("CLIENT")
-		Network:Connect("localhost:6898")
+		Network:Connect("192.168.0.109:6898")
 		print(Network.host:get_socket_address())
 	end
 end)
@@ -46,7 +46,13 @@ hook.Add("love.render", "game", function()
 				"Latency: " .. peer:round_trip_time() .. "\n" .. 
 				"State: " .. peer:state()
 
-			love.graphics.print(details, 10, 10 + (i * 30))
+			love.graphics.print(details, 10, (i * 40) - 30)
 		end
+	end
+end)
+
+hook.Add("KeyPressed", "game", function(key)
+	if key == "escape" then
+		love.event.quit()
 	end
 end)
