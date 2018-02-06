@@ -8,6 +8,8 @@ Class.__typename 			= "Class"
 Class.__type  				= { "Class" }
 Class.__loaded 				= true
 
+--Class.__readOnly 			= true
+
 local function inherit(n, b)
 	for k, v in pairs(b) do
 		if rawget(n, k) then
@@ -156,16 +158,20 @@ function LoadClass(n)
 		if #n.__type > 2 then
 			local ThisClass = n.__type[#n.__type]
 			local BaseClass = n.__type[#n.__type - 1]
-
+			
 			local b = Classes[BaseClass]
 			
-			if b.__loaded then
+			if b then
+				if b.__loaded then
+				else
+					LoadClass(b)
+				end
 			else
-				LoadClass(b)
+				error("missing class <" .. BaseClass .. "> in class <" .. ThisClass .. ">")
 			end
-
+			
 			n.__readOnly = b.__readOnly or false
-
+			
 			n.__type = table.Copy(b.__type)
 			
 			table.insert(n.__type, ThisClass)
@@ -173,7 +179,7 @@ function LoadClass(n)
 			inherit(n, b)
 		end
 	end
-
+	
 	n.__loaded = true
 end
 

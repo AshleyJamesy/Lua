@@ -1,7 +1,6 @@
 module("hook", package.seeall)
 
-local Hooks     = {}
-local Captures  = {}
+local Hooks = {}
 
 function GetTable() 
 	return Hooks
@@ -13,7 +12,6 @@ function Add(event, id, method)
 	
 	if Hooks[event] == nil then
 		Hooks[event]    = {}
-		Captures[event] = false
 	end
 	
 	Hooks[event][id] = method
@@ -43,19 +41,9 @@ function Call(event, ...)
 				end
 			end
 			
-			if Captures[event] then
-			    Captures[event] = false
-			    
-			    break
-			end
-			
 			if a ~= nil then
 				return a, b, c, d, e, f
 			end
 		end
 	end
-end
-
-function Capture(event)
-    Captures[event] = true
 end

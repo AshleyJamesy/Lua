@@ -51,8 +51,14 @@ hook.Add("love.render", "game", function()
 	end
 end)
 
+love.keyboard.setTextInput(true)
+
 hook.Add("KeyPressed", "game", function(key)
 	if key == "escape" then
 		love.event.quit()
 	end
+end)
+
+hook.Add("TextInput", "game", function(char)
+    Network:Broadcast(char)
 end)

@@ -10,6 +10,18 @@ function love.render()
 	hook.Call("love.render")
 end
 
+function love.handlers.incoming_packet(peer, data)
+	hook.Call("incoming_packet", peer, data)
+end
+
+function love.handlers.peer_connection(peer)
+	hook.Call("connection", peer)
+end
+
+function love.handlers.peer_disconnection(peer)
+	hook.Call("disconnection", peer)
+end
+
 function love.directorydropped(path)
 	hook.Call("DirectoryDropped", path)
 end
