@@ -10,16 +10,25 @@ function love.render()
 	hook.Call("love.render")
 end
 
-function love.handlers.incoming_packet(peer, data)
-	hook.Call("incoming_packet", peer, data)
+function love.handlers.incoming_message(peer, data)
+	hook.Call("incoming_data", peer, data)
+	
+	local message = json.decode(data)
+	if message ~= json.null then
+		if message.hook then
+			hook.Call(message.hook, peer, unpack(message.data))
+		else
+			hook.Call("unknown_message", peer, unpack(message.data))
+		end
+	end
 end
 
-function love.handlers.peer_connection(peer)
-	hook.Call("connection", peer)
+function love.handlers.peer_connection(peer, data)
+	hook.Call("connection", peer, data)
 end
 
-function love.handlers.peer_disconnection(peer)
-	hook.Call("disconnection", peer)
+function love.handlers.peer_disconnection(peer, data)
+	hook.Call("disconnection", peer, data)
 end
 
 function love.directorydropped(path)

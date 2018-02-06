@@ -24,13 +24,14 @@ hook.Add("love.load", "game", function(parameters)
 	if Arguments.Server then
 		print("SERVER")
 		love.window.setTitle("SERVER")
-		Network:CreateServer("192.168.0.109:6898", 12)
-		print(Network.host:get_socket_address())
+
+		Network:Init("localhost:6898", 6)
 	else
 		print("CLIENT")
 		love.window.setTitle("CLIENT")
-		Network:Connect("192.168.0.109:6898")
-		print(Network.host:get_socket_address())
+
+		Network:Init()
+		Network:Connect("localhost:6898")
 	end
 end)
 
@@ -40,19 +41,25 @@ end)
 
 hook.Add("love.render", "game", function()
 	if Arguments.Server then
-		for i = 1, Network.host:peer_count() do
-			local peer = Network.host:get_peer(i)
-			local details = 
-				"Latency: " .. peer:round_trip_time() .. "\n" .. 
-				"State: " .. peer:state()
+		if Network.host then
+			for i = 1, Network.host:peer_count() do
+				local peer = Network.host:get_peer(i)
+				local details = 
+					"Latency: " .. peer:round_trip_time() .. "\n" .. 
+					"State: " .. peer:state()
 
-			love.graphics.print(details, 10, (i * 40) - 30)
+				love.graphics.print(details, 10, (i * 40) - 30)
+			end
 		end
 	end
+
+	love.graphics.print(love.timer.getFPS(), 10, 10)
 end)
 
 hook.Add("KeyPressed", "game", function(key)
 	if key == "escape" then
-		love.event.quit()
+		for k, v in pairs(Network:GetConnections()) do
+			Network:Disconnect(v:index(), "disconnected by user.")
+		end
 	end
 end)
