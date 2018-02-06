@@ -151,7 +151,7 @@ function encode(obj, i, as_key)
 	return table.concat(s)
 end
 
-json.null = {}  -- This is a one-off table to represent the null value.
+null = {}  -- This is a one-off table to represent the null value.
 
 function decode(str, pos, end_delim)
 	pos = pos or 1
@@ -204,7 +204,7 @@ function decode(str, pos, end_delim)
 	elseif first == end_delim then  -- End of an object or array.
 		return nil, pos + 1
 	else  -- Parse true, false, or null.
-		local literals = {['true'] = true, ['false'] = false, ['null'] = json.null}
+		local literals = { ['true'] = true, ['false'] = false, ['null'] = null }
 			for lit_str, lit_val in pairs(literals) do
 				local lit_end = pos + #lit_str - 1
 				if str:sub(pos, lit_end) == lit_str then 

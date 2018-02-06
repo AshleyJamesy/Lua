@@ -2,14 +2,14 @@ local Class = class.NewClass("Network")
 Class.Connections = {}
 
 function Class:Connect(address)
-	if Network.host == nil then
-		Network.host = ENET.host_create()
-	end
-
 	Class.host:connect(address)
 end
 
-function Class:CreateServer(address, connections_max, channels_max, incoming, outgoing)
+function Class:GetConnections()
+	return Class.Connections
+end
+
+function Class:Init(address, connections_max, channels_max, incoming, outgoing)
 	Class.host = ENET.host_create(address, connections_max, channels_max, incoming, outgoing)
 end
 
@@ -22,15 +22,28 @@ function Class:SetBandwidthLimit(incoming, outgoing)
 end
 
 function Class:Broadcast(data, channel, flag)
-	Class.host:broadcast(data, channel, flag)
+	Class.host:broadcast(json.encode(data), channel, flag)
 end
 
 function Class:Peer(index)
 	return Class.host:get_peer(index)
 end
 
-function Class:Kick(index, data)
-	Class.host:get_peer(index):disconnect_later(data)
+local disconnect_network = {
+	hook = "OnDisconnect",
+	data = {}
+}
+function Class:Disconnect(index, message)
+	local peer = Class.host:get_peer(index)
+
+	if message then
+		disconnect_network.data[1] = message
+		local encoded = json.encode(disconnect_network)
+		print(encoded)
+		peer:send(encoded)
+	end
+
+	peer:disconnect_later(1)
 end
 
 function Class:Latency(index)
@@ -42,14 +55,14 @@ function Class:State(index)
 end
 
 function Class:Send(index, data, channel, flag)
-	Class.host:get_peer(index):send(data, channel, flag)
+	Class.host:get_peer(index):send(json.encode(data), channel, flag)
 end
 
-hook.Add("connection", "network", function(index)
+hook.Add("connection", "network", function(index, data)
 	table.insert(Class.Connections, 1, Class.host:get_peer(index))
 end)
 
-hook.Add("disconnection", "network", function(index)
+hook.Add("disconnection", "network", function(index, data)
 	for k, v in pairs(Class.Connections) do
 		if index == v:index() then
 			table.remove(Class.Connections, k)
@@ -57,12 +70,6 @@ hook.Add("disconnection", "network", function(index)
 	end
 end)
 
-hook.Add("incoming_packet", "network", function(index, data)
-	
-end)
-
-hook.Add("Quit", "network", function()
-	for k, v in pairs(Class.Connections) do
-		v:disconnect()
-	end
+hook.Add("OnDisconnect", "network", function(index, message)
+	print(index .. " " .. message)
 end)

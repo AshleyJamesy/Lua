@@ -62,7 +62,7 @@ function love.run()
 	end
 	
 	local accumulator = 0.0
-
+	
 	while true do
 		Time.Cycle = Time.Cycle + 1
 		
@@ -72,17 +72,17 @@ function love.run()
 			local event = Network.host:service()
 			while event do
 				if event.type == "receive" then
-					love.event.push("incoming_packet", event.peer:index(), event.data)
+					love.event.push("incoming_message", event.peer:index(), event.data)
 				elseif event.type == "connect" then
-					love.event.push("peer_connection", event.peer:index())
+					love.event.push("peer_connection", event.peer:index(), event.data)
 				elseif event.type == "disconnect" then
-					love.event.push("peer_disconnection", event.peer:index())
+					love.event.push("peer_disconnection", event.peer:index(), event.data)
 				end
 				
 				event = Network.host:service()
 			end
 		end
-
+		
 		if love.event then
 			love.event.pump()
 			for name, a,b,c,d,e,f in love.event.poll() do
