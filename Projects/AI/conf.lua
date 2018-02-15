@@ -65,7 +65,7 @@ Time.FixedTimeStepScaled 		= 0.016
 
 function love.run()
 	if love.load then
-		love.load(arg) 
+		love.load(arg)
 	end
 	
 	if love.timer then 
