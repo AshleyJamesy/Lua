@@ -7,8 +7,8 @@ Class.dimensions = {
 	love.graphics.getHeight()
 }
 
-Class.width 	= love.graphics.getWidth()
-Class.height 	= love.graphics.getHeight()
+Class.width 	= graphics.getWidth()
+Class.height 	= graphics.getHeight()
 Class.aspect 	= Class.width / Class.height
 Class.center 	= Vector2(graphics.getWidth(), graphics.getHeight()) * 0.5
 

@@ -53,15 +53,15 @@ function include(file)
 end
 
 Time = {}
-Time.Elapsed 					= 0.0
-Time.MaxFrameRate 				= 60
+Time.Elapsed 				= 0.0
+Time.MaxFrameRate 			= 60
 Time.TimeScale 				= 1.0
 Time.Delta 					= 0.0
 Time.FixedTimeStep 			= 0.016
-Time.MaximumAllowedTimeStep 	= 0.333333
+Time.MaximumAllowedTimeStep = 0.333333
 Time.Alpha 					= 1.0
 Time.Cycle 					= 0
-Time.FixedTimeStepScaled 		= 0.016
+Time.FixedTimeStepScaled 	= 0.016
 
 function love.run()
 	if love.load then
@@ -152,8 +152,8 @@ function love.conf(t)
 	--Window
 	t.window.title 			= "Window" 		-- The window title (string)
 	t.window.icon 			= nil 			-- Filepath to an image to use as the window's icon (string)
-	t.window.width 			= 800 			-- The window width (number)
-	t.window.height 		= 600 			-- The window height (number)
+	t.window.width 			= 600 			-- The window width (number)
+	t.window.height 		= 800 			-- The window height (number)
 	t.window.borderless 	= false 		-- Remove all border visuals from the window (boolean)
 	t.window.resizable 		= true 			-- Let the window be user-resizable (boolean)
 	t.window.minwidth 		= 1 			-- Minimum window width if the window is resizable (number)
