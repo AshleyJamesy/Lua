@@ -23,27 +23,37 @@ function Class:Save(path)
 		data[k].x 	= v.x
 		data[k].y 	= v.y
 	end
-
-	local file = io.open(path, "w+")
-	if file then
-		file:write(json.encode(data))
-		file:close()
+ 
+ if love.system.getOS() == "Windows" then
+     local file = io.open(path, "w+")
+    	if file then
+    		file:write(json.encode(data))
+    		file:close()
+    	end
+	else
+	    love.filesystem.write(path, json.encode(data))
 	end
 end
 
 function Class:Load(path)
-	local content 	= "{}"
-	local file 		= io.open(path, "rb")
-	if file then
-		content = file:read("*all")
-		file:close()
-	end
-
-	local data = json.decode(content)
-
-	for k, v in pairs(data) do
-		self:Add(v.x, v.y)
-	end
+ local data, content = {}
+ if love.system.getOS() == "Windows" then
+	    local file 		= io.open(path, "rb")
+	    if file then
+		        content = file:read("*all")
+		        file:close()
+	    end
+ else
+    content = love.filesystem.read(path)
+ end
+ 
+ if content then
+     data = json.decode(content)
+     
+     for k, v in pairs(data) do
+         self:Add(v.x, v.y)
+	    end
+ end
 end
 
 function Class:Render()

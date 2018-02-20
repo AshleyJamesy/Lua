@@ -67,3 +67,57 @@ function Class:SetWeightsRandom()
 	end
 end
 
+function Class:GetGenetics()
+    local genetics = {}
+    for index, layer in pairs(self.layers) do
+        local next_layer = self.layers[index + 1]
+        
+        if next_layer then
+            for k, v in pairs(layer.weight) do
+                table.insert(genetics, #genetics + 1, v)
+            end
+        end
+        
+        if index > 1 then
+            for k, v in pairs(layer.bias) do
+                table.insert(genetics, #genetics + 1, v)
+            end
+        end
+    end
+    
+    return genetics
+end
+
+function Class:SetGenetics(genetics)
+    local index = 1
+    for index, layer in pairs(self.layers) do
+        local next_layer = self.layers[index + 1]
+        
+        if next_layer then
+            for i = 1, #layer.weight do
+                layer.weight[i] = genetics[index]
+                index = index + 1
+            end
+        end
+        
+        if index > 1 then
+            for i = 1, #layer.bias do
+                layer.bias[i] = genetics[index]
+                index = index + 1
+            end
+        end
+    end
+end
+
+function Class.Splice(geneticsA, geneticsB)
+    local genetics = {}
+    for i = 1, #geneticsA do
+        if math.random() > 0.5 then
+            genetics[i] = geneticsA[i]
+        else
+            genetics[i] = geneticsB[i]
+        end
+    end
+    
+    return genetics
+end

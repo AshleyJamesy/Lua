@@ -23,7 +23,7 @@ function Class:New(x, y)
 	self.user 		= false
 	self.input 		= 0.0
 
-	self.active 	= false
+	self.active 	= true
 
 	self.casts = {
 		30.0,
@@ -39,12 +39,10 @@ function Class:New(x, y)
 	self.network:NewLayer(5)
 	self.network:NewLayer(4)
 	self.network:NewLayer(1)
-
 	self.network:SetWeightsRandom()
 end
 
 group = {}
-
 function Class:OnEnterCollision(other)
 	if other:getGroupIndex() ~= -1 then
 		self.active = false
