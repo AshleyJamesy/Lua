@@ -16,11 +16,14 @@ class.Load()
 local scene = {}
 
 hook.Add("love.load", "game", function(parameters)
-	Screen.Flip()
+	--Screen.Flip()
 	
 	camera = Camera(scene)
 	
-	scene["btn_menu"] = UIButton(0, 0, 150, 50, "Menu")
+	local h = Screen.height * 0.15
+
+	scene["btn_menu"] = UIButton(0, h * 0.0, 150, 50, "Menu")
+	scene["btn_menu"].stretch:Set(0.25, 0.15)
 	scene["btn_menu"]:Hook(
 		function(button)
 			if button.toggle then
@@ -35,7 +38,8 @@ hook.Add("love.load", "game", function(parameters)
 		end
 	)
 
-	scene["btn_save"] = UIButton(0, 50, 150, 50, "Save")
+	scene["btn_save"] = UIButton(0, h * 1.0, 150, 50, "Save")
+	scene["btn_save"].stretch:Set(0.25, 0.15)
 	scene["btn_save"]:Hook(
 		function(button)
 			print("save")
@@ -43,7 +47,8 @@ hook.Add("love.load", "game", function(parameters)
 	)
 	scene["btn_save"].visible = false
 
-	scene["btn_load"] = UIButton(0, 100, 150, 50, "Load")
+	scene["btn_load"] = UIButton(0, h * 2.0, 150, 50, "Load")
+	scene["btn_load"].stretch:Set(0.25, 0.15)
 	scene["btn_load"]:Hook(
 		function(button)
 			print("load")
@@ -51,7 +56,8 @@ hook.Add("love.load", "game", function(parameters)
 	)
 	scene["btn_load"].visible = false
 
-	scene["btn_editor"] = UIButton(0, 150, 150, 50, "Editor")
+	scene["btn_editor"] = UIButton(0, h * 3.0, 150, 50, "Editor")
+	scene["btn_editor"].stretch:Set(0.25, 0.15)
 	scene["btn_editor"]:Hook(
 		function(button)
 			print("editor")

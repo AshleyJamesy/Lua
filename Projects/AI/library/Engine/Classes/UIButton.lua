@@ -31,7 +31,7 @@ function Class:New(x, y, w, h, text)
 	self.colours.text 		= Colour(0, 0, 0, 255)
 	
 	self.image = nil
-
+	
 	self.onClick = {}
 end
 
@@ -91,7 +91,7 @@ function Class:RenderUI()
 		love.graphics.setColor(self.colours.text:GetTable())
 
 		local font = love.graphics.getFont()
-
+		
 		love.graphics.printf(self.text, rect.x, (rect.y + rect.h * 0.5) - font:getHeight() * 0.5, rect.w, "center", 0, 1, 1)
 	end
 end
