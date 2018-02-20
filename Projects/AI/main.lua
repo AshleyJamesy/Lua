@@ -16,25 +16,61 @@ class.Load()
 local scene = {}
 
 hook.Add("love.load", "game", function(parameters)
-    camera = Camera(scene)
-    
-    scene["btn_save"] = UIButton(50, 150)
-    scene["btn_save"].anchor:Set(0.0, 1.0)
-    scene["btn_save"].position:Set(0.0, love.graphics.getHeight())
-    scene["btn_save"].stretch:Set(1.0, 0.0)
+	Screen.Flip()
+	
+	camera = Camera(scene)
+	
+	scene["btn_menu"] = UIButton(0, 0, 150, 50, "Menu")
+	scene["btn_menu"]:Hook(
+		function(button)
+			if button.toggle then
+				scene["btn_save"].visible 	= true
+				scene["btn_load"].visible 	= true
+				scene["btn_editor"].visible = true
+			else
+				scene["btn_save"].visible 	= false
+				scene["btn_load"].visible 	= false
+				scene["btn_editor"].visible = false
+			end
+		end
+	)
+
+	scene["btn_save"] = UIButton(0, 50, 150, 50, "Save")
+	scene["btn_save"]:Hook(
+		function(button)
+			print("save")
+		end
+	)
+	scene["btn_save"].visible = false
+
+	scene["btn_load"] = UIButton(0, 100, 150, 50, "Load")
+	scene["btn_load"]:Hook(
+		function(button)
+			print("load")
+		end
+	)
+	scene["btn_load"].visible = false
+
+	scene["btn_editor"] = UIButton(0, 150, 150, 50, "Editor")
+	scene["btn_editor"]:Hook(
+		function(button)
+			print("editor")
+		end
+	)
+	scene["btn_editor"].visible = false
 end)
 
 hook.Add("love.update", "game", function()
-    for k, v in pairs(scene) do
-        if v.Update then
-            v:Update()
-        end
-    end
+	for k, v in pairs(scene) do
+		if v.Update then
+			v:Update()
+		end
+	end
 end)
 
 hook.Add("love.render", "game", function()
-    camera:Render()
-    camera:Show()
+	camera:Render()
+	camera:Show()
 end)
 
 hook.Add("KeyPressed", "game", function(key)
