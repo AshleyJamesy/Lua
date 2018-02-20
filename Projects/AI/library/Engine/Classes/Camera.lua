@@ -4,12 +4,12 @@ function Class:New(scene)
 	self.scene    = scene
 	self.position = Vector2(0,0)
 	
-	self.canvas = love.graphics.newCanvas()
+	self.canvas = love.graphics.newCanvas(Screen.width, Screen.height)
 end
 
 function Class:Render(objects)
 	love.graphics.setCanvas(self.canvas)
-	love.graphics.clear()
+	love.graphics.clear(100, 100, 100)
 
 	love.graphics.push()
 	love.graphics.translate(love.graphics.getWidth() * 0.5, love.graphics.getHeight() * 0.5)
@@ -32,6 +32,10 @@ function Class:Render(objects)
 	
 	love.graphics.setCanvas()
 end
+
+hook.Add("WindowResize", "Screen", function(w, h)
+	self.canvas = love.graphics.newCanvas(w, h)
+end)
 
 function Class:Show()
 	love.graphics.reset()
