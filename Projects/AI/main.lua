@@ -14,17 +14,18 @@ include("source/")
 class.Load()
 
 local scene = {}
+mainFont = love.graphics.newFont(love.window.getPixelScale() * 12)
 
 hook.Add("love.load", "game", function(parameters)
 	Screen.Flip()
 
 	camera = Camera(scene)
 	
-	local h = Screen.height * 0.15
+	local w = Screen.width * 0.30
+	local h = Screen.height * 0.05
 
-	local button = UIButton(0, h * 0.0, 100.0, h, "Menu")
+	local button = UIButton(0.0, h * 0.0, w, h, "Menu")
 	scene["btn_menu"] = button
-	button.stretch:Set(0.15, 0.0)
 	button:Hook(
 		function(button)
 			if button.toggle then
@@ -39,7 +40,7 @@ hook.Add("love.load", "game", function(parameters)
 		end
 	)
 
-	local button = UIButton(0, h * 1.0, 100.0, h, "Save")
+	local button = UIButton(0.0, h * 1.0, w, h, "Save")
 	scene["btn_save"] = button
 	button.stretch:Set(0.15, 0.0)
 	button:Hook(
@@ -49,9 +50,8 @@ hook.Add("love.load", "game", function(parameters)
 	)
 	button.visible = false
 
-	local button = UIButton(0, h * 2.0, 100.0, h, "Load")
+	local button = UIButton(0.0, h * 2.0, w, h, "Load")
 	scene["btn_load"] = button
-	button.stretch:Set(0.15, 0.0)
 	button:Hook(
 		function(button)
 			print("load")
@@ -59,9 +59,8 @@ hook.Add("love.load", "game", function(parameters)
 	)
 	button.visible = false
 
-	local button = UIButton(0, h * 3.0, 100.0, h, "Editor")
+	local button = UIButton(0.0, h * 3.0, w, h, "Editor")
 	scene["btn_editor"] = button
-	button.stretch:Set(0.15, 0.0)
 	button:Hook(
 		function(button)
 			print("editor")

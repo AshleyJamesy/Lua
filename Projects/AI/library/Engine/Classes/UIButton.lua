@@ -28,7 +28,7 @@ function Class:New(x, y, w, h, text)
 	
 	self.colours 			= {}
 	self.colours.background = Colour(100, 100, 100, 255)
-	self.colours.text 		= Colour(0, 0, 0, 255)
+	self.colours.text 		= Colour(255, 255, 255, 255)
 	
 	self.image = nil
 	
@@ -90,8 +90,8 @@ function Class:RenderUI()
 		love.graphics.rectangle("line", rect.x, rect.y, rect.w, rect.h)
 		love.graphics.setColor(self.colours.text:GetTable())
 
-		local font = love.graphics.getFont()
+		love.graphics.setFont(mainFont)
 		
-		love.graphics.printf(self.text, rect.x, (rect.y + rect.h * 0.5) - font:getHeight() * 0.5, rect.w, "center", 0, 1, 1)
+		love.graphics.printf(self.text, rect.x, rect.y, rect.w, "center", 0.0, 1.0, 1.0, 0.0, (rect.h * -0.5) + mainFont:getHeight() * 0.5)
 	end
 end

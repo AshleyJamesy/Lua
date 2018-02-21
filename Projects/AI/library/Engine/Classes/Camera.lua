@@ -9,7 +9,7 @@ end
 
 function Class:Render(objects)
 	love.graphics.setCanvas(self.canvas)
-	love.graphics.clear(100, 100, 100)
+	love.graphics.clear()
 
 	love.graphics.push()
 	love.graphics.translate(love.graphics.getWidth() * 0.5, love.graphics.getHeight() * 0.5)
