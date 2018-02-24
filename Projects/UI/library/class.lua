@@ -24,14 +24,6 @@ local function inherit(n, b)
 end
 
 function Class:__call(...)
-	--VARIABLE CHANGES
-	--local instance = nil
-	--if self.__watch ~= nil and self.__watch == true then
-	--	instance = setmetatable({ variables = {} }, self)
-	--else
-	--	instance = setmetatable({}, self)
-	--end
-	
 	local instance = setmetatable({}, self)
 
 	return instance:New(...) or instance
@@ -79,43 +71,6 @@ function NewClass(name, base, ...)
 
 	local b = Classes[name] or Class
 	local n = {}
-	
-	--VARIABLE CHANGES
-	--[[
-	n.__newindex = function(t, k, v)
-		if n.__watch ~= nil and n.__watch == true then
-			local value = t.variables[k]
-
-			if value then
-				if value ~= v then
-					t.variables[k] = v
-
-					if n.ChangedValue then
-						n.ChangedValue(t, k, value, v)
-					end
-				end
-			else
-				t.variables[k] = v
-
-				if n.NewValue then
-					n.NewValue(t, k, v)
-				end
-			end
-
-			rawset(t.variables,k,n)
-		else
-			rawset(t,k,n)
-		end
-	end
-
-	n.__index = function (t, k)
-		if n.__watch ~= nil and n.__watch == true then
-			return t.variables[k] or n[k]
-		else
-			return rawget(t,k) or n[k]
-		end
-	end
-	]]
 
 	n.__index = n
 
@@ -171,8 +126,6 @@ function LoadClass(n)
 			else
 				error("missing class <" .. BaseClass .. "> in class <" .. ThisClass .. ">")
 			end
-			
-			n.__readOnly = b.__readOnly or false
 			
 			n.__type = table.Copy(b.__type)
 			

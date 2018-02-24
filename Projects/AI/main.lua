@@ -14,59 +14,11 @@ include("source/")
 class.Load()
 
 local scene = {}
-mainFont = love.graphics.newFont(love.window.getPixelScale() * 12)
-
 hook.Add("love.load", "game", function(parameters)
-	Screen.Flip()
+	myGUI 	= GUI(0, 0, 200, Screen.height)
+	myView 	= GUI(200, 0, 400, Screen.height)
 
-	camera = Camera(scene)
-	
-	local w = Screen.width * 0.30
-	local h = Screen.height * 0.05
-
-	local button = UIButton(0.0, h * 0.0, w, h, "Menu")
-	scene["btn_menu"] = button
-	button:Hook(
-		function(button)
-			if button.toggle then
-				scene["btn_save"].visible 	= true
-				scene["btn_load"].visible 	= true
-				scene["btn_editor"].visible = true
-			else
-				scene["btn_save"].visible 	= false
-				scene["btn_load"].visible 	= false
-				scene["btn_editor"].visible = false
-			end
-		end
-	)
-
-	local button = UIButton(0.0, h * 1.0, w, h, "Save")
-	scene["btn_save"] = button
-	button.stretch:Set(0.15, 0.0)
-	button:Hook(
-		function(button)
-			print("save")
-		end
-	)
-	button.visible = false
-
-	local button = UIButton(0.0, h * 2.0, w, h, "Load")
-	scene["btn_load"] = button
-	button:Hook(
-		function(button)
-			print("load")
-		end
-	)
-	button.visible = false
-
-	local button = UIButton(0.0, h * 3.0, w, h, "Editor")
-	scene["btn_editor"] = button
-	button:Hook(
-		function(button)
-			print("editor")
-		end
-	)
-	button.visible = false
+	camera 	= Camera(scene)
 end)
 
 hook.Add("love.update", "game", function()
@@ -75,9 +27,26 @@ hook.Add("love.update", "game", function()
 			v:Update()
 		end
 	end
+
+	myGUI:Update()
+	if GUI:Button(" a", GUIOption.Align("left")).onClick then
+
+	end
+
+	if GUI:Button(" b", GUIOption.Align("left")).onClick then
+
+	end
+
+	myView:Update()
 end)
 
 hook.Add("love.render", "game", function()
+	myGUI:Render()
+	myGUI:Show()
+
+	myView:Render()
+	myView:Show()
+
 	camera:Render()
 	camera:Show()
 end)
