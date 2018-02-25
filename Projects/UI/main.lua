@@ -15,34 +15,36 @@ class.Load()
 
 local scene = {}
 hook.Add("love.load", "game", function(parameters)
+	Screen.Flip()
 	camera 	= Camera(scene)
 end)
 
-local image = love.graphics.newImage("tan_bricks.png")
-local checkboxes = 
-{
-	false,
-	false
-}
-local sliders = 
-{
-	0.0,
-	0.0,
-	0.0,
-	0.0,
-	0.0,
-	0.0
+local image = love.graphics.newImage(git .. "tan_bricks.png")
+local text = ""
+local sliders = {
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
 }
 
+local checkboxes = {
+    false,
+    false
+}
 hook.Add("love.update", "game", function()
 	for k, v in pairs(scene) do
 		if v.Update then
 			v:Update()
 		end
 	end
-
-	GUI:BeginArea(180 + sliders[1] * 100, 0, GUIOption.ExpandHeight(true))
+	--TODO: Fix Horizonal Code, Custom Rect Positioning
+	--GUI:BeginHorizontal()
+	GUI:BeginArea(200, 500, GUIOption.ExpandHeight(false))
 		GUI:Label(" DEBUG MENU", GUIOption.ExpandWidth(true), GUIOption.Align("center"))
+		
 		GUI:Label(" LABELS")
 		GUI:BeginHorizontal()
 			GUI:Space(10)
@@ -111,6 +113,10 @@ hook.Add("love.update", "game", function()
 			GUI:Image(image, GUIOption.ExpandWidth(true), GUIOption.Option("keepaspect", true))
 		GUI:EndHorizontal()
 	GUI:EndArea()
+	
+	sliders[1] = GUI:Slider(sliders[1])
+	
+	--GUI:EndHorizontal()
 end)
 
 hook.Add("love.render", "game", function()

@@ -12,7 +12,7 @@ local function draw(x, y, w, h, options)
 end
 function GUI:BeginArea(w, h, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, GUIOption.Width(w), GUIOption.Height(h), ...)
-
+ 
 	GUI:Push(x, y, w, h)
 	
 	self:RegisterDraw(draw, x, y, w, h, options)

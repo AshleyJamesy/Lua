@@ -11,10 +11,10 @@ GUI.AddSkin("Label", skin)
 local function draw(x, y, w, h, options, label)
 	local skin = options.skin or GUI.GetSkin("Label")
 	local font = options.font or GUI.Font
-
+ 
 	love.graphics.setColor(skin.text:GetTable())
 	love.graphics.setFont(font)
-	love.graphics.printf(label, x, y, (options.wrap or options.width_expand) and w or math.huge, options.align or "center", 0.0, 1.0, 1.0, 0.0, h * -0.5 + font:getHeight() * 0.5)
+	love.graphics.printf(label, x, y, (options.wrap or options.width_expand) and w / GUI.PixelScale or math.huge, options.align or "center", 0.0, 1.0, 1.0, 0.0, h * -0.5 + font:getHeight() * 0.5)
 end
 
 function GUI:Label(label, ...)

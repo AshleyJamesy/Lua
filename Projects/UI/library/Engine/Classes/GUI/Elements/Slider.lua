@@ -28,11 +28,11 @@ function GUI:Slider(value, vertical, ...)
 	
 	options.state = self:RegisterMouseHit(id, x, y, w, h)
 
-	if id == GUI.Active and id == GUI.Hovered and GUI.MouseDown then
+	if id == GUI.Active and GUI.MouseDown then
 		if vertical then
-			value = 1.0 - (love.mouse.getY() - y) / h
+			value = 1.0 - (GUI.MouseY - y) / h
 		else
-			value = (love.mouse.getX() - x) / w
+			value = (GUI.MouseX - x) / w
 		end
 
 		GUI.Focused = id
