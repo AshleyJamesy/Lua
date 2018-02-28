@@ -9,12 +9,19 @@ GUI.AddSkin("Area", skin)
 local function draw(x, y, w, h, options)
 	love.graphics.setColor(skin.background:GetTable())
 	love.graphics.rectangle("fill", x, y, w, h)
+
+	love.graphics.setColor(255, 0, 0)
+	love.graphics.rectangle("line", x, y, w, h)
 end
-function GUI:BeginArea(w, h, ...)
+function GUI:BeginArea(ax, ay, w, h, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, GUIOption.Width(w), GUIOption.Height(h), ...)
- 
+
+	x = ax == nil and x or ax
+	y = ay == nil and y or ay
+	
 	GUI:Push(x, y, w, h)
 	
+	self:RegisterMouseHit(id, x, y, w, h)
 	self:RegisterDraw(draw, x, y, w, h, options)
 end
 
