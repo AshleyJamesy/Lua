@@ -19,21 +19,7 @@ hook.Add("love.load", "game", function(parameters)
 	camera 	= Camera(scene)
 end)
 
-local image = love.graphics.newImage(git .. "tan_bricks.png")
-local text = ""
-local sliders = {
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    0.0
-}
-
-local checkboxes = {
-    false,
-    false
-}
+local open_menu = false
 hook.Add("love.update", "game", function()
 	for k, v in pairs(scene) do
 		if v.Update then
@@ -41,82 +27,28 @@ hook.Add("love.update", "game", function()
 		end
 	end
 	--TODO: Fix Horizonal Code, Custom Rect Positioning
-	--GUI:BeginHorizontal()
-	GUI:BeginArea(200, 500, GUIOption.ExpandHeight(false))
-		GUI:Label(" DEBUG MENU", GUIOption.ExpandWidth(true), GUIOption.Align("center"))
-		
-		GUI:Label(" LABELS")
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			GUI:Label("Slider 1: " .. string.format("%0.2f", sliders[1]))
-		GUI:EndHorizontal()
-
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			GUI:Label("Slider 2: " .. string.format("%0.2f", sliders[2]))
-		GUI:EndHorizontal()
-
-		GUI:Label(" CHECKBOXES")
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			GUI:Label("Checkbox 1:")
-			checkboxes[1] = GUI:CheckBox(checkboxes[1])
-			GUI:Space(10)
-			GUI:Label(checkboxes[1] and "On" or "Off")
-		GUI:EndHorizontal()
-
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			GUI:Label("Checkbox 2:")
-			checkboxes[2] = GUI:CheckBox(checkboxes[2])
-			GUI:Space(10)
-			GUI:Label(checkboxes[2] and "On" or "Off")
-		GUI:EndHorizontal()
-
-		GUI:Label(" BUTTONS")
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			if GUI:Button("Button 1") then
-				checkboxes[1] = not checkboxes[1]
-			end
-		GUI:EndHorizontal()
-
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			if GUI:Button("Button 2") then
-				checkboxes[2] = not checkboxes[2]
-			end
-		GUI:EndHorizontal()
-
-		GUI:Label(" SLIDERS")
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			sliders[1] = GUI:Slider(sliders[1], false, GUIOption.Width(104))
-		GUI:EndHorizontal()
-
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			sliders[2] = GUI:Slider(sliders[2], true, GUIOption.Width(20), GUIOption.Height(100))
-			sliders[3] = GUI:Slider(sliders[3], true, GUIOption.Width(20), GUIOption.Height(100))
-			sliders[4] = GUI:Slider(sliders[4], true, GUIOption.Width(20), GUIOption.Height(100))
-			sliders[5] = GUI:Slider(sliders[5], true, GUIOption.Width(20), GUIOption.Height(100))
-			sliders[6] = GUI:Slider(sliders[6], true, GUIOption.Width(20), GUIOption.Height(100))
-		GUI:EndHorizontal()
-
-		GUI:Label(" IMAGES")
-		GUI:BeginHorizontal()
-			GUI:Space(10)
-			GUI:Image(image, GUIOption.Width(50 + sliders[2] * 50),  GUIOption.Height(50 + sliders[3] * 50))
-		GUI:EndHorizontal()
-		GUI:Space(5)
-		GUI:BeginHorizontal()
-			GUI:Image(image, GUIOption.ExpandWidth(true), GUIOption.Option("keepaspect", true))
-		GUI:EndHorizontal()
-	GUI:EndArea()
+	if GUI:Button(open_menu and "Close" or "Menu", GUIOption.Width(200), GUIOption.Height(50)) then
+	    open_menu = not open_menu
+	end
 	
-	sliders[1] = GUI:Slider(sliders[1])
-	
-	--GUI:EndHorizontal()
+	if open_menu then
+    GUI:BeginArea(Screen.width * 0.5, 0, GUIOption.ExpandHeight(true))
+        GUI:BeginHorizontal()
+            GUI:Button("Hello")
+            
+            GUI:BeginVertical()
+                
+            for i = 1, 5 do
+                GUI:Button("Hello")
+            end
+            
+            GUI:EndVertical()
+            
+            GUI:Button("Hello")
+        GUI:EndHorizontal()
+        GUI:Button("Hello")
+    GUI:EndArea()
+ end
 end)
 
 hook.Add("love.render", "game", function()

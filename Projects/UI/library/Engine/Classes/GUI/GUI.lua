@@ -1,21 +1,19 @@
 local Class = class.NewClass("GUI")
-Class.Index 		= 0
-Class.MouseDown 	= false
-Class.Active 		= nil
-Class.Hovered 		= nil
-Class.LastHovered 	= nil
-Class.Focused 		= nil
-Class.MouseX = 0.0
-Class.MouseY = 0.0
+Class.Index 	       	= 0
+Class.MouseDown    	= false
+Class.Active 	     	= nil
+Class.Hovered 	     	= nil
+Class.LastHovered  	= nil
+Class.Focused 	     	= nil
+Class.MouseX        = 0.0
+Class.MouseY        = 0.0
 Class.MouseWheel_X 	= 0.0
 Class.MouseWheel_Y 	= 0.0
-Class.Key     = ""
-Class.Skins 		= {}
-
-Class.Canvas = love.graphics.newCanvas(Screen.width, Screen.height)
-
-GUI.PixelScale   = love.window.getPixelScale()
-GUI.Font         = love.graphics.newFont(12.0 * GUI.PixelScale)
+Class.Key           = ""
+Class.Skins 		      = {}
+Class.Canvas        = love.graphics.newCanvas(Screen.width, Screen.height)
+GUI.PixelScale      = love.window.getPixelScale()
+GUI.Font            = love.graphics.newFont(12.0 * GUI.PixelScale)
 
 Class.Stack = {
 	{
@@ -25,11 +23,9 @@ Class.Stack = {
 		offset_y 	= { 0 },
 		width 		= Screen.width * GUI.PixelScale,
 		height 		= Screen.height * GUI.PixelScale,
-		vertical 	= { true },
 		scissor 	= true
 	}
 }
-
 
 function Class:Push(x, y, w, h)
 	local rect = {
@@ -39,12 +35,11 @@ function Class:Push(x, y, w, h)
 		offset_y 	= { 0 },
 		width 		= w,
 		height 		= h,
-		vertical 	= { true },
 		scissor 	= true
 	}
  
 	table.insert(Class.Stack, #Class.Stack + 1, rect)
-
+ 
 	return rect
 end
 
@@ -76,25 +71,27 @@ function Class:ResetOptions()
 	
 	Class.Index = Class.Index + 1
 	
-	options.id 				= Class.Index	
-	options.width 			= 0.0
-	options.width_min 		= 0.0
-	options.width_max 		= math.huge
-	options.width_expand 	= false
-	options.height 			= 0.0
-	options.height_min 		= 0.0
-	options.height_max 		= math.huge
-	options.height_expand 	= false
-	options.padding_width 	= 0.0
-	options.padding_height 	= 0.0
-	options.style 			= nil
-	options.skin 			= nil
-
+	options.id             = Class.Index	
+	options.width          = 0.0
+	options.width_min      = 0.0
+	options.width_max 		   = math.huge
+	options.width_expand   = false
+	options.height         = 0.0
+	options.height_min     = 0.0
+	options.height_max     = math.huge
+	options.height_expand  = false
+	options.padding_width  = 0.0
+	options.padding_height = 0.0
+	options.style          = nil
+	options.skin           = nil
+	
 	return options
 end
 
-local w = 0.0
-local h = 0.0
+local widths    = { 0.0 }
+local heights   = { 0.0 }
+local verticals = { true }
+
 function Class:GetOptions(style, ...)
 	local stack = GUI.Stack[#GUI.Stack]
 	local stack_offsetx = stack.offset_x[#stack.offset_x]
@@ -115,7 +112,7 @@ function Class:GetOptions(style, ...)
 	if options.style then
 		options.style:Use(options)
 	end
-
+ 
 	options.width = 
 		(options.width_expand and 
 		math.clamp(stack.width - stack_offsetx, options.width_min, options.width_max) or 
@@ -126,19 +123,19 @@ function Class:GetOptions(style, ...)
 		math.clamp(stack.height - stack_offsety, options.height_min, options.height_max) or 
 		math.clamp(options.height, options.height_min, options.height_max)) * GUI.PixelScale
 	
-	if stack.vertical[#stack.vertical] then
+	if verticals[#verticals] then
 		stack.offset_y[#stack.offset_y] = 
 			stack_offsety + options.height + options.padding_height * GUI.PixelScale
 
-		if w < options.width + options.padding_width * GUI.PixelScale then
-			w = options.width + options.padding_width * GUI.PixelScale
+		if widths[#widths] < options.width + options.padding_width * GUI.PixelScale then
+			widths[#widths] = options.width + options.padding_width * GUI.PixelScale
 		end
 	else
 		stack.offset_x[#stack.offset_x] = 
 			stack_offsetx + options.width + options.padding_width * GUI.PixelScale
 
-		if h < options.height + options.padding_height * GUI.PixelScale then
-			h = options.height + options.padding_height * GUI.PixelScale
+		if heights[#heights] < options.height + options.padding_height * GUI.PixelScale then
+			heights[#heights] = options.height + options.padding_height * GUI.PixelScale
 		end
 	end
 	
@@ -150,7 +147,7 @@ function Class:RegisterMouseHit(id, x, y, w, h, capture)
 	
 	if math.inrange(GUI.MouseX, stack.x, stack.x + stack.width) and math.inrange(GUI.MouseY, stack.y, stack.y + stack.height) then
 	    if math.inrange(GUI.MouseX, x, x + w) and math.inrange(GUI.MouseY, y, y + h) then
-		       Class.Hovered = id
+		      Class.Hovered = id
 		       
         if capture == nil or capture == true then
             if Class.Active == nil and Class.MouseDown then
@@ -167,45 +164,49 @@ end
 function Class:BeginHorizontal()
 	local stack = GUI.Stack[#GUI.Stack]
 
-	table.insert(stack.vertical, #stack.vertical + 1, false)
+	table.insert(verticals, #verticals + 1, false)
 	table.insert(stack.offset_x, #stack.offset_x + 1, stack.offset_x[#stack.offset_x])
 	table.insert(stack.offset_y, #stack.offset_y + 1, stack.offset_y[#stack.offset_y])
+ table.insert(heights, #heights + 1, 0.0)
 end
 
 function Class:EndHorizontal()
 	local stack = GUI.Stack[#GUI.Stack]
- 
-	table.remove(stack.vertical, #stack.vertical)
+	
+	table.remove(verticals, #verticals)
 	table.remove(stack.offset_x, #stack.offset_x)
 	table.remove(stack.offset_y, #stack.offset_y)
- 
- stack.offset_y[#stack.offset_y] = stack.offset_y[#stack.offset_y] + h
-	h = 0.0
+	
+ stack.offset_y[#stack.offset_y] = stack.offset_y[#stack.offset_y] + heights[#heights]
+	
+	table.remove(heights, #heights)
 end
 
 function Class:BeginVertical()
 	local stack = GUI.Stack[#GUI.Stack]
 	
-	table.insert(stack.vertical, #stack.vertical + 1, true)
+	table.insert(verticals, #verticals + 1, true)
 	table.insert(stack.offset_x, #stack.offset_x + 1, stack.offset_x[#stack.offset_x])
 	table.insert(stack.offset_y, #stack.offset_y + 1, stack.offset_y[#stack.offset_y])
+ table.insert(widths, #widths + 1, 0.0)
 end
 
 function Class:EndVertical()
 	local stack = GUI.Stack[#GUI.Stack]
- 
-	table.remove(stack.vertical, #stack.vertical)
+	
+	table.remove(verticals, #verticals)
 	table.remove(stack.offset_x, #stack.offset_x)
 	table.remove(stack.offset_y, #stack.offset_y)
-
-	stack.offset_x[#stack.offset_x] = stack.offset_x[#stack.offset_x] + w
-	w = 0.0
+	
+	stack.offset_x[#stack.offset_x] = stack.offset_x[#stack.offset_x] + widths[#widths]
+	
+	table.remove(widths, #widths)
 end
 
 function GUI:Space(amount, ...)
 	local stack = GUI.Stack[#GUI.Stack]
-
-	if stack.vertical[#stack.vertical] then
+	
+	if verticals[#verticals] then
 		stack.offset_y[#stack.offset_y] = stack.offset_y[#stack.offset_y] + amount * GUI.PixelScale
 	else
 		stack.offset_x[#stack.offset_x] = stack.offset_x[#stack.offset_x] + amount * GUI.PixelScale
@@ -246,8 +247,9 @@ function Class:Render()
 	elseif Class.Active == nil then
 		Class.Active = -1
 	end
-
-	Class.LastHovered, Class.Hovered = Class.Hovered, nil
+ 
+ Class.LastHovered = Class.Hovered
+ Class.Hovered = nil
 	Class.Index 			= 0
 	Class.MouseDown 		= love.mouse.isDown(1)
 
