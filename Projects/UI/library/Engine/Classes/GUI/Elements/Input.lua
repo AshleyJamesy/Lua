@@ -36,7 +36,6 @@ end
 
 function GUI:Input(data, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, ...)
-	
 	self:RegisterMouseHit(id, x, y, w, h)
 	
 	if id == GUI.Active and id == GUI.Hovered and GUI.MouseDown then
@@ -50,6 +49,10 @@ function GUI:Input(data, ...)
 	end
 
 	if GUI.Focused == id then
+		if GUI.LastFocused ~= nil then
+			GUI.Cursor = #data.text
+		end
+
 		if GUI.KeyPressed then
 			if GUI.KeyPressed == "left" then
 				 GUI.Cursor = math.clamp(GUI.Cursor - 1, 0, #data.text)
@@ -58,27 +61,39 @@ function GUI:Input(data, ...)
 			if GUI.KeyPressed == "right" then
 				 GUI.Cursor = math.clamp(GUI.Cursor + 1, 0, #data.text)
 			end
-
+			
 			if GUI.KeyPressed == "backspace" then
 				if GUI.Cursor > 0 then
-					data.text = string.sub(data.text or "", 1, GUI.Cursor - 1) .. string.sub(data.text or "", GUI.Cursor + 1, #data.text)
-					GUI.Cursor = math.clamp(GUI.Cursor - 1, 0, #data.text)
+					data.text = 
+						string.sub(data.text or "", 1, GUI.Cursor - 1) .. string.sub(data.text or "", GUI.Cursor + 1, #data.text)
+					
+					GUI.Cursor = 
+						math.clamp(GUI.Cursor - 1, 0, #data.text)
 				end
 			end
-
+			
 			if GUI.KeyPressed == "return" then
-				if options.multiline then
+				if data.multiline then
 					data.text = data.text .. "\n"
 				else
-					if data.onSubmit then
-						data.onSubmit(data)
+					if data.OnSubmit then
+						data.OnSubmit(data)
 					end
 				end
 			end
+			
+			if GUI.KeyPressed == "tab" then
+				GUI.KeyPressed 	= nil
 
+				GUI.LastFocused = GUI.Focused
+				GUI.Focused 	= GUI.Focused + 1
+			end
+			
 			if GUI.Key then
 				data.text = data.text .. GUI.Key
-				GUI.Cursor = math.clamp(GUI.Cursor + 1, 0, #data.text)
+
+				GUI.Cursor = 
+					math.clamp(GUI.Cursor + 1, 0, #data.text)
 			end
 		end
 	end

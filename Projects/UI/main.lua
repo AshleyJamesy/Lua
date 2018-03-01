@@ -19,16 +19,18 @@ hook.Add("love.load", "game", function(parameters)
 	camera 	= Camera(scene)
 end)
 
-local field_username = {
-	text 		= "",
-	candidate 	= "Username"
+combo_field = {
+	index 	= 1,
+	array 	= { 
+		"tan_bricks.png",
+		"emission.png",
+		"emission_01.png",
+		"floor.png",
+		"noise.png"
+	}
 }
 
-local field_password = {
-	text 		= "",
-	candidate 	= "Password",
-	password 	= true
-}
+images = {}
 
 hook.Add("love.update", "game", function()
 	for k, v in pairs(scene) do
@@ -36,13 +38,16 @@ hook.Add("love.update", "game", function()
 			v:Update()
 		end
 	end
-
+	
 	GUI:BeginArea(0, 0, 500, 500)
 	GUI:Space(10)
-	GUI:Input(field_username)
-	GUI:Input(field_password)
-	field_password.password = 
-		GUI:CheckBox(field_password.password)
+	
+	local selection = GUI:ComboBox(combo_field, GUIOption.Width(150))
+	if images[selection] == nil then
+		images[selection] = love.graphics.newImage(selection)
+	end
+	
+	GUI:Image(images[selection])
 end)
 
 hook.Add("love.render", "game", function()

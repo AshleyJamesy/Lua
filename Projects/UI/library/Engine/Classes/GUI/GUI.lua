@@ -5,6 +5,8 @@ GUI.Active 			= nil
 GUI.Hovered 		= nil
 GUI.LastHovered 	= nil
 GUI.Focused 		= nil
+GUI.LastFocused 	= nil
+GUI.OnFocused 		= nil
 GUI.MouseX 			= 0.0
 GUI.MouseY 			= 0.0
 GUI.MouseWheel_X 	= 0.0
@@ -158,7 +160,7 @@ function GUI:RegisterMouseHit(id, x, y, w, h, capture)
 			  GUI.Hovered = id
 		
 		if capture == nil or capture == true then
-			if GUI.MouseDown then
+			if GUI.MouseDown and GUI.Active ~= -1 then
 				GUI.Focused = id
 				GUI.Active 	= id
 				return true
@@ -248,9 +250,17 @@ function GUI:Render()
 	elseif GUI.Active == nil then
 		GUI.Active = -1
 	end
-
+	
+	if GUI.Focused then
+		if GUI.OnFocused then
+			GUI.OnFocused()
+			GUI.OnFocused = nil
+		end
+	end
+	
 	GUI.LastHovered 	= GUI.Hovered
 	GUI.Hovered 		= nil
+	GUI.LastFocused 	= nil
 	GUI.Index 			= 0
 	GUI.MouseDown 		= love.mouse.isDown(1)
 
