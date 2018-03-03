@@ -13,13 +13,15 @@ end
 
 function GUI:BeginArea(ax, ay, w, h, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, GUIOption.Width(w), GUIOption.Height(h), ...)
-
+	
 	x = ax == nil and x or ax
 	y = ay == nil and y or ay
 	
 	GUI:Push(x, y, w, h)
 	
-	self:RegisterMouseHit(id, x, y, w, h)
+	if self:RegisterMouseHit(id, x, y, w, h) then
+		GUI:SetFocus(nil)
+	end
 	
 	GUI:NextFocus(id)
 	

@@ -192,12 +192,10 @@ function GUI:RegisterMouseHit(id, x, y, w, h, capture)
 	if math.inrange(GUI.MouseX, stack.x, stack.x + stack.width) and math.inrange(GUI.MouseY, stack.y, stack.y + stack.height) then
 		if math.inrange(GUI.MouseX, x, x + w) and math.inrange(GUI.MouseY, y, y + h) then
 			GUI.Hovered = id
-			
-			if capture == nil or capture == true then
-				if GUI.MouseDown and GUI.Active ~= -1 then
-					GUI.Active = id
-					return true
-				end
+
+			if GUI.Active ~= -1 and GUI.MouseDown then
+				GUI.Active = id
+				return true
 			end
 		end
 	end
@@ -316,7 +314,7 @@ function GUI:Render()
 	stack.offsety 		= 0.0
 	stack.width 		= Screen.width * GUI.PixelScale
 	stack.height 		= Screen.height * GUI.PixelScale
-	
+
 	local x, y = Screen.Point(love.mouse.getPosition())
 	GUI.MouseX 			= x
 	GUI.MouseY 			= y

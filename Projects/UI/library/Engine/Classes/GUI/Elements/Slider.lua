@@ -23,25 +23,52 @@ local function draw(x, y, w, h, options, value, vertical)
 	end
 end
 
+local input_number = ""
 function GUI:Slider(value, vertical, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, ...)
 	
 	options.state = self:RegisterMouseHit(id, x, y, w, h)
 
 	if id == GUI.Active and GUI.MouseDown then
-		if vertical then
-			value = 1.0 - (GUI.MouseY - y) / h
-		else
-			value = (GUI.MouseX - x) / w
-		end
-		
 		GUI:SetFocus(id)
 	end
 	
 	if GUI:GetFocus(id) then
+		if GUI.MouseDown then
+			if vertical then
+				value = 1.0 - (GUI.MouseY - y) / h
+			else
+				value = (GUI.MouseX - x) / w
+			end
+		end
+
 		if GUI:CaptureKey("tab") then
 			GUI:NextFocus(id)
 		end
+
+		if GUI:CaptureKey("return") then
+			input_number = ""
+
+			GUI:NextFocus(id)
+		end
+
+		if GUI.Key then
+			if tonumber(input_number .. GUI.Key) then
+				input_number = input_number .. GUI.Key
+
+				value = tonumber(input_number)
+			end
+		end
+
+		if GUI:CaptureKey("backspace") then
+			input_number = string.sub(input_number, 1, #input_number - 1)
+
+			if tonumber(input_number) then
+				value = tonumber(input_number)
+			end
+		end
+	else
+		input_number = ""
 	end
 	
 	value = math.clamp(value, 0.0, 1.0)
