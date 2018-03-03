@@ -20,6 +20,9 @@ function GUI:BeginArea(ax, ay, w, h, ...)
 	GUI:Push(x, y, w, h)
 	
 	self:RegisterMouseHit(id, x, y, w, h)
+	
+	GUI:NextFocus(id)
+	
 	self:RegisterDraw(draw, x, y, w, h, options)
 end
 

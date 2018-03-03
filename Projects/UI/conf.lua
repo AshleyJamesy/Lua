@@ -21,7 +21,7 @@ function include(file)
 			love.filesystem.getDirectoryItems(GetProjectDirectory() .. file)
 		
 		local folders = {}
-
+		
 		for k, v in pairs(folder) do
 			local filename, extenstion = GetFileDetails(v)
 			if 		extenstion == "lua" then
@@ -38,7 +38,7 @@ function include(file)
 				end
 			end
 		end
-
+		
 		for k, v in pairs(folders) do
 			include(v)
 		end
@@ -49,7 +49,7 @@ function include(file)
 	local include_path  = string.gsub(GetProjectDirectory(), '/', '.')
 	local file_path     = string.gsub(file, '/', '.')
 	local full_path     = include_path .. file_path
-
+	
 	if includes[full_path] then
 		return
 	end

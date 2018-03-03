@@ -27,13 +27,33 @@ end
 
 function GUI:CheckBox(checkbox, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, ...)
-	
-	options.state = self:RegisterMouseHit(id, x, y, w, h)
-	self:RegisterDraw(options.draw or draw, x, y, w, h, options, checkbox)
-	
+	local clicked = false
+
+	self:RegisterMouseHit(id, x, y, w, h)
+
 	if id == GUI.Active and id == GUI.Hovered and not GUI.MouseDown then
-		return not checkbox
+		clicked = true
+		
+		GUI:SetFocus(id)
 	end
 	
+	if GUI:GetFocus(id) then
+		if GUI.KeyPressed == "return" then
+			clicked = true
+		end
+
+		if GUI.KeyPressed == "tab" then
+			GUI.KeyPressed 	= nil
+			
+			GUI:NextFocus(id)
+		end
+	end
+	
+	self:RegisterDraw(options.draw or draw, x, y, w, h, options, checkbox)
+	
+	if clicked then
+		return not checkbox
+	end
+
 	return checkbox
 end

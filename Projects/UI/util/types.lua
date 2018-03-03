@@ -2,12 +2,8 @@ function TypeOf(src)
 	if type(src) ~= "table" then
 		return type(src)
 	end
-
-	if(src.__type == nil) then
-		return type(src)
-	end
 	
-	return src.__type[#src.__type]
+	return src.__type ~= nil and src.__type[#src.__type] or "table"
 end
 
 function IsType(src, name)

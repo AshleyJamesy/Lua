@@ -34,13 +34,19 @@ function GUI:Slider(value, vertical, ...)
 		else
 			value = (GUI.MouseX - x) / w
 		end
-
-		GUI.Focused = id
+		
+		GUI:SetFocus(id)
+	end
+	
+	if GUI:GetFocus(id) then
+		if GUI:CaptureKey("tab") then
+			GUI:NextFocus(id)
+		end
 	end
 	
 	value = math.clamp(value, 0.0, 1.0)
 	
 	self:RegisterDraw(options.draw or draw, x, y, w, h, options, value, vertical)
-
+	
 	return value
 end

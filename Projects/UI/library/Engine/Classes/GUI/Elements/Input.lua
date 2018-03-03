@@ -18,8 +18,7 @@ local function draw(x, y, w, h, options, data)
 	love.graphics.setScissor(x, y, w, h)
 	love.graphics.setColor(skin.text:GetTable())
 	love.graphics.setFont(font)
-	--love.graphics.printf(text, x, y, (options.wrap or options.width_expand) and w or math.huge, options.align or "left", 0.0, 1.0, 1.0, 0.0, h * -0.5 + font:getHeight() * 0.5)
-
+	
 	local text = 
 		(data.text == nil or data.text == "") and data.candidate or data.text or ""
 	
@@ -28,9 +27,9 @@ local function draw(x, y, w, h, options, data)
 	end
 	
 	if data.text ~= "" and data.password then
-		text = string.gsub(text, "%a", "*")
+		text = string.gsub(text, "[%a%s]", "*")
 	end
-
+	
 	love.graphics.printf(text, x, y, (options.wrap or options.width_expand) and w or math.huge, options.align or "left", 0.0, 1.0, 1.0, 0.0, h * -0.5 + font:getHeight() * 0.5)
 end
 
@@ -38,62 +37,62 @@ function GUI:Input(data, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, ...)
 	self:RegisterMouseHit(id, x, y, w, h)
 	
-	if id == GUI.Active and id == GUI.Hovered and GUI.MouseDown then
-		GUI.Cursor = #data.text
-	end
-	
 	if id == GUI.Active and id == GUI.Hovered and not GUI.MouseDown then
 		if not love.keyboard.hasTextInput() then
 			love.keyboard.setTextInput(true)
 		end
+		
+		GUI.Cursor = #data.text
+		
+		GUI:SetFocus(id)
 	end
-
-	if GUI.Focused == id then
-		if GUI.LastFocused ~= nil then
-			GUI.Cursor = #data.text
-		end
-
-		if GUI.KeyPressed then
-			if GUI.KeyPressed == "left" then
+	
+	if GUI:GetFocus(id) then
+		if GUI:AnyKey() then
+			if GUI:CaptureKey("left") then
 				 GUI.Cursor = math.clamp(GUI.Cursor - 1, 0, #data.text)
 			end
-
-			if GUI.KeyPressed == "right" then
+			
+			if GUI:CaptureKey("right") then
 				 GUI.Cursor = math.clamp(GUI.Cursor + 1, 0, #data.text)
 			end
 			
-			if GUI.KeyPressed == "backspace" then
+			if GUI:CaptureKey("backspace") then
 				if GUI.Cursor > 0 then
 					data.text = 
 						string.sub(data.text or "", 1, GUI.Cursor - 1) .. string.sub(data.text or "", GUI.Cursor + 1, #data.text)
 					
-					GUI.Cursor = 
-						math.clamp(GUI.Cursor - 1, 0, #data.text)
+					GUI.Cursor = math.clamp(GUI.Cursor - 1, 0, #data.text)
 				end
 			end
 			
-			if GUI.KeyPressed == "return" then
+			if GUI:CaptureKey("delete") then
+				data.text = 
+					string.sub(data.text or "", 1, GUI.Cursor) .. string.sub(data.text or "", GUI.Cursor + 2, #data.text)
+
+				GUI.Cursor = math.clamp(GUI.Cursor, 0, #data.text)
+			end
+
+			if GUI:CaptureKey("return") then
 				if data.multiline then
 					data.text = data.text .. "\n"
 				else
 					if data.OnSubmit then
 						data.OnSubmit(data)
 					end
+
+					GUI:NextFocus(id)
 				end
 			end
 			
-			if GUI.KeyPressed == "tab" then
-				GUI.KeyPressed 	= nil
-
-				GUI.LastFocused = GUI.Focused
-				GUI.Focused 	= GUI.Focused + 1
+			if GUI:CaptureKey("tab") then
+				GUI:NextFocus(id)
 			end
 			
 			if GUI.Key then
 				data.text = data.text .. GUI.Key
 
-				GUI.Cursor = 
-					math.clamp(GUI.Cursor + 1, 0, #data.text)
+				GUI.Cursor = math.clamp(GUI.Cursor + 1, 0, #data.text)
 			end
 		end
 	end

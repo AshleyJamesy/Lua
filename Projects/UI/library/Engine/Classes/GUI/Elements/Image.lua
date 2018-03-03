@@ -29,5 +29,7 @@ end
 function GUI:Image(image, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, ...)
 	
+	GUI:NextFocus(id)
+	
 	self:RegisterDraw(options.draw or draw, x, y, w, h, options, image)
 end

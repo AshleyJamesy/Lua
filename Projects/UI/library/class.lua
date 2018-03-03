@@ -8,8 +8,6 @@ Class.__typename 			= "Class"
 Class.__type  				= { "Class" }
 Class.__loaded 				= true
 
---Class.__readOnly 			= true
-
 local function inherit(n, b)
 	for k, v in pairs(b) do
 		if rawget(n, k) then
@@ -68,15 +66,11 @@ function NewClass(name, base, ...)
 	if Classes[name] then
 		return Classes[name], Classes[name].__base
 	end
-
+	
 	local b = Classes[name] or Class
 	local n = {}
-
+	
 	n.__index = n
-
-	--function (t, k)
-	--	return rawget(t, k) or n[k]
-	--end
 	
 	n.__call = function(t, ...)
 		return setmetatable(n.__copy(t), n)
@@ -84,28 +78,24 @@ function NewClass(name, base, ...)
 	
 	n.__typename 	= name
 	n.__type 		= table.Clone(b.__type)
-
+	
 	n.__class 		= n
 	n.__base 		= b
 	
 	n.__loaded 		= false
-
+	
 	if base and b == Class and base ~= "Class" then
 		table.insert(n.__type, base)
 	end
-
+	
 	table.insert(n.__type, name)
-
-	--if b then
-	--	inherit(n, b)
-	--end
-
+	
 	setmetatable(n, Class)
-
+	
 	Classes[name] = n
 	
 	_G[name] = n
-
+	
 	return n 
 end
 

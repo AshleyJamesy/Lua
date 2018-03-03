@@ -22,9 +22,29 @@ end
 
 function GUI:Button(label, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, ...)
-	
 	self:RegisterMouseHit(id, x, y, w, h)
+	
+	local clicked = false
+	
+	if id == GUI.Active and id == GUI.Hovered and not GUI.MouseDown then
+		GUI:SetFocus(id)
+		
+		clicked = true
+	end
+	
+	if GUI:GetFocus(id) then
+		if GUI.KeyPressed == "return" then
+			clicked = true
+		end
+		
+		if GUI.KeyPressed == "tab" then
+			GUI.KeyPressed 	= nil
+			
+			GUI:NextFocus(id)
+		end
+	end
+	
 	self:RegisterDraw(options.draw or draw, x, y, w, h, options, label)
 	
-	return id == GUI.Active and id == GUI.Hovered and not GUI.MouseDown
+	return clicked
 end

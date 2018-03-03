@@ -53,6 +53,40 @@ hook.Add("TextInput", "GUI", function(char)
 	GUI.Key = char
 end)
 
+function GUI:SetFocus(id)
+	if id ~= GUI.Focused then
+		GUI.LastFocused 	= GUI.Focused
+		GUI.Focused 		= id
+	end
+end
+
+function GUI:NextFocus(id)
+	if GUI.Focused ~= nil then
+		if GUI.Focused == id then
+			GUI.LastFocused 	= GUI.Focused
+			GUI.Focused 		= GUI.Focused + 1
+		end
+	end
+end
+
+function GUI:GetFocus(id)
+	return GUI.Focused == id
+end
+
+function GUI:CaptureKey(key)
+	if GUI.KeyPressed == key then
+		GUI.KeyPressed = nil
+
+		return true
+	end
+
+	return false
+end
+
+function GUI:AnyKey()
+	return GUI.KeyPressed ~= nil
+end
+
 function GUI:Push(x, y, w, h)
 	local rect = {
 		x 			= x,
@@ -157,16 +191,15 @@ function GUI:RegisterMouseHit(id, x, y, w, h, capture)
 	
 	if math.inrange(GUI.MouseX, stack.x, stack.x + stack.width) and math.inrange(GUI.MouseY, stack.y, stack.y + stack.height) then
 		if math.inrange(GUI.MouseX, x, x + w) and math.inrange(GUI.MouseY, y, y + h) then
-			  GUI.Hovered = id
-		
-		if capture == nil or capture == true then
-			if GUI.MouseDown and GUI.Active ~= -1 then
-				GUI.Focused = id
-				GUI.Active 	= id
-				return true
+			GUI.Hovered = id
+			
+			if capture == nil or capture == true then
+				if GUI.MouseDown and GUI.Active ~= -1 then
+					GUI.Active = id
+					return true
+				end
 			end
 		end
-				end
 	end
 
 	return false
@@ -230,6 +263,11 @@ function GUI:RegisterDraw(draw_func, x, y, w, h, options, ...)
 
 		draw_func(x, y, w, h, options, unpack(parameters))
 
+		if options.id == GUI.Focused then
+			love.graphics.setColor(255, 0, 0, 100)
+			love.graphics.rectangle("fill", x, y, w, h)
+		end
+		
 		if stack.scissor then
 			love.graphics.setScissor(stack.x, stack.y, stack.width, stack.height)
 		else
