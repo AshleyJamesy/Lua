@@ -19,18 +19,31 @@ hook.Add("love.load", "game", function(parameters)
 	camera 	= Camera(scene)
 end)
 
-combo_field = {
-	index 	= 1,
-	array 	= { 
-		"tan_bricks.png",
+local checkbox 	= false
+local slider 	= 0.5
+
+local combo_field = {
+	index = 1,
+	array = {
 		"emission.png",
 		"emission_01.png",
 		"floor.png",
-		"noise.png"
+		"noise.png",
+		"tan_bricks.png"
 	}
 }
+local input_default = {
+	text 		= "",
+	candidate 	= "input"
+}
 
-images = {}
+local input_password = {
+	text 		= "",
+	candidate 	= "password",
+	password 	= true
+}
+
+local images = {}
 
 hook.Add("love.update", "game", function()
 	for k, v in pairs(scene) do
@@ -39,15 +52,45 @@ hook.Add("love.update", "game", function()
 		end
 	end
 	
-	GUI:BeginArea(0, 0, 500, 500)
-	GUI:Space(10)
-	
-	local selection = GUI:ComboBox(combo_field, GUIOption.Width(150))
-	if images[selection] == nil then
-		images[selection] = love.graphics.newImage(selection)
-	end
-	
-	GUI:Image(images[selection])
+	GUI:BeginArea(0,0,220,270)
+		GUI:Label("Label")
+		GUI:BeginHorizontal()
+			GUI:Label("Button:")
+			GUI:Button("Button", GUIOption.ExpandWidth(true))
+		GUI:EndHorizontal()
+
+		GUI:BeginHorizontal()
+			GUI:Label("CheckBox:")
+			checkbox = GUI:CheckBox(checkbox)
+		GUI:EndHorizontal()
+
+		GUI:BeginHorizontal()
+		GUI:Label("Slider: " .. string.format("%0.2f", slider))
+		slider = GUI:Slider(slider, false, GUIOption.ExpandWidth(true))
+		GUI:EndHorizontal()
+
+		GUI:BeginHorizontal()
+		GUI:Label("Input:")
+		GUI:Input(input_default, GUIOption.ExpandWidth(true))
+		GUI:EndHorizontal()
+
+		GUI:BeginHorizontal()
+		GUI:Label("Password:")
+		GUI:Input(input_password, GUIOption.ExpandWidth(true))
+		GUI:EndHorizontal()
+
+		GUI:BeginHorizontal()
+		GUI:Label("ComboBox:")
+		local source = GUI:ComboBox(combo_field, GUIOption.ExpandWidth(true))
+		GUI:EndHorizontal()
+
+		if images[source] == nil then
+			images[source] = love.graphics.newImage(source)
+		end
+
+		GUI:Label("Image:")
+		GUI:Image(images[source])
+	GUI:EndArea()
 end)
 
 hook.Add("love.render", "game", function()

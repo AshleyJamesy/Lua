@@ -9,17 +9,26 @@ skin.text 		= Colour(255, 255, 255, 255)
 GUI.AddSkin("ComboBox", skin)
 
 local function draw(x, y, w, h, options, data)
+	love.graphics.setScissor(x, y, w, h)
+
 	local skin = options.skin or GUI.GetSkin("ComboBox")
 	local font = options.font or GUI.Font
 	
 	love.graphics.setColor(skin.background:GetTable())
-	love.graphics.rectangle("fill", x, y, w, h)
-	
+	love.graphics.rectangle("fill", x, y, w - 20, h)
+
+	love.graphics.setColor(50, 50, 50)
+	love.graphics.rectangle("fill", x + w - 20, y, 20, h)
+
+	love.graphics.setColor(255, 255, 255)
+	local tx, ty = x + w - 10, y + h * 0.5
+	love.graphics.polygon('fill', tx - 5, ty - 3, tx + 5, ty - 3, tx, ty + 5)
+
 	love.graphics.setColor(skin.text:GetTable())
 	love.graphics.setFont(font)
 	
-	love.graphics.printf(data.array[data.index or 1] or "", x + 4, y, w - 8, options.align or "left", 0.0, 1.0, 1.0, 0.0, h * -0.5 + font:getHeight() * 0.5)
-	
+	love.graphics.printf(data.array[data.index or 1] or "", x + 4, y, w - 20, options.align or "left", 0.0, 1.0, 1.0, 0.0, h * -0.5 + font:getHeight() * 0.5)
+
 	if GUI.Focused == options.id then
 		GUI.OnFocused = function()
 			GUI.Canvas:renderTo(function()
@@ -72,7 +81,7 @@ function GUI:ComboBox(data, ...)
 				data.index = #data.array
 			end
 		end
-
+		
 		if GUI.KeyPressed == "down" then
 			data.index = data.index + 1
 
@@ -86,7 +95,7 @@ function GUI:ComboBox(data, ...)
 			GUI.Focused 	= nil
 		end
 	end
-
+	
 	GUI:RegisterDraw(options.draw or draw, x, y, w, h, options, data)
 	
 	return options.selection

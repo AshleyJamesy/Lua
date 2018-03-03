@@ -9,10 +9,8 @@ GUI.AddSkin("Area", skin)
 local function draw(x, y, w, h, options)
 	love.graphics.setColor(skin.background:GetTable())
 	love.graphics.rectangle("fill", x, y, w, h)
-
-	love.graphics.setColor(255, 0, 0)
-	love.graphics.rectangle("line", x, y, w, h)
 end
+
 function GUI:BeginArea(ax, ay, w, h, ...)
 	local id, x, y, w, h, options = self:GetOptions(style, GUIOption.Width(w), GUIOption.Height(h), ...)
 

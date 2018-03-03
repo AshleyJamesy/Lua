@@ -23,8 +23,8 @@ GUI.Stack = {
 	{
 		x 			= 0.0,
 		y 			= 0.0,
-		offsetx 	= { 0.0 },
-		offsety 	= { 0.0 },
+		offsetx 	= 0.0,
+		offsety 	= 0.0,
 		max_width 	= 0.0,
 		max_height 	= 0.0,
 		width 		= Screen.width * GUI.PixelScale,
@@ -57,8 +57,8 @@ function GUI:Push(x, y, w, h)
 	local rect = {
 		x 			= x,
 		y 			= y,
-		offsetx 	= { 0.0 },
-		offsety 	= { 0.0 },
+		offsetx 	= 0.0,
+		offsety 	= 0.0,
 		max_width 	= 0.0,
 		max_height 	= 0.0,
 		width 		= w,
@@ -108,8 +108,8 @@ local verticals = {
 
 function GUI:GetOptions(style, ...)
 	local stack 		= GUI.Stack[1]
-	local stack_offsetx = stack.offsetx[1]
-	local stack_offsety = stack.offsety[1]
+	local stack_offsetx = stack.offsetx
+	local stack_offsety = stack.offsety
 	
 	local options 	= GUI:ResetOptions()
 	options.x 		= stack_offsetx
@@ -138,12 +138,12 @@ function GUI:GetOptions(style, ...)
 		math.clamp(options.height, options.height_min, options.height_max)) * GUI.PixelScale
 	
 	if stack.vertical then
-		stack.offsety[1] = 
+		stack.offsety = 
 			stack_offsety + options.height + options.padding_height * GUI.PixelScale
 
 		stack.max_width = math.max(stack.max_width,  options.width + options.padding_width * GUI.PixelScale)
 	else
-		stack.offsetx[1] = 
+		stack.offsetx = 
 			stack_offsetx + options.width + options.padding_width * GUI.PixelScale
 
 		stack.max_height = math.max(stack.max_height,  options.height + options.padding_height * GUI.PixelScale)
@@ -175,7 +175,7 @@ end
 function GUI:BeginHorizontal()
 	local stack = GUI.Stack[1]
 	local rect 	= 
-		GUI:Push(stack.x + stack.offsetx[1], stack.y + stack.offsety[1], stack.width - stack.offsetx[1], stack.height - stack.offsety[1])
+		GUI:Push(stack.x + stack.offsetx, stack.y + stack.offsety, stack.width - stack.offsetx, stack.height - stack.offsety)
 
 	rect.vertical 	= false
 	rect.scissor 	= false
@@ -184,15 +184,15 @@ end
 function GUI:EndHorizontal()
 	local rect 	= GUI:Pop()
 	local stack = GUI.Stack[1]
-
-	stack.offsety[1] = rect.y + rect.max_height
-	stack.max_width = rect.offsetx[1]
+	
+	stack.offsety = rect.y + rect.max_height
+	stack.max_width = rect.offsetx
 end
 
 function GUI:BeginVertical()
 	local stack = GUI.Stack[1]
 	local rect 	= 
-		GUI:Push(stack.x + stack.offsetx[1], stack.y + stack.offsety[1], stack.width - stack.offsetx[1], stack.height - stack.offsety[1])
+		GUI:Push(stack.x + stack.offsetx, stack.y + stack.offsety, stack.width - stack.offsetx, stack.height - stack.offsety)
 
 	rect.vertical 	= true
 	rect.scissor 	= false
@@ -202,17 +202,17 @@ function GUI:EndVertical()
 	local rect 	= GUI:Pop()
 	local stack = GUI.Stack[1]
 
-	stack.offsetx[1] = rect.x + rect.max_width
-	stack.max_height = rect.offsety[1]
+	stack.offsetx = rect.x + rect.max_width
+	stack.max_height = rect.offsety
 end
 
 function GUI:Space(amount, ...)
 	local stack = GUI.Stack[1]
 	
 	if stack.vertical then
-		stack.offsety[1] = stack.offsety[1] + amount * GUI.PixelScale
+		stack.offsety = stack.offsety + amount * GUI.PixelScale
 	else
-		stack.offsetx[1] = stack.offsetx[1] + amount * GUI.PixelScale
+		stack.offsetx = stack.offsetx + amount * GUI.PixelScale
 	end
 end
 
@@ -224,9 +224,17 @@ function GUI:RegisterDraw(draw_func, x, y, w, h, options, ...)
 	GUI.Canvas:renderTo(function()
 		if stack.scissor then
 			love.graphics.setScissor(stack.x, stack.y, stack.width, stack.height)
+		else
+			love.graphics.setScissor()
 		end
 
 		draw_func(x, y, w, h, options, unpack(parameters))
+
+		if stack.scissor then
+			love.graphics.setScissor(stack.x, stack.y, stack.width, stack.height)
+		else
+			love.graphics.setScissor()
+		end
 	end)
 end
 
@@ -248,7 +256,8 @@ function GUI:Render()
 	if not GUI.MouseDown then
 		GUI.Active = nil
 	elseif GUI.Active == nil then
-		GUI.Active = -1
+		GUI.Active 	= -1
+		GUI.Focused = nil
 	end
 	
 	if GUI.Focused then
@@ -263,10 +272,10 @@ function GUI:Render()
 	GUI.LastFocused 	= nil
 	GUI.Index 			= 0
 	GUI.MouseDown 		= love.mouse.isDown(1)
-
+	
 	local stack = GUI.Stack[1]
-	stack.offsetx[1] 	= 0.0
-	stack.offsety[1] 	= 0.0
+	stack.offsetx 		= 0.0
+	stack.offsety 		= 0.0
 	stack.width 		= Screen.width * GUI.PixelScale
 	stack.height 		= Screen.height * GUI.PixelScale
 	
