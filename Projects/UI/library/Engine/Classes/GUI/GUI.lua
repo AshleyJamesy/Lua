@@ -314,7 +314,7 @@ function GUI:Render()
 	stack.offsety 		= 0.0
 	stack.width 		= Screen.width * GUI.PixelScale
 	stack.height 		= Screen.height * GUI.PixelScale
-
+	
 	local x, y = Screen.Point(love.mouse.getPosition())
 	GUI.MouseX 			= x
 	GUI.MouseY 			= y
