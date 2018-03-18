@@ -15,7 +15,7 @@ class.Load()
 
 local scene = {}
 hook.Add("love.load", "game", function(parameters)
-	--Screen.Flip()
+	Screen.Flip()
 	camera 	= Camera(scene)
 end)
 
@@ -87,7 +87,7 @@ hook.Add("love.update", "game", function()
 		GUI:EndHorizontal()
 		
 		if images[source] == nil then
-			images[source] = love.graphics.newImage(source)
+			images[source] = love.graphics.newImage(git .. source)
 		end
 
 		GUI:Label("Image:")

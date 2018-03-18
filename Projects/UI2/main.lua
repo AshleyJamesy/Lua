@@ -15,41 +15,59 @@ class.Load()
 
 local scene = {}
 hook.Add("love.load", "game", function(parameters)
+	Screen.Flip()
 	camera = Camera(scene)
 end)
 
 local value = 0.0
 
 local input_field = {
+	enabled = true,
 	text 		= "john",
 	candidate 	= "input field",
 	password 	= false
 }
 
 local password_field = {
+	enabled = true,
 	text 		= "",
 	candidate 	= "password field",
 	password 	= true
 }
 
 local textbox_field = {
+	enabled = true,
 	text 		= "",
 	multiline 	= true
+}
+
+local textbox_output = {
+    text = "",
+    multiline = true
 }
 
 local list_combobox = {
 	index = 1,
 	array = {
-		"A",
-		"B",
-		"C",
-		"D"
+		"tan_bricks.png",
+		"emission.png",
+		"emission_01.png",
+		"noise.png"
 	}
 }
 
+local listbox = {
+    array = {
+        "hello",
+        "test",
+        "listbox"
+    }
+}
+
+local images = {}
+
 local clicks 	= 0
 local checkbox 	= false
-local image 	= love.graphics.newImage("tan_bricks.png")
 
 hook.Add("love.update", "game", function()
 	Input.Update()
@@ -60,7 +78,7 @@ hook.Add("love.update", "game", function()
 		end
 	end
 	
-	GUI:BeginArea(0, 0, 350, 500, GUIOption.ExpandHeight(true))
+	GUI:BeginArea(150, 50, 350, 500, GUIOption.ExpandHeight(true))
 		GUI:BeginHorizontal()
 			GUI:Label(" Label", GUIOption.Width(150), GUIOption.Height(25))
 			GUI:Label("Label", GUIOption.Width(150), GUIOption.Height(25), GUIOption.Option("align", "center"))
@@ -101,29 +119,48 @@ hook.Add("love.update", "game", function()
 		GUI:EndHorizontal()
 		
 		GUI:BeginHorizontal()
-			GUI:Label(" RichTextBox", GUIOption.Width(150), GUIOption.Height(25))
+			GUI:Label(" RichTextBox\n (Lua Runnable)", GUIOption.Width(150), GUIOption.Height(25), GUIOption.Option("wrap", true))
 			GUI:Input(textbox_field, GUIOption.Width(150), GUIOption.Height(100), GUIOption.Option("valign", "top"))
 		GUI:EndHorizontal()
-
+		
+		GUI:BeginHorizontal()
+		GUI:Space(151)
+		GUI:Input(textbox_output, GUIOption.Width(150), GUIOption.Height(50), GUIOption.Option("valign", "top"))
+		GUI:EndHorizontal()
+		
 		GUI:BeginHorizontal()
 		GUI:Space(151)
 		if GUI:Button("Run", GUIOption.Width(150), GUIOption.Height(25)) then
-			local func = loadstring(textbox_field.text)
-			
+			local func, a, b, c = loadstring(textbox_field.text)
+		 
 			if func then
 				local status output = pcall(func)
+				if status then
+				    textbox_output.text = tostring(output)
+				end
+			else
+			    textbox_output.text = a
 			end
 		end
 		GUI:EndHorizontal()
-
+		
 		GUI:BeginHorizontal()
-			GUI:Label(" ComboBox", GUIOption.Width(150), GUIOption.Height(25))
-			GUI:ComboBox(list_combobox, GUIOption.Width(150), GUIOption.Height(25))
+		GUI:Label(" ComboBox", GUIOption.Width(150), GUIOption.Height(25))
+		local selection, changed = GUI:ComboBox(list_combobox, GUIOption.Width(150), GUIOption.Height(25))
+		if images[selection] == nil then
+		    images[selection] = love.graphics.newImage(git .. selection)
+		end
+		
 		GUI:EndHorizontal()
 
 		GUI:BeginHorizontal()
 			GUI:Label(" Image", GUIOption.Width(150), GUIOption.Height(25))
-			GUI:Image(image, GUIOption.Width(150), GUIOption.Height(150))
+			GUI:Image(images[selection], GUIOption.Width(150), GUIOption.Height(150))
+		GUI:EndHorizontal()
+		
+		GUI:BeginHorizontal()
+		GUI:Label(" Listbox", GUIOption.Width(150), GUIOption.Height(25))
+		GUI:ListBox(listbox, GUIOption.Width(150), GUIOption.Height(100))
 		GUI:EndHorizontal()
 	GUI:EndArea()
 end)

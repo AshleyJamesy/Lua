@@ -88,12 +88,12 @@ function GUI:Input(data, ...)
 			if GUI:CaptureKey("tab") then
 				GUI:NextFocus(id)
 			end
-			
-			if GUI.Key then
+		end
+		
+		if GUI.Key then
 				data.text = data.text .. GUI.Key
 
 				GUI.Cursor = math.clamp(GUI.Cursor + 1, 0, #data.text)
-			end
 		end
 	end
 	

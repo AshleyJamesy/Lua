@@ -36,7 +36,7 @@ function GUI:Slider(value, vertical, ...)
 	if GUI:GetFocus(id) then
 		if GUI.MouseDown then
 			if vertical then
-				value = 1.0 - (GUI.MouseY - y) / h
+				value = (1.0 - (GUI.MouseY - y) / h)
 			else
 				value = (GUI.MouseX - x) / w
 			end

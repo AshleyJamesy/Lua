@@ -15,14 +15,14 @@ local function draw(x, y, w, h, options, data)
 
 	if GUI:GetFocus(options.id) then
 		local rect = GUI.Stack[1]
-
+		
 		GUI.Overlay = function()
 			GUI.Canvas:renderTo(function()
 				love.graphics.setScissor(rect.x, rect.y, rect.width, rect.height)
 				love.graphics.intersectScissor(x, y + h, w, h * #data.array)
-
+     
 				local index = data.index
-
+     
 				if math.inrange(Input.mousePosition.x, rect.x, rect.x + rect.width) and math.inrange(Input.mousePosition.y, rect.y, rect.y + rect.height) then
 					if math.inrange(Input.mousePosition.x, x, x + w) and math.inrange(Input.mousePosition.y, y + h, y + h * (#data.array + 1)) then
 						index = math.clamp(math.ceil((Input.mousePosition.y - (y + h)) / h), 1, #data.array)
@@ -31,11 +31,15 @@ local function draw(x, y, w, h, options, data)
 							GUI.Active = nil
 							GUI:SetFocus(nil)
 							
+							if index ~= data.index then
+							    data.changed = true
+							end
+							
 							data.index = index
 						end
 					end
 				end
-
+     
 				love.graphics.setColor(100, 100, 100)
 				love.graphics.rectangle("fill", x, y + h, w, h * #data.array)
 				
@@ -95,6 +99,11 @@ function GUI:ComboBox(data, ...)
 	
 	GUI:RegisterDraw(options.draw or draw, x, y, w, h, options, data)
 	GUI:RegisterMouseHit(id, x, y, w, h)
-
-	return options.selection
+ 
+ if data.changed then
+     data.changed = false
+     return data.array[data.index] or "", true
+ end
+ 
+	return data.array[data.index] or "", false
 end

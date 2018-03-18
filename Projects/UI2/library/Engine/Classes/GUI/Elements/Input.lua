@@ -42,15 +42,22 @@ TODO:
 function GUI:Input(data, ...)
 	local id, x, y, w, h, options = GUI:GetOptions(style, ...)
 	
+	if data.enabled then
 	if GUI:MousePressed(id) then
 		if not love.keyboard.hasTextInput() then
 			love.keyboard.setTextInput(true)
 		end
 		
 		--TODO: Put Cursor at MousePosition
-		GUI.Cursor = #data.text
+		local i = math.floor((Input.mousePosition.x - x) / 12)
+	 GUI:SetCursor(i, #data.text)
 		
 		GUI:SetFocus(id)
+	end
+	
+	if GUI:GetActive(id) then
+	    local i = math.floor((Input.mousePosition.x - x) / 12)
+	    GUI:SetCursor(i, #data.text)
 	end
 	
 	if GUI:GetFocus(id) then
@@ -147,6 +154,9 @@ function GUI:Input(data, ...)
 
 				GUI:MoveCursor(1, #data.text)
 			end
+		end
+		else
+		
 		end
 	end
 	

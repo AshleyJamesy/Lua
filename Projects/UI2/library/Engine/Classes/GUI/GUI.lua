@@ -10,7 +10,8 @@ GUI.Overlay 		= nil
 GUI.Cursor 			= 0
 GUI.Key 			= nil
 GUI.KeyPressed 		= nil
-GUI.Font 			= love.graphics.newFont(12.0)
+GUI.Scale = love.window.getPixelScale()
+GUI.Font 			= love.graphics.newFont(12.0 * GUI.Scale)
 GUI.Canvas 			= love.graphics.newCanvas(Screen.width, Screen.height)
 
 GUI.Stack = {
@@ -19,8 +20,8 @@ GUI.Stack = {
 		y 				= 0.0,
 		offsetx 		= 0.0,
 		offsety 		= 0.0,
-		width 			= Screen.width,
-		height 			= Screen.height,
+		width 			= Screen.width * GUI.Scale,
+		height 			= Screen.height * GUI.Scale,
 		vertical 		= { true },
 		vertical_space 	= { 0.0 },
 		scissor 		= true
@@ -101,8 +102,8 @@ function GUI:Push(x, y, w, h)
 		y 				= y,
 		offsetx 		= 0.0,
 		offsety 		= 0.0,
-		width 			= w,
-		height 			= h,
+		width 			= w * GUI.Scale,
+		height 			= h * GUI.Scale,
 		vertical 		= { true },
 		vertical_space 	= { 0.0 },
 		scissor 		= true
@@ -157,22 +158,22 @@ function GUI:GetOptions(...)
 	options.width = 
 		(options.width_expand and 
 		math.clamp(rect.width - rect.offsetx, options.width_min, options.width_max) or 
-		math.clamp(options.width, options.width_min, options.width_max))
+		math.clamp(options.width, options.width_min, options.width_max)) * GUI.Scale
 	
 	options.height = 
 		(options.height_expand and 
 		math.clamp(rect.height - rect.offsety, options.height_min, options.height_max) or 
-		math.clamp(options.height, options.height_min, options.height_max))
+		math.clamp(options.height, options.height_min, options.height_max)) * GUI.Scale
 
 	if rect.vertical[1] then
 		rect.offsety = 
-			rect.offsety + options.height + options.padding_height
+			rect.offsety + options.height + options.padding_height * GUI.Scale
 	else
 		rect.offsetx = 
-			rect.offsetx + options.width + options.padding_width
+			rect.offsetx + options.width + options.padding_width * GUI.Scale
 
 		if rect.vertical_space[1] < options.height + options.padding_height then
-			rect.vertical_space[1] = options.height + options.padding_height
+			rect.vertical_space[1] = options.height + options.padding_height * GUI.Scale
 		end
 	end
 
@@ -203,7 +204,7 @@ function GUI:RegisterDraw(draw_func, x, y, w, h, options, ...)
 	
 	GUI.Canvas:renderTo(function()
 		if rect.scissor then
-			love.graphics.setScissor(rect.x, rect.y, rect.width, rect.height)
+			--love.graphics.setScissor(rect.x, rect.y, rect.width, rect.height)
 		else
 			love.graphics.setScissor()
 		end
@@ -247,9 +248,9 @@ function GUI:Space(amount, ...)
 	local stack = GUI.Stack[1]
 	
 	if stack.vertical[1] then
-		stack.offsety = stack.offsety + amount
+		stack.offsety = stack.offsety + amount * GUI.Scale
 	else
-		stack.offsetx = stack.offsetx + amount
+		stack.offsetx = stack.offsetx + amount * GUI.Scale
 	end
 end
 
@@ -286,8 +287,8 @@ function GUI:Render()
 	local rect = GUI.Stack[1]
 	rect.offsetx 		= 0.0
 	rect.offsety 		= 0.0
-	rect.width 			= Screen.width
-	rect.height 		= Screen.height
+	rect.width 			= Screen.width * GUI.Scale
+	rect.height 		= Screen.height * GUI.Scale
 
 	GUI.LastHovered 	= GUI.Hovered
 	GUI.Hovered 		= nil
