@@ -1,10 +1,10 @@
 local function draw(x, y, w, h, options, label)
 	local font = options.font or GUI.Font
 	
-	love.graphics.setColor(130, 130, 130, 255)
+	love.graphics.setColor(0.5, 0.5, 0.5, 1.0)
 	love.graphics.rectangle("fill", x, y, w, h)
 	
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
 	love.graphics.setFont(font)
 	love.graphics.printf(label, x, y, w, options.align or "center", 0.0, 1.0, 1.0, 0.0, h * -0.5 + font:getHeight() * 0.5)
 end

@@ -1,11 +1,11 @@
 local function draw(x, y, w, h, options, checkbox)
-	love.graphics.setColor(130, 130, 130, 255)
+	love.graphics.setColor(0.5, 0.5, 0.5, 1.0)
 	love.graphics.rectangle("fill", x, y, w, h)
 	
 	if checkbox then
-		love.graphics.setColor(100, 100, 100)
+		love.graphics.setColor(0.4, 0.4, 0.4, 1.0)
 	else
-		love.graphics.setColor(130, 130, 130, 255)
+		love.graphics.setColor(0.5, 0.5, 0.5, 1.0)
 	end
 	
 	local ow, oh = w * 0.15, h * 0.15
