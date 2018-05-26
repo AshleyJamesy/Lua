@@ -15,7 +15,7 @@ class.Load()
 
 local scene = {}
 hook.Add("love.load", "game", function(parameters)
-	Screen.Flip()
+	--Screen.Flip()
 	camera = Camera(scene)
 end)
 
@@ -78,7 +78,7 @@ hook.Add("love.update", "game", function()
 		end
 	end
 	
-	GUI:BeginArea(150, 50, 350, 500, GUIOption.ExpandHeight(true))
+	GUI:BeginArea(0, 0, 350, 500, GUIOption.ExpandHeight(true))
 		GUI:BeginHorizontal()
 			GUI:Label(" Label", GUIOption.Width(150), GUIOption.Height(25))
 			GUI:Label("Label", GUIOption.Width(150), GUIOption.Height(25), GUIOption.Option("align", "center"))
@@ -148,7 +148,7 @@ hook.Add("love.update", "game", function()
 		GUI:Label(" ComboBox", GUIOption.Width(150), GUIOption.Height(25))
 		local selection, changed = GUI:ComboBox(list_combobox, GUIOption.Width(150), GUIOption.Height(25))
 		if images[selection] == nil then
-		    images[selection] = love.graphics.newImage(git .. selection)
+		    images[selection] = love.graphics.newImage(selection)
 		end
 		
 		GUI:EndHorizontal()
