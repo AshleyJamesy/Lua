@@ -4,6 +4,7 @@ Class.__mouse 		= {}
 Class.__keyboard 	= {}
 Class.__touch 		= {}
 Class.mousePosition = Vector2(0, 0)
+Class.mouseDelta = Vector2(0, 0)
 Class.mouseWheel 	= Vector2(0, 0)
 Class.anyKey 		= false
 Class.anyKeyDown 	= false
@@ -150,7 +151,8 @@ function Class.LateUpdate()
 		end
 	end
 
-	Class.mousePosition:Set(0,0)
+	Class.mousePosition:Set(0, 0)
+	Class.mouseDelta:Set(0, 0)
 	Class.mouseWheel:Set(0, 0)
 end
 
@@ -177,6 +179,15 @@ end)
 hook.Add("MouseReleased", "Input", function(x, y, button, istouch)
 		Class.__mouse[button] = nil
 		Class.__mouseCount 	= Class.__mouseCount - 1
+end)
+
+
+hook.Add("MouseMoved", "Input", function(x, y, dx, dy, istouch)
+	if Screen.flipped then
+	    Class.mouseDelta:Set(dy, dx)
+	else
+	    Class.mouseDelta:Set(dx, dy)
+	end
 end)
 
 hook.Add("TouchPressed", "Input", function(id, x, y, dx, dy, pressure)
@@ -241,6 +252,8 @@ hook.Add("GamepadReleased", "Input", function(joystick, button)
 end)
 
 hook.Add("JoystickAxis", "Input", function(joystick, axis, value)
-	Class.__joysticks[joystick].axis[axis] = value
+	if Class.__joysticks[joystick] then
+	    Class.__joysticks[joystick].axis[axis] = value
+ end
 end)
 

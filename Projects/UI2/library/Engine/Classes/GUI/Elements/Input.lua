@@ -1,11 +1,11 @@
 local function draw(x, y, w, h, options, data)
 	local font = options.font or GUI.Font
 	
-	love.graphics.setColor(130, 130, 130, 255)
+	love.graphics.setColor(0.5, 0.5, 0.5, 1.0)
 	love.graphics.rectangle("fill", x, y, w, h)
 	
 	love.graphics.intersectScissor(x, y, w, h)
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
 	love.graphics.setFont(font)
 	
 	local text = 

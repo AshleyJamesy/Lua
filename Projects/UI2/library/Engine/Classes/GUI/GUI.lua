@@ -10,7 +10,7 @@ GUI.Overlay 		= nil
 GUI.Cursor 			= 0
 GUI.Key 			= nil
 GUI.KeyPressed 		= nil
-GUI.Scale = love.window.getPixelScale()
+GUI.Scale = 1.0
 GUI.Font 			= love.graphics.newFont(12.0 * GUI.Scale)
 GUI.Canvas 			= love.graphics.newCanvas(Screen.width, Screen.height)
 
@@ -183,13 +183,13 @@ function GUI:GetOptions(...)
 		end
 	end
 
-	return options.id, options.x, options.y, options.width, options.height, options
+	return options.id, math.floor(options.x), math.floor(options.y), math.floor(options.width), math.floor(options.height), options
 end
 
 function GUI:RegisterMouseHit(id, x, y, w, h)
 	local rect = GUI.Stack[1]
 	
-	if math.inrange(Input.mousePosition.x, rect.x, rect.x + rect.width) and math.inrange(Input.mousePosition.y, rect.y, rect.y + rect.height) then
+	if math.inrange(Input.mousePosition.x, rect.x, rect.x + rect.width / GUI.Scale) and math.inrange(Input.mousePosition.y, rect.y, rect.y + rect.height / GUI.Scale) then
 		if math.inrange(Input.mousePosition.x, x, x + w) and math.inrange(Input.mousePosition.y, y, y + h) then
 			if Input.GetMouseButtonDown(1) then
 				GUI.Active = id
@@ -198,20 +198,28 @@ function GUI:RegisterMouseHit(id, x, y, w, h)
 	end
 end
 
+
+--TODO: Check if rectangle intersects, otherwise don't draw
 function GUI:RegisterDraw(draw_func, x, y, w, h, options, ...)
 	local rect 			= GUI.Stack[1]
 	local parameters 	= { ... }
 	
 	GUI.Canvas:renderTo(function()
 		if rect.scissor then
-			--love.graphics.setScissor(rect.x, rect.y, rect.width, rect.height)
+			love.graphics.setScissor(rect.x, rect.y, rect.width / GUI.Scale, rect.height / GUI.Scale)
 		else
 			love.graphics.setScissor()
 		end
 		
 		draw_func(x, y, w, h, options, unpack(parameters))
 		
-		love.graphics.setScissor()
+		--love.graphics.rectangle("fill", rect.x, rect.y, rect.width / GUI.Scale, rect.height / GUI.Scale)
+		
+		if rect.scissor then
+			love.graphics.setScissor(rect.x, rect.y, rect.width / GUI.Scale, rect.height / GUI.Scale)
+		else
+		 love.graphics.setScissor()
+		end
 	end)
 end
 

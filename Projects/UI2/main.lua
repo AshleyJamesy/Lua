@@ -1,6 +1,6 @@
-BIT 	= require("bit")
-FFI 	= require("ffi")
-ENET 	= require("enet")
+BIT  = require("bit")
+FFI  = require("ffi")
+ENET = require("enet")
 
 include("extensions/")
 include("util/")
@@ -10,66 +10,44 @@ include("library/containers/")
 include("library/math/")
 include("library/")
 include("source/")
-
+    
 class.Load()
 
-local scene = {}
+--TODO:
+--hash all components
+--get all components in camera(s) view
+--sort them back to front with function indexOrder^17 * layer^17 + id
+--render
+
 hook.Add("love.load", "game", function(parameters)
+<<<<<<< HEAD
 	--Screen.Flip()
 	camera = Camera(scene)
+=======
+    Screen.Flip()
+    SceneManager:GetActiveScene()
+    
+    hashtable = HashTable()
+   
+    local go = GameObject()
+    go:AddComponent("Camera")
+    go:GetComponent("Camera").cameraType = CameraType.Game
+    
+    gameCam = go:GetComponent("Camera")
+    
+    for i = 1, 1000 do
+        local go = GameObject()
+        go:AddComponent("ShapeRenderer")
+        go:AddComponent("Ball")
+        
+        go.transform.position.x = math.random() * 1000 - 500
+        go.transform.position.y = math.random() * 1000 - 500
+    end
+>>>>>>> 499ce0cf1bf03dc42875d2a701657ba30283aba3
 end)
 
-local value = 0.0
-
-local input_field = {
-	enabled = true,
-	text 		= "john",
-	candidate 	= "input field",
-	password 	= false
-}
-
-local password_field = {
-	enabled = true,
-	text 		= "",
-	candidate 	= "password field",
-	password 	= true
-}
-
-local textbox_field = {
-	enabled = true,
-	text 		= "",
-	multiline 	= true
-}
-
-local textbox_output = {
-    text = "",
-    multiline = true
-}
-
-local list_combobox = {
-	index = 1,
-	array = {
-		"tan_bricks.png",
-		"emission.png",
-		"emission_01.png",
-		"noise.png"
-	}
-}
-
-local listbox = {
-    array = {
-        "hello",
-        "test",
-        "listbox"
-    }
-}
-
-local images = {}
-
-local clicks 	= 0
-local checkbox 	= false
-
 hook.Add("love.update", "game", function()
+<<<<<<< HEAD
 	Input.Update()
 
 	for k, v in pairs(scene) do
@@ -163,20 +141,31 @@ hook.Add("love.update", "game", function()
 		GUI:ListBox(listbox, GUIOption.Width(150), GUIOption.Height(100))
 		GUI:EndHorizontal()
 	GUI:EndArea()
+=======
+    Input.Update()
+    SceneManager.activeScene:Update()
+    
+    GUI:Label(love.timer.getFPS(), GUIOption.Width(100), GUIOption.Height(25))
+    
+    SceneManager.activeScene:LateUpdate()
+    
+    Renderer.Batch()
+>>>>>>> 499ce0cf1bf03dc42875d2a701657ba30283aba3
 end)
 
 hook.Add("love.render", "game", function()
-	GUI:Render()
-	GUI:Show()
-	
-	camera:Render()
-	camera:Show()
-
-	Input.LateUpdate()
+    SceneManager.activeScene:Render()
+    
+    Screen.Draw(Camera.main.buffers.post.source, 0, 0, 0)
+    
+    GUI:Render()
+    GUI:Show()
+    
+    Input.LateUpdate()
 end)
 
 hook.Add("KeyPressed", "game", function(key)
-	if key == "escape" then
-		--love.event.quit()
-	end
+    if key == "escape" then
+	       love.event.quit()
+    end
 end)

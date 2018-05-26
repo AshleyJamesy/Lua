@@ -1,8 +1,8 @@
 local function draw(x, y, w, h, options, image)
 	if options.keepaspect then
-		love.graphics.setColor(130, 130, 130, 255)
+		love.graphics.setColor(0.5, 0.5, 0.5, 1.0)
 		love.graphics.rectangle("fill", x, y, w, h)
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
 		
 		local max 		= math.min(w, h)
 		local sx, sy 	= max / image:getWidth(), max / image:getHeight()
