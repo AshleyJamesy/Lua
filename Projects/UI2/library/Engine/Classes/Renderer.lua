@@ -12,20 +12,8 @@ function Class:New(gameObject)
 	self.enabled 			= false
 	self.isVisible 			= false
 	self.sortingOrder 		= 0
-end
-
-function Class.Batch()
- local scene = SceneManager.activeScene
- local objects = SceneManager.activeScene.__objects
- 
- for k, v in pairs(Class.Renderers) do
-     if objects[v] then
-         for i, j in pairs(objects[v]) do
-             local bounds = j.transform.bounds
-	            scene.__hash:Add(bounds.x, bounds.y, bounds.w, bounds.h, 100, j)
-         end
-     end
- end
+	
+	self.material = nil
 end
 
 function Class:Render(camera)

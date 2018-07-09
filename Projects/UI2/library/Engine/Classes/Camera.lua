@@ -1,3 +1,8 @@
+--create colour_01 buffer and colour_02 buffer
+--render all objects to colour_02
+--render all objects + refraction to colour_01
+--(using discard in shader)
+
 local graphics = love.graphics
 
 local function grid(camera, w, h, unit)
@@ -6,9 +11,9 @@ local function grid(camera, w, h, unit)
 	]]
 	local r,g,b,a = camera.backgroundColour:Unpack()
 	graphics.setLineStyle("rough")
-	graphics.setColor(a - r, a - g, a - b, 10)
+	graphics.setColor(a - 0.25, a - 0.25, a - 0.25, 0.25)
 
-	local unit = unit or 100
+	local unit = unit or 200
 
 	local ix = math.floor(w / unit)
 	local iy = math.floor(h / unit)
@@ -50,8 +55,8 @@ function Class:New(gameObject)
 	end
 
 	self.scene 				= gameObject.scene
-	self.backgroundColour 	= Colour(0.3, 0.3, 0.3, 1)
-	self.cameraType 		= CameraType.Game
+	self.backgroundColour 	= Colour(0.5, 0.5, 0.7, 1)
+	self.cameraType 		= CameraType.SceneView
 	self.cullingMask 		= {}
 	self.zoom 				= Vector2(1, 1)
 	
@@ -59,8 +64,8 @@ function Class:New(gameObject)
 
 	self.buffers = 
 	{
-		colour 				= RenderTarget(),
-		emission 			= RenderTarget(),
+		colour 			= RenderTarget(),
+		emission 	= RenderTarget(),
 		post 				= RenderTarget(),
 		back 				= RenderTarget()
 	}
@@ -86,38 +91,18 @@ end
 local ignore_table 	= { "Camera" }
 
 local function sort(a, b)
-    return (a.gameObject.layer ^ 17) * (a.sortingOrder ^ 17) == (b.gameObject.layer ^ 17) * (b.sortingOrder ^ 17) and (a.__id < b.__id)
+    return 
+    (a.gameObject.layer ^ 17) * (a.sortingOrder ^ 17) * ((a.gameObject.transparent and 1 or 2) ^ 17) ==
+    (b.gameObject.layer ^ 17) * (b.sortingOrder ^ 17) * ((b.gameObject.transparent and 1 or 2) ^ 17) 
+    and (a.__id < b.__id)
 end
 
 local function DoRender(camera, w, h)
 	graphics.setColor(1, 1, 1, 1)
 	
-	--[[
-	for _, name in pairs(Renderer.Renderers) do
-		local batch = SceneManager:GetActiveScene().__objects[name]
-		
-		if batch then
-			local renderer = class.GetClass(name)
-			
-			if renderer.PreRender then
-				renderer.PreRender(camera, batch)
-			end
-			
-			for key, component in pairs(batch) do
-				if component.enabled == nil or component.enabled == true then
-					renderer.Render(component, camera, batch)
-				end
-			end
-			
-			if renderer.PostRender then
-				renderer.PostRender(camera, batch)
-			end
-		end
-	end
-	--]]
- 
  local bounds = camera.bounds
- local batch = camera.scene.__hash:Get(bounds.x, bounds.y, bounds.w, bounds.h, 100)
+ 
+ local batch = camera.scene.__hash:Get(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y + bounds.h, camera.scene.hashUnit)
  
  table.sort(batch, sort)
  
@@ -142,28 +127,26 @@ function Class:Render()
 	graphics.push()
 
 	graphics.translate(w, h)
-	
-	local inverse = self.transform.globalMatrix:InverseCopy()
-	
-	graphics.rotate(inverse:Rotation())
-	graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
-	graphics.translate(inverse:Position())
-
+ graphics.scale(1 / self.zoom.x, 1 / self.zoom.y)
+ 
+ love.graphics.applyTransform(self.transform.__cTransform:inverse())
+ 
 	for k, v in pairs(self.buffers) do
-		graphics.setCanvas(v.source)
-		graphics.clear(0, 0, 0, 0)
+		if k ~= "back" then
+		    graphics.setCanvas(v.source)
+		    graphics.clear(0, 0, 0, 0)
+		end
 	end
 
-	graphics.setCanvas(self.buffers.colour.source, self.buffers.emission.source)
-
+	graphics.setCanvas(self.buffers.colour.source, self.buffers.back.source)
+	
 	DoRender(self, w, h)
 	
 	graphics.pop()
 	
 	graphics.setCanvas(self.buffers.post.source)
 
-	--Grid
-	--[[
+	--grid
 	if self.cameraType == CameraType.SceneView then
 		graphics.clear(0.25, 0.25, 0.25, 1.0)
 
@@ -177,8 +160,7 @@ function Class:Render()
 	else
 		graphics.clear(self.backgroundColour.r, self.backgroundColour.g, self.backgroundColour.b, self.backgroundColour.a)
 	end
- ]]
- 
+	
 	graphics.setColor(1, 1, 1, 1)
 	graphics.setShader()
 
@@ -192,8 +174,12 @@ function Class:Render()
 	--graphics.draw(self.buffers.emission.source, 0, 0, 0, 1, 1)
 
 	--blur(self.buffers.emission.source, bx, bx, passes, intensity)
-
+ 
 	graphics.reset()
+	
+ local back = self.buffers.back.source
+ self.buffers.back.source = self.buffers.colour.source
+ self.buffers.colour.source = back
 end
 
 function Class:OnDrawGizmos(camera)

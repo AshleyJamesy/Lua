@@ -115,7 +115,7 @@ function Class.Update()
 	local x, y = Screen.Point(love.mouse.getX(), love.mouse.getY())
 
 	Class.anyKey = Class.__keyboardCount > 0 or Class.__mouseCount > 0 or Class.__touchCount > 0
-
+ 
 	if Application.Mobile then
 		if Class.GetTouch(1) then
 			Class.mousePosition:Set(x, y)
