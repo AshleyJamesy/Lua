@@ -1,4 +1,0 @@
-{
-	"cmd": ["debug.bat"],
-	"working_dir": "${project_path:${folder}}"
-}
