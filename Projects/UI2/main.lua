@@ -10,14 +10,8 @@ include("library/containers/")
 include("library/math/")
 include("library/")
 include("source/")
-    
+  
 class.Load()
-
---TODO:
---hash all components
---get all components in camera(s) view
---sort them back to front with function indexOrder^17 * layer^17 + id
---render
 
 hook.Add("love.load", "game", function(parameters)
 <<<<<<< HEAD
@@ -25,6 +19,7 @@ hook.Add("love.load", "game", function(parameters)
 	camera = Camera(scene)
 =======
     Screen.Flip()
+<<<<<<< HEAD
     SceneManager:GetActiveScene()
     
     hashtable = HashTable()
@@ -44,6 +39,8 @@ hook.Add("love.load", "game", function(parameters)
         go.transform.position.y = math.random() * 1000 - 500
     end
 >>>>>>> 499ce0cf1bf03dc42875d2a701657ba30283aba3
+=======
+>>>>>>> 9f3836a19cec90a7d7bb7fdfcedb5a9edfcb105b
 end)
 
 hook.Add("love.update", "game", function()
@@ -143,6 +140,7 @@ hook.Add("love.update", "game", function()
 	GUI:EndArea()
 =======
     Input.Update()
+<<<<<<< HEAD
     SceneManager.activeScene:Update()
     
     GUI:Label(love.timer.getFPS(), GUIOption.Width(100), GUIOption.Height(25))
@@ -151,13 +149,11 @@ hook.Add("love.update", "game", function()
     
     Renderer.Batch()
 >>>>>>> 499ce0cf1bf03dc42875d2a701657ba30283aba3
+=======
+>>>>>>> 9f3836a19cec90a7d7bb7fdfcedb5a9edfcb105b
 end)
 
 hook.Add("love.render", "game", function()
-    SceneManager.activeScene:Render()
-    
-    Screen.Draw(Camera.main.buffers.post.source, 0, 0, 0)
-    
     GUI:Render()
     GUI:Show()
     

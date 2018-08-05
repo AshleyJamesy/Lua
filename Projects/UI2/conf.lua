@@ -71,6 +71,15 @@ Time.Cycle 					= 0
 Time.FixedTimeStepScaled 	= 0.016
 
 function love.run()
+ Application = {}
+ Application.OS = love.system.getOS()
+ 
+ Application.Mobile = false
+ 
+ if Application.OS == "Android" then
+     Application.Mobile = true
+ end
+ 
 	if love.load then
 		love.load(arg)
 	end

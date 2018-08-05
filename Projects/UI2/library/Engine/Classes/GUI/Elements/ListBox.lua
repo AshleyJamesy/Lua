@@ -38,7 +38,8 @@ function GUI:ListBox(data, ...)
 	
 	if GUI:MouseReleased(id) then
 	    if math.abs(data.__offsety - offset) < 3 * GUI.Scale then
-	        local iy = math.ceil((-data.__offsety + Input.mousePosition.y - y) / (25 * GUI.Scale))
+	        local iy = math.ceil((-data.__offsety + Input.mousePosition.y - y) / (25 * GUI.Scale)) + 1
+	        
 	        if data.array[iy] then
 	            data.selected = data.array[iy]
 	        else

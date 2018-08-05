@@ -11,10 +11,10 @@ local function KeyRange(x, y, w, h, shift)
     --local ex 	= BIT.rshift(w or x or 0, shift)
     --local ey 	= BIT.rshift(h or y or 0, shift)
     
-    local sx 	= math.floor(x / shift)
-    local sy 	= math.floor(y / shift)
-    local ex 	= math.floor(w / shift)
-    local ey 	= math.floor(h / shift)
+    local sx 	= math.ceil(x / shift)
+    local sy 	= math.ceil(y / shift)
+    local ex 	= math.ceil(w / shift)
+    local ey 	= math.ceil(h / shift)
     
     return sx, ex, sy, ey
 end

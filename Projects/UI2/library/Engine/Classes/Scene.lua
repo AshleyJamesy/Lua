@@ -28,9 +28,14 @@ function Class:New(name)
 	self.__inactive = {}
 	self.__objects 	= {}
 	self.__hash = HashTable()
+	self.hashUnit = 25
 	self.__roots 	= {}
 	self.__world 	= love.physics.newWorld(0, 0, true)
 	self.__world:setCallbacks(BeginContact, EndContact, PreSolve, PostSolve)
+end
+
+function Class:ComponentList(typename)
+    return self.__objects[typename]
 end
 
 function Class:CallFunctionOnType(typename, method, ...)
@@ -115,6 +120,17 @@ function Class:LateUpdate()
 end
 
 function Class:Render()
+ for k, v in pairs(Renderer.Renderers) do
+     if self.__objects[v] then
+         for i, j in pairs(self.__objects[v]) do
+            local bounds = j.transform.bounds
+	           self.__hash:Add(bounds.x, bounds.y, bounds.w, bounds.h, self.hashUnit, j)
+         end
+     end
+     
+     Material:Reset()
+ end
+ 
 	self:CallFunctionOnType("Camera", "Render")
 	
 	self.__hash:Empty()
