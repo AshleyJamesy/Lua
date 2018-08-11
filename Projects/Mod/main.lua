@@ -64,14 +64,14 @@ end
 
 function LoadLuaFile(path, subfolders)
 	local files = {}
-
+ 
 	local info = love.filesystem.getInfo(path)
 	if info then
 		if info.type == "directory" then
-			local folder = love.filesystem.getDirectoryItems(path)
+			local folders = love.filesystem.getDirectoryItems(path)
 
 			--Loop Files First
-			for k, v in pairs(folder) do
+			for k, v in pairs(folders) do
 				local info = love.filesystem.getInfo(path .. v)
 				if info then
 					if info.type == "file" then
@@ -82,7 +82,7 @@ function LoadLuaFile(path, subfolders)
 
 			if subfolders then
 				--Loop Folders
-				for k, v in pairs(folder) do
+				for k, v in pairs(folders) do
 					local info = love.filesystem.getInfo(path .. v)
 					if info then
 						if info.type == "directory" then
@@ -97,9 +97,9 @@ function LoadLuaFile(path, subfolders)
 			return files
 		end
 	else
-		print("error loading lua file: file/directory '" .. path .. "' does not exist")
+		--print("error loading lua file: file/directory '" .. path .. "' does not exist")
 
-		return
+		return files
 	end
 
 	local name, extension = GetFileDetails(path)
@@ -128,24 +128,40 @@ function LoadLuaFile(path, subfolders)
 end
 
 function Include(filename)
-	if SERVER then
-		local path = __PATH
-
-		local lua_include = LoadLuaFile(path .. filename)
-		Load(lua_include, _G)
-
-		__PATH = path
-	end
+    local function run()
+        if SERVER then
+          
+            local path = __PATH
+            __PATH = GetPath(path .. filename)
+            
+            local _lua = LoadLuaFile(__PATH .. filename)
+            local env = {
+                AddCSLuaFile = AddCSLuaFile,
+                print = print,
+                Include = Include,
+                SERVER = SERVER
+            }
+            
+            Load(_lua, env)
+            
+            __PATH = path
+        end
+    end
+    
+    --setfenv(run, getfenv(2))
+    
+    --local status, err = pcall(run)
 end
 
 local __require_path = ""
 local __require = require
 
 function Load(luafile, env)
-	env.__FILENAME 		= luafile.filename
-	env.__PATH 			= luafile.directory
+	env.__PARENT        = __PARENT or _G
+	env.__FILENAME    		= luafile.filename
+	env.__PATH 		      	= luafile.directory
 	env.__require_path 	= __require_path
-
+	
 	env.require = function(filename)
 		return __require(string.gsub(luafile.directory .. __require_path, '/', '.') .. filename)
 	end
@@ -161,7 +177,7 @@ function Load(luafile, env)
 	local status, err = pcall(func)
 	
 	if not status then
-		print("error: '" .. luafile.directory .. "' " ..err)
+		print("error: '" .. luafile.directory .. "' " .. err)
 		
 		return nil, err
 	end
@@ -180,59 +196,46 @@ function AddCSLuaFile(filename)
 
 		local lua_csfile = LoadLuaFile(path .. (filename and filename or __FILENAME))
 		__PATH = path
-
+  
 		ClientSideFiles[path .. (filename and filename or __FILENAME)] = lua_csfile
 	end
 end
 
-__require_path = "modules/"
-local lua_init = LoadLuaFile("lua/includes/init.lua")
-Load(lua_init, _G)
-
-function Load_AUTORUN()
-	__require_path = ""
-	local lua_client_autorun = LoadLuaFile("lua/autorun/client/", true)
-	if lua_client_autorun then
-		for k, v in pairs(lua_client_autorun) do
-			if SERVER then
-				ClientSideFiles[k] = v
-			else
-				Load(v, _G)
-			end
-		end
-	end
-
-	if SERVER then
-		local lua_server_autorun = LoadLuaFile("lua/autorun/server/", true)
-		if lua_server_autorun then
-			for k, v in pairs(lua_server_autorun) do
-				Load(v, _G)
-			end
-		end
-	end
-
-	local lua_shared_autorun = LoadLuaFile("lua/autorun/", false)
-	if lua_shared_autorun then
-		for k, v in pairs(lua_shared_autorun) do
-			if SERVER then
-				ClientSideFiles[k] = v
-			end
-
-			Load(v, _G)
-		end
-	end
-end
-
-function LoadGamemode()
-
+function LoadAddon(path)
+    local addon = {}
+    addon.autorun_shared = LoadLuaFile(path .. "autorun/")
+    addon.autorun_server = LoadLuaFile(path .. "autorun/server/")
+    addon.autorun_client = LoadLuaFile(path .. "autorun/client/")
+    addon.gamemode_server = LoadLuaFile(path .. "gamemode/init.lua")
+    addon.gamemode_client = LoadLuaFile(path .. "gamemode/cl_init.lua")
+    
+    --TODO: load sprites and sounds
+    return addon
 end
 
 function love.load(args)
-	Load_AUTORUN()
-
-
+    local addons = {}
+    local folders = love.filesystem.getDirectoryItems(GetProjectDirectory() .. "addons/")
+    for k, v in pairs(folders) do
+        addons[v] = LoadAddon(GetProjectDirectory() .. "addons/" .. v .. "/")
+    end
+    
+    for k, addon in pairs(addons) do
+        for j, script in pairs(addon.autorun_shared) do
+            if script then
+                local env = {
+                    AddCSLuaFile = AddCSLuaFile,
+                    print = print,
+                    Include = Include,
+                    SERVER = SERVER
+                }
+                
+                Load(script, env)
+            end
+        end
+    end
 end
 
 function love.update()
-
+    
 end

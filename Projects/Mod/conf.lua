@@ -45,3 +45,53 @@ function love.conf(t)
 	t.modules.window 		= not SERVER 	-- Enable the window module (boolean)
 	t.modules.thread 		= true 			-- Enable the thread module (boolean)
 end
+
+function include(path)
+    local contents, size = love.filesystem.read(path)
+    if contents then
+        local chunk, err = loadstring(contents)
+        
+        if not chunk then
+            print("runtime error: '" .. path .. "' " .. err)
+        else
+            setfenv(chunk, getfenv(2))
+            local success, err = pcall(chunk)
+            if not success then
+                print("runtime error: " .. err)
+            end
+        end
+    end
+end
+
+function LoadLuaFile(path, env)
+    local contents, size = love.filesystem.read(path)
+    if contents then
+        env = env or {}
+        env._G = env
+        	
+        local chunk, err = loadstring(contents)
+        
+        if not chunk then
+            print("compile error: '" .. path .. "' " .. err)
+        else
+            setfenv(chunk, env)
+            local success, err = pcall(chunk)
+            if not success then
+                print("runtime error: '" .. path .. "' " .. err)
+            end
+        end
+    end
+end
+
+require("baseclass")
+
+function DEFINE_BASECLASS(name)
+    if not ENT then return end
+    
+    BaseClass = baseclass.Get(name)
+end
+
+
+
+
+

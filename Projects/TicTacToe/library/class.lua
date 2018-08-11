@@ -4,9 +4,9 @@ Classes = {}
 
 local Class   				= {}
 Class.__index 				= Class
-Class.__typename 	= "Class"
+Class.__typename 			= "Class"
 Class.__type  				= { "Class" }
-Class.__loaded 			= true
+Class.__loaded 				= true
 
 --Class.__readOnly 			= true
 
@@ -79,6 +79,43 @@ function NewClass(name, base, ...)
 
 	local b = Classes[name] or Class
 	local n = {}
+	
+	--VARIABLE CHANGES
+	--[[
+	n.__newindex = function(t, k, v)
+		if n.__watch ~= nil and n.__watch == true then
+			local value = t.variables[k]
+
+			if value then
+				if value ~= v then
+					t.variables[k] = v
+
+					if n.ChangedValue then
+						n.ChangedValue(t, k, value, v)
+					end
+				end
+			else
+				t.variables[k] = v
+
+				if n.NewValue then
+					n.NewValue(t, k, v)
+				end
+			end
+
+			rawset(t.variables,k,n)
+		else
+			rawset(t,k,n)
+		end
+	end
+
+	n.__index = function (t, k)
+		if n.__watch ~= nil and n.__watch == true then
+			return t.variables[k] or n[k]
+		else
+			return rawget(t,k) or n[k]
+		end
+	end
+	]]
 
 	n.__index = function (t, k)
 		return rawget(t, k) or n[k]
@@ -121,14 +158,20 @@ function LoadClass(n)
 		if #n.__type > 2 then
 			local ThisClass = n.__type[#n.__type]
 			local BaseClass = n.__type[#n.__type - 1]
-
+			
 			local b = Classes[BaseClass]
 			
-			if b.__loaded then
+			if b then
+				if b.__loaded then
+				else
+					LoadClass(b)
+				end
 			else
-				LoadClass(b)
+				error("missing class <" .. BaseClass .. "> in class <" .. ThisClass .. ">")
 			end
-
+			
+			n.__readOnly = b.__readOnly or false
+			
 			n.__type = table.Copy(b.__type)
 			
 			table.insert(n.__type, ThisClass)
@@ -136,7 +179,7 @@ function LoadClass(n)
 			inherit(n, b)
 		end
 	end
-
+	
 	n.__loaded = true
 end
 
