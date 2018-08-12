@@ -1,5 +1,8 @@
-SERVER = true
-CLIENT = not SERVER
+BUILD 	= false
+SERVER 	= false
+CLIENT 	= not SERVER
+
+--io.stdout:setvbuf("no")
 
 function love.conf(t)
 	t.identity 				= nil 			-- The name of the save directory (string)
@@ -28,70 +31,20 @@ function love.conf(t)
 	t.window.y 				= nil 			-- The y-coordinate of the window's position in the specified display (number)
 	
 	--Modules
-	t.modules.audio 		= not SERVER 	-- Enable the audio module (boolean)
-	t.modules.event 		= true 			-- Enable the event module (boolean)
-	t.modules.graphics 		= not SERVER 	-- Enable the graphics module (boolean)
-	t.modules.image 		= true 			-- Enable the image module (boolean)
-	t.modules.joystick 		= not SERVER 	-- Enable the joystick module (boolean)
-	t.modules.keyboard 		= true 			-- Enable the keyboard module (boolean)
-	t.modules.math 			= true 			-- Enable the math module (boolean)
-	t.modules.mouse 		= not SERVER 	-- Enable the mouse module (boolean)
-	t.modules.physics 		= not SERVER 	-- Enable the physics module (boolean)
-	t.modules.sound 		= not SERVER 	-- Enable the sound module (boolean)
-	t.modules.system 		= true 			-- Enable the system module (boolean)
-	t.modules.timer 		= true 			-- Enable the timer module (boolean), Disabling it will result 0 delta time in love.update
-	t.modules.touch 		= not SERVER 	-- Enable the touch module (boolean)
-	t.modules.video 		= not SERVER 	-- Enable the video module (boolean)
-	t.modules.window 		= not SERVER 	-- Enable the window module (boolean)
-	t.modules.thread 		= true 			-- Enable the thread module (boolean)
+	t.modules.audio 		= BUILD and BUILD or not SERVER 	-- Enable the audio module (boolean)
+	t.modules.event 		= true 								-- Enable the event module (boolean)
+	t.modules.graphics 		= BUILD and BUILD or not SERVER 	-- Enable the graphics module (boolean)
+	t.modules.image 		= BUILD and BUILD or not SERVER 	-- Enable the image module (boolean)
+	t.modules.joystick 		= BUILD and BUILD or not SERVER		-- Enable the joystick module (boolean)
+	t.modules.keyboard 		= true 								-- Enable the keyboard module (boolean)
+	t.modules.math 			= true 								-- Enable the math module (boolean)
+	t.modules.mouse 		= true								-- Enable the mouse module (boolean)
+	t.modules.physics 		= true 								-- Enable the physics module (boolean)
+	t.modules.sound 		= BUILD and BUILD or not SERVER 	-- Enable the sound module (boolean)
+	t.modules.system 		= true 								-- Enable the system module (boolean)
+	t.modules.timer 		= true 								-- Enable the timer module (boolean), Disabling it will result 0 delta time in love.update
+	t.modules.touch 		= BUILD and BUILD or not SERVER  	-- Enable the touch module (boolean)
+	t.modules.video 		= BUILD and BUILD or not SERVER  	-- Enable the video module (boolean)
+	t.modules.window 		= BUILD and BUILD or not SERVER 	-- Enable the window module (boolean)
+	t.modules.thread 		= true 								-- Enable the thread module (boolean)
 end
-
-function include(path)
-    local contents, size = love.filesystem.read(path)
-    if contents then
-        local chunk, err = loadstring(contents)
-        
-        if not chunk then
-            print("runtime error: '" .. path .. "' " .. err)
-        else
-            setfenv(chunk, getfenv(2))
-            local success, err = pcall(chunk)
-            if not success then
-                print("runtime error: " .. err)
-            end
-        end
-    end
-end
-
-function LoadLuaFile(path, env)
-    local contents, size = love.filesystem.read(path)
-    if contents then
-        env = env or {}
-        env._G = env
-        	
-        local chunk, err = loadstring(contents)
-        
-        if not chunk then
-            print("compile error: '" .. path .. "' " .. err)
-        else
-            setfenv(chunk, env)
-            local success, err = pcall(chunk)
-            if not success then
-                print("runtime error: '" .. path .. "' " .. err)
-            end
-        end
-    end
-end
-
-require("baseclass")
-
-function DEFINE_BASECLASS(name)
-    if not ENT then return end
-    
-    BaseClass = baseclass.Get(name)
-end
-
-
-
-
-

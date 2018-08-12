@@ -62,6 +62,7 @@ function GetPath(filepath)
 	return ""
 end
 
+--[[
 function LoadLuaFile(path, subfolders)
 	local files = {}
  
@@ -126,116 +127,100 @@ function LoadLuaFile(path, subfolders)
 		end
 	end
 end
+]]
 
-function Include(filename)
-    local function run()
-        if SERVER then
-          
-            local path = __PATH
-            __PATH = GetPath(path .. filename)
-            
-            local _lua = LoadLuaFile(__PATH .. filename)
-            local env = {
-                AddCSLuaFile = AddCSLuaFile,
-                print = print,
-                Include = Include,
-                SERVER = SERVER
-            }
-            
-            Load(_lua, env)
-            
-            __PATH = path
-        end
-    end
-    
-    --setfenv(run, getfenv(2))
-    
-    --local status, err = pcall(run)
-end
-
-local __require_path = ""
-local __require = require
-
-function Load(luafile, env)
-	env.__PARENT        = __PARENT or _G
-	env.__FILENAME    		= luafile.filename
-	env.__PATH 		      	= luafile.directory
-	env.__require_path 	= __require_path
-	
-	env.require = function(filename)
-		return __require(string.gsub(luafile.directory .. __require_path, '/', '.') .. filename)
-	end
-
-	local func, err = loadstring(luafile.code) 
-	
-	if not func then 
-		return nil, err
-	end
-	
-	setfenv(func, env)
-	
-	local status, err = pcall(func)
-	
-	if not status then
-		print("error: '" .. luafile.directory .. "' " .. err)
+function LoadLuaFile(path, env)
+	local contents, size = love.filesystem.read(path)
+	if contents then
+		env = env or {}
+		env._G = env
 		
-		return nil, err
-	end
-	
-	return env
-end
-
-ClientSideFiles = {}
-function AddCSLuaFile(filename)
-	if SERVER then
-		local path = __PATH
-
-		if ClientSideFiles[path .. (filename and filename or __FILENAME)] then
-			return
+		local chunk, err = loadstring(contents)
+		
+		if not chunk then
+			print("compile error: '" .. path .. "' " .. err)
+		else
+			setfenv(chunk, env)
+			
+			local success, err = pcall(chunk)
+			if not success then
+				print("runtime error: '" .. path .. "' " .. err)
+			end
 		end
-
-		local lua_csfile = LoadLuaFile(path .. (filename and filename or __FILENAME))
-		__PATH = path
-  
-		ClientSideFiles[path .. (filename and filename or __FILENAME)] = lua_csfile
 	end
 end
 
-function LoadAddon(path)
-    local addon = {}
-    addon.autorun_shared = LoadLuaFile(path .. "autorun/")
-    addon.autorun_server = LoadLuaFile(path .. "autorun/server/")
-    addon.autorun_client = LoadLuaFile(path .. "autorun/client/")
-    addon.gamemode_server = LoadLuaFile(path .. "gamemode/init.lua")
-    addon.gamemode_client = LoadLuaFile(path .. "gamemode/cl_init.lua")
-    
-    --TODO: load sprites and sounds
-    return addon
+local require_path 	= ""
+local require_old 	= require
+function require(filename)
+	print("requiring '" .. string.gsub(require_path, "/", ".") .. filename)
+	return require_old(string.gsub(require_path, "/", ".") .. filename)
 end
 
-function love.load(args)
-    local addons = {}
-    local folders = love.filesystem.getDirectoryItems(GetProjectDirectory() .. "addons/")
-    for k, v in pairs(folders) do
-        addons[v] = LoadAddon(GetProjectDirectory() .. "addons/" .. v .. "/")
-    end
-    
-    for k, addon in pairs(addons) do
-        for j, script in pairs(addon.autorun_shared) do
-            if script then
-                local env = {
-                    AddCSLuaFile = AddCSLuaFile,
-                    print = print,
-                    Include = Include,
-                    SERVER = SERVER
-                }
-                
-                Load(script, env)
-            end
-        end
-    end
+local include_path = ""
+function include(path)
+	local include_pathTemp = include_path
+	include_path = include_path .. GetPath(path)
+
+	local filename, extension = GetFileDetails(path)
+
+	local contents, size = love.filesystem.read(include_path .. filename .. "." .. extension)
+	if contents then
+		local chunk, err = loadstring(contents)
+		
+		if not chunk then
+			print("runtime error: '" .. err .. "' " .. err)
+		else
+			setfenv(chunk, getfenv(2))
+			
+			local success, err = pcall(chunk)
+			if not success then
+				print("runtime error: " .. err)
+			end
+		end
+	end
+
+	include_path = include_pathTemp
+end
+
+function AddCSLuaFile(path)
+	if path then
+		local filename, extension 	= GetFileDetails(path)
+		local folder 				= GetPath(path)
+		local fullpath 				= include_path .. folder .. filename .. "." .. extension
+		local contents, size 		= love.filesystem.read(fullpath)
+
+		if contents then
+			downloads.AddContentByType("scripts", fullpath, contents)
+		end
+	else
+		--Add current file to list of files to be downloaded by client
+	end
+end
+
+function love.load()
+	include("lua/includes/init.lua")
+
+	local code = [[
+		while true do
+			io.flush()
+			answer = io.read()
+			io.write(answer .. "\n")
+		end
+	]]
+
+	thread = love.thread.newThread(code)
+	thread:start(0, 10)
+
+	for k, v in pairs(io) do
+		print(k, v)
+	end
 end
 
 function love.update()
-    
+
+end
+
+function love.draw()
+	
 end
