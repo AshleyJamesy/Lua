@@ -2,7 +2,9 @@ BUILD 	= false
 SERVER 	= true
 CLIENT 	= not SERVER
 
---io.stdout:setvbuf("no")
+if SERVER then
+    io.stdout:setvbuf("no")
+end
 
 function love.conf(t)
 	t.identity 				= nil 			-- The name of the save directory (string)

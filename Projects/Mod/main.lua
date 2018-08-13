@@ -131,6 +131,8 @@ function love.load()
     else
         net.Init("*:25565", 1)
     end
+    
+    print("starting: " .. (SERVER and "server" or "client"))
 end
 
 function love.update()
