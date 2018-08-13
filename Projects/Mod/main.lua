@@ -134,15 +134,25 @@ function love.load(arguments)
 		print("starting client")
 		net.Init("*:6898", 1)
 		net.Connect("125.63.63.75:6898")
-	end
 
+		love.keyboard.setTextInput(true)
+	end
+	
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit")
 	end)
-
+	
 	console.AddCommand("send", function(line)
 		net.Broadcast(line)
 	end)
+end
+
+function love.textinput(text)
+	print(text)
+end
+
+function love.textedited(text, start, length)
+	print(text, start, length)
 end
 
 function love.update()
