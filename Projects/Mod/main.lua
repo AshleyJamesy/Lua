@@ -134,25 +134,45 @@ function love.load(arguments)
 		print("starting client")
 		net.Init("*:6898", 1)
 		net.Connect("125.63.63.75:6898")
-
-		love.keyboard.setTextInput(true)
 	end
-	
+
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit")
 	end)
-	
+
 	console.AddCommand("send", function(line)
 		net.Broadcast(line)
 	end)
 end
 
-function love.textinput(text)
-	print(text)
+local commandline = ""
+function love.keypressed(key)
+	if key == "escape" then
+		if love.keyboard.hasTextInput() then
+			love.keyboard.setTextInput(false)
+		else
+			love.event.push("quit")
+		end
+	end
+
+	if key == "return" then
+		if love.keyboard.hasTextInput() then
+			commandline = ""
+			love.keyboard.setTextInput(false)
+
+			console.Run(commandline)
+		end
+	end
 end
 
-function love.textedited(text, start, length)
-	print(text, start, length)
+function love.textinput(char)
+	commandline = commandline .. char
+end
+
+function love.touchpressed(id, x, y, dx, dy, pressure)
+	if not love.keyboard.hasTextInput() then
+		love.keyboard.setTextInput(true)
+	end
 end
 
 function love.update()

@@ -30,20 +30,28 @@ function RemoveCommand(name)
 	commands[name] = nil
 end
 
-function Update()
-	local line = channel:pop()
-	while line do
+function Run(name, line)
+	if line then
 		local arguments = string.split(line, " ")
 		local command = arguments[1]
 
-		if command and commands[command] then
-			local s, e = pcall(commands[command], line:sub(#command + 2, #line))
-			if not s then
-				print(e)
+		if command then
+			if commands[command] then
+				local s, e = pcall(commands[command], line:sub(#command + 2, #line))
+				if not s then
+					print(e)
+				end
+			else
+				print("command '" .. command .. "' does not exist")
 			end
-		else
-			print("command '" .. command .. "' does not exist")
 		end
+	end
+end
+
+function Update()
+	local line = channel:pop()
+	while line do
+		Run(line)
 		
 		line = channel:pop()
 	end
