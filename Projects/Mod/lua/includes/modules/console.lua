@@ -30,7 +30,7 @@ function RemoveCommand(name)
 	commands[name] = nil
 end
 
-function Run(name, line)
+function Run(line)
 	if line then
 		local arguments = string.split(line, " ")
 		local command = arguments[1]

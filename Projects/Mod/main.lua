@@ -157,10 +157,9 @@ function love.keypressed(key)
 
 	if key == "return" then
 		if love.keyboard.hasTextInput() then
-			commandline = ""
 			love.keyboard.setTextInput(false)
-
 			console.Run(commandline)
+			commandline = ""
 		end
 	end
 end
