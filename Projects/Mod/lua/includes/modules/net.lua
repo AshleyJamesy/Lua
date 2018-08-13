@@ -7,6 +7,8 @@ local connections = {}
 
 function Connect(address)
 	host:connect(address)
+
+	print("connecting to '" .. address .. "'")
 end
 
 function GetConnections()
@@ -64,7 +66,7 @@ function Send(index, data, channel, flag)
 end
 
 function love.handlers.incoming_message(index, data)
-	
+	print(data)
 end
 
 function love.handlers.peer_connection(index, data)
@@ -72,16 +74,15 @@ function love.handlers.peer_connection(index, data)
 end
 
 function love.handlers.peer_disconnection(index, data)
-	print("connection established")
+	print("disconnection")
 end
 
 function Update()
 	if host then
 		host:flush()
-		
+
 		local packet = host:service()
 		while packet do
-			print("packet")
 			if packet.type == "receive" then
 				love.event.push("incoming_message", packet.peer:index(), packet.data)
 			elseif packet.type == "connect" then
@@ -89,7 +90,7 @@ function Update()
 			elseif packet.type == "disconnect" then
 				love.event.push("peer_disconnection", packet.peer:index(), packet.data)
 			end
-				
+			
 			packet = host:service()
 		end
 	end

@@ -120,27 +120,37 @@ function AddCSLuaFile(path)
 	end
 end
 
---include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
-
+include(GetProjectDirectory() .. "lua/includes/extensions/string.lua")
+include(GetProjectDirectory() .. "lua/includes/modules/console.lua")
 include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
 include(GetProjectDirectory() .. "lua/includes/modules/time.lua")
+include(GetProjectDirectory() .. "lua/includes/util/json.lua")
 
---require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.net")
---require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.time")
+function love.load(arguments)
+	if SERVER then
+		print("starting server")
+		net.Init("*:6898", 32)
+	else
+		print("starting client")
+		net.Init("*:6898", 1)
+		net.Connect("125.63.63.75:6898")
+	end
 
-function love.load()
-    if SERVER then
-        net.Init("*:6898", 32)
-    else
-        net.Init("*:6898", 1)
-        net.Connect("125.63.63.75:6898")
-    end
+	console.AddCommand("quit", function(line) 
+		love.event.push("quit")
+	end)
+
+	console.AddCommand("send", function(line)
+		net.Broadcast(line)
+	end)
 end
 
 function love.update()
-     
+	if console then
+		console.Update()
+	end
 end
 
 function love.render()
-    
+	
 end
