@@ -51,6 +51,7 @@ function love.conf(t)
 	t.modules.thread 		= true 								-- Enable the thread module (boolean)
 end
 
+--[[
 function love.run()
     if love.load then
         love.load(arg) 
@@ -61,8 +62,10 @@ function love.run()
     end
     
     while true do
-        net.Update()
-    
+        if net then
+            net.Update()
+        end
+        
         if love.event then
             love.event.pump()
         
@@ -127,3 +130,4 @@ function love.run()
         end
     end
 end
+]]--
