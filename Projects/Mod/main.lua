@@ -1,7 +1,3 @@
-BIT   = require("bit")
-FFI   = require("ffi")
-ENET  = require("enet")
-
 function GetProjectDirectory()
 	return git or ""
 end
@@ -62,73 +58,6 @@ function GetPath(filepath)
 	return ""
 end
 
---[[
-function LoadLuaFile(path, subfolders)
-	local files = {}
- 
-	local info = love.filesystem.getInfo(path)
-	if info then
-		if info.type == "directory" then
-			local folders = love.filesystem.getDirectoryItems(path)
-
-			--Loop Files First
-			for k, v in pairs(folders) do
-				local info = love.filesystem.getInfo(path .. v)
-				if info then
-					if info.type == "file" then
-						files[path .. v] = LoadLuaFile(path .. v)
-					end
-				end
-			end
-
-			if subfolders then
-				--Loop Folders
-				for k, v in pairs(folders) do
-					local info = love.filesystem.getInfo(path .. v)
-					if info then
-						if info.type == "directory" then
-							for i, j in pairs(LoadLuaFile(path .. v .. "/", subfolders)) do
-								files[i] = j
-							end
-						end
-					end
-				end
-			end
-
-			return files
-		end
-	else
-		--print("error loading lua file: file/directory '" .. path .. "' does not exist")
-
-		return files
-	end
-
-	local name, extension = GetFileDetails(path)
-
-	if extension == "lua" then
-		local contents, size = love.filesystem.read(path)
-		if not contents then
-			print("error: '" .. path .. "' " .. size)
-		else
-			local file =
-			{
-				directory 	= GetPath(path),
-				fullname 	= path,
-				name 		= name,
-				extension 	= extension,
-				filename 	= name .. "." .. extension,
-				code 		= contents,
-				size 		= size
-			}
-
-			files[path] = file
-
-			return file
-		end
-	end
-end
-]]
-
 function LoadLuaFile(path, env)
 	local contents, size = love.filesystem.read(path)
 	if contents then
@@ -150,13 +79,6 @@ function LoadLuaFile(path, env)
 	end
 end
 
-local require_path 	= ""
-local require_old 	= require
-function require(filename)
-	print("requiring '" .. string.gsub(require_path, "/", ".") .. filename)
-	return require_old(string.gsub(require_path, "/", ".") .. filename)
-end
-
 local include_path = ""
 function include(path)
 	local include_pathTemp = include_path
@@ -169,13 +91,13 @@ function include(path)
 		local chunk, err = loadstring(contents)
 		
 		if not chunk then
-			print("runtime error: '" .. err .. "' " .. err)
+			print("runtime error: '" .. path .. "' " .. err)
 		else
 			setfenv(chunk, getfenv(2))
 			
 			local success, err = pcall(chunk)
 			if not success then
-				print("runtime error: " .. err)
+				print("runtime error: '" .. path .. "' - " .. err)
 			end
 		end
 	end
@@ -198,29 +120,25 @@ function AddCSLuaFile(path)
 	end
 end
 
+--include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
+
+require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.net")
+require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.time")
+
 function love.load()
-	include("lua/includes/init.lua")
-
-	local code = [[
-		while true do
-			io.flush()
-			answer = io.read()
-			io.write(answer .. "\n")
-		end
-	]]
-
-	thread = love.thread.newThread(code)
-	thread:start(0, 10)
-
-	for k, v in pairs(io) do
-		print(k, v)
-	end
+    if SERVER then
+        net.Init("*:25465", 32)
+    else
+        net.Init("*:25565", 1)
+    end
+    
+    net.Connect("*:25565")
 end
 
 function love.update()
-
+     
 end
 
-function love.draw()
-	
+function love.render()
+    
 end

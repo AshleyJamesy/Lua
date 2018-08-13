@@ -48,3 +48,80 @@ function love.conf(t)
 	t.modules.window 		= BUILD and BUILD or not SERVER 	-- Enable the window module (boolean)
 	t.modules.thread 		= true 								-- Enable the thread module (boolean)
 end
+
+function love.run()
+    if love.load then
+        love.load(arg) 
+    end
+	
+    if love.timer then 
+        love.timer.step()
+    end
+    
+    while true do
+        net.Update()
+    
+        if love.event then
+            love.event.pump()
+        
+            for name, a,b,c,d,e,f in love.event.poll() do
+                if name == "quit" then
+                    if not love.quit or not love.quit() then
+                        return a
+                    end
+                end
+        	
+                love.handlers[name](a,b,c,d,e,f)
+            end
+        end
+        
+        local frameTime = 0.0
+        
+        if love.timer then
+            love.timer.step()
+            time.Delta  = love.timer.getDelta() * time.TimeScale
+            frameTime   = love.timer.getDelta()
+        end
+		
+        if love.fixedupdate then
+            time.FixedTimeStepScaled = time.FixedTimeStep * time.TimeScale
+
+            if frameTime > time.MaximumAllowedTimeStep then
+                frameTime = time.MaximumAllowedTimeStep
+			        end
+			
+            accumulator = accumulator + frameTime
+			
+            while accumulator >= time.FixedTimeStep do
+                love.fixedupdate()
+                accumulator = accumulator - time.FixedTimeStep
+            end
+			
+            time.Alpha = accumulator / time.FixedTimeStep
+        end
+
+        if love.update then 
+            love.update()
+        end
+        
+        time.Elapsed = time.Elapsed + frameTime
+        
+        if love.graphics then
+            if love.graphics.isActive() then
+                love.graphics.clear(love.graphics.getBackgroundColor())
+                love.graphics.origin()
+				
+                if love.render then 
+                    love.render(time.Alpha)
+                    love.graphics.present()
+                end
+            end
+        end
+
+        if love.timer then
+            if time.MaxFrameRate > 0 then
+				            --love.timer.sleep((1 / Time.MaxFrameRate) - accumulator)
+            end
+        end
+    end
+end
