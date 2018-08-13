@@ -131,8 +131,6 @@ function love.load()
     else
         net.Init("*:25565", 1)
     end
-    
-    net.Connect("*:25565")
 end
 
 function love.update()

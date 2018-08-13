@@ -1,5 +1,5 @@
 BUILD 	= false
-SERVER 	= false
+SERVER 	= true
 CLIENT 	= not SERVER
 
 --io.stdout:setvbuf("no")
