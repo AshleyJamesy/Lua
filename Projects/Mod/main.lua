@@ -122,6 +122,8 @@ end
 
 --include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
 
+love.filesystem.getDirectoryItems("", function(filename) print(filename) end)
+--[[
 require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.net")
 require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.time")
 
@@ -142,3 +144,4 @@ end
 function love.render()
     
 end
+]]--
