@@ -126,6 +126,8 @@ include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
 include(GetProjectDirectory() .. "lua/includes/modules/time.lua")
 include(GetProjectDirectory() .. "lua/includes/util/json.lua")
 
+print("test", net)
+
 function love.load(arguments)
 	if SERVER then
 		print("starting server")
