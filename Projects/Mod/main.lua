@@ -122,19 +122,19 @@ end
 
 --include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
 
-love.filesystem.getDirectoryItems("", function(filename) print(filename) end)
---[[
-require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.net")
-require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.time")
+include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
+include(GetProjectDirectory() .. "lua/includes/modules/time.lua")
+
+--require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.net")
+--require(string.gsub(GetProjectDirectory(), "/", ".") .. "lua.includes.modules.time")
 
 function love.load()
     if SERVER then
-        net.Init("*:25465", 32)
+        net.Init("*:6898", 32)
     else
-        net.Init("*:25565", 1)
+        net.Init("*:6898", 1)
+        net.Connect("125.63.63.75:6898")
     end
-    
-    print("starting: " .. (SERVER and "server" or "client"))
 end
 
 function love.update()
@@ -144,4 +144,3 @@ end
 function love.render()
     
 end
-]]--

@@ -51,7 +51,6 @@ function love.conf(t)
 	t.modules.thread 		= true 								-- Enable the thread module (boolean)
 end
 
---[[
 function love.run()
     if love.load then
         love.load(arg) 
@@ -68,7 +67,7 @@ function love.run()
         
         if love.event then
             love.event.pump()
-        
+            
             for name, a,b,c,d,e,f in love.event.poll() do
                 if name == "quit" then
                     if not love.quit or not love.quit() then
@@ -130,4 +129,3 @@ function love.run()
         end
     end
 end
-]]--
