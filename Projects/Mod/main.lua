@@ -124,9 +124,24 @@ include(GetProjectDirectory() .. "lua/includes/extensions/string.lua")
 include(GetProjectDirectory() .. "lua/includes/modules/console.lua")
 include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
 include(GetProjectDirectory() .. "lua/includes/modules/time.lua")
-include(GetProjectDirectory() .. "lua/includes/util/json.lua")
+include(GetProjectDirectory() .. "lua/includes/modules/baseclass.lua")
+include(GetProjectDirectory() .. "lua/includes/modules/entity.lua")
 
-print("test", net)
+function LoadEntity()
+	local script = {
+		ENT = {
+			Class 		= "",
+			Folder 		= "",
+			Spawnable 	= "",
+			Editable 	= "",
+			AdminOnly 	= "",
+			Author 		= ""
+		}
+	}
+	LoadLuaFile(GetProjectDirectory() .. "lua/entities/entities/my_entity/init.lua", script)
+end
+
+local entities = {}
 
 function love.load(arguments)
 	if SERVER then

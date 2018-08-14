@@ -1,0 +1,4 @@
+function ENT:Initalise()
+
+end
+

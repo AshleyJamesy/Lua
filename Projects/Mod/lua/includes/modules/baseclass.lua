@@ -18,7 +18,7 @@ end
 
 function Set(name, baseclass)
 	if not BaseClassTable[name] then
-		BaseClassTable[name] =  baseclass
+		BaseClassTable[name] = baseclass
 	else
 		table.Merge(BaseClassTable[name], baseclass)
 		setmetatable(BaseClassTable[name], getmetatable(baseclass))
@@ -32,3 +32,5 @@ function DEFINE_BASECLASS(name)
 	
 	BaseClass = Get(name)
 end
+
+print(getmetatable(baseclass))
