@@ -1,4 +1,3 @@
-function ENT:Initalise()
+AddCSLuaFile("shared.lua")
 
-end
-
+include("shared.lua")

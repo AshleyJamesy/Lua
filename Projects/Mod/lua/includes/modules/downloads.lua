@@ -34,8 +34,6 @@ end
 
 function AddContentByType(name, path, data)
 	if Content[name] then
-		print("adding downloadable content: '" .. path .. "'")
-		
 		local content = {
 			path = path,
 			data = data

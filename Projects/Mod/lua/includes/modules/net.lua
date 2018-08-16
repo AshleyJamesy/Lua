@@ -5,9 +5,9 @@ local ENET = require("enet")
 local host = nil
 local connections = {}
 
-function Connect(address)
+function Connect(address, callback)
 	host:connect(address)
-
+ 
 	print("connecting to '" .. address .. "'")
 end
 
@@ -77,6 +77,7 @@ function love.handlers.peer_disconnection(index, data)
 	print("disconnection")
 end
 
+local state = ""
 function Update()
 	if host then
 		host:flush()

@@ -32,5 +32,3 @@ function DEFINE_BASECLASS(name)
 	
 	BaseClass = Get(name)
 end
-
-print(getmetatable(baseclass))

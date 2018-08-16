@@ -2,7 +2,52 @@ SERVER 	= false
 CLIENT 	= not SERVER
 
 if SERVER then
-	io.stdout:setvbuf("no")
+--	io.stdout:setvbuf("no")
+end
+
+function GetProjectDirectory()
+	return git or ""
+end
+
+INCLUDE_PATH = GetProjectDirectory()
+function include(path)
+	local temp = INCLUDE_PATH
+	INCLUDE_PATH = INCLUDE_PATH .. GetPath(path)
+ 
+	local filename, extension = GetFileDetails(path)
+ 
+	local contents, size = love.filesystem.read(INCLUDE_PATH .. filename .. "." .. extension)
+	if contents then
+		local chunk, err = loadstring(contents)
+		
+		if not chunk then
+			print("runtime error: '" .. path .. "' " .. err)
+		else
+			setfenv(chunk, getfenv(2))
+			
+			local success, err = pcall(chunk)
+			if not success then
+				print("runtime error: '" .. path .. "' - " .. err)
+			end
+		end
+	end
+
+	INCLUDE_PATH = temp
+end
+
+function AddCSLuaFile(path)
+	if path then
+		local filename, extension 	= GetFileDetails(path)
+		local folder 				= GetPath(path)
+		local fullpath 				= INCLUDE_PATH .. folder .. filename .. "." .. extension
+		local contents, size 		= love.filesystem.read(fullpath)
+
+		if contents then
+			downloads.AddContentByType("scripts", fullpath, contents)
+		end
+	else
+		--Add current file to list of files to be downloaded by client
+	end
 end
 
 function love.conf(t)
@@ -56,11 +101,13 @@ function love.conf(t)
 	t.modules.thread 		= true 			-- Enable the thread module (boolean)
 end
 
+local accumulator = 0
+
 function love.run()
 	if love.load then
 		love.load(arg) 
 	end
-	
+		 
 	if love.timer then 
 		love.timer.step()
 	end
@@ -92,7 +139,6 @@ function love.run()
 			frameTime   = love.timer.getDelta()
 		end
 		
-		if love.fixedupdate then
 			time.FixedTimeStepScaled = time.FixedTimeStep * time.TimeScale
 
 			if frameTime > time.MaximumAllowedTimeStep then
@@ -102,12 +148,16 @@ function love.run()
 			accumulator = accumulator + frameTime
 			
 			while accumulator >= time.FixedTimeStep do
-				love.fixedupdate()
+			 if timer then
+		     timer.Update()
+		  end
+		  
+				if love.fixedupate then love.fixedupdate() end
+				
 				accumulator = accumulator - time.FixedTimeStep
 			end
 			
 			time.Alpha = accumulator / time.FixedTimeStep
-		end
 		
 		if love.update then 
 			love.update()

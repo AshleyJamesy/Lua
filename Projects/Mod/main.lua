@@ -1,7 +1,3 @@
-function GetProjectDirectory()
-	return git or ""
-end
-
 function GetFileDetails(filepath)
 	local function greedy(str, cha)
 		local j = nil
@@ -59,6 +55,9 @@ function GetPath(filepath)
 end
 
 function LoadLuaFile(path, env)
+	local temp = INCLUDE_PATH
+	INCLUDE_PATH = GetPath(path)
+	
 	local contents, size = love.filesystem.read(path)
 	if contents then
 		env = env or {}
@@ -77,68 +76,45 @@ function LoadLuaFile(path, env)
 			end
 		end
 	end
+	
+	INCLUDE_PATH = temp
 end
 
-local include_path = ""
-function include(path)
-	local include_pathTemp = include_path
-	include_path = include_path .. GetPath(path)
+include("lua/includes/modules/time.lua")
+include("lua/includes/modules/timer.lua")
+include("lua/includes/extensions/string.lua")
+include("lua/includes/util/utils.lua")
+include("lua/includes/modules/console.lua")
+include("lua/includes/modules/net.lua")
+include("lua/includes/modules/downloads.lua")
+include("lua/includes/modules/baseclass.lua")
+include("lua/includes/modules/entity.lua")
 
-	local filename, extension = GetFileDetails(path)
+ENT = {
+	Base            = "base_entity",
+ ClassName       = "", --comes from folder name
+	Folder          = "", --comes from the directory
+	Spawnable       = false, --Is it spawnable?
+	Editable        = false, --Is it editable?
+ AdminOnly      	= false, --Is it admin spawnable/editable only?
+	Author          = "", --the author
+	Contact         = "", --author contact details
+	Purpose         = "", --what is this used for
+	Instructions    = "", --how is it used
+	PrintName       = "" --a better name than ie; base_entity
+}
 
-	local contents, size = love.filesystem.read(include_path .. filename .. "." .. extension)
-	if contents then
-		local chunk, err = loadstring(contents)
-		
-		if not chunk then
-			print("runtime error: '" .. path .. "' " .. err)
-		else
-			setfenv(chunk, getfenv(2))
-			
-			local success, err = pcall(chunk)
-			if not success then
-				print("runtime error: '" .. path .. "' - " .. err)
-			end
-		end
-	end
-
-	include_path = include_pathTemp
-end
-
-function AddCSLuaFile(path)
-	if path then
-		local filename, extension 	= GetFileDetails(path)
-		local folder 				= GetPath(path)
-		local fullpath 				= include_path .. folder .. filename .. "." .. extension
-		local contents, size 		= love.filesystem.read(fullpath)
-
-		if contents then
-			downloads.AddContentByType("scripts", fullpath, contents)
-		end
-	else
-		--Add current file to list of files to be downloaded by client
-	end
-end
-
-include(GetProjectDirectory() .. "lua/includes/extensions/string.lua")
-include(GetProjectDirectory() .. "lua/includes/modules/console.lua")
-include(GetProjectDirectory() .. "lua/includes/modules/net.lua")
-include(GetProjectDirectory() .. "lua/includes/modules/time.lua")
-include(GetProjectDirectory() .. "lua/includes/modules/baseclass.lua")
-include(GetProjectDirectory() .. "lua/includes/modules/entity.lua")
-
-function LoadEntity()
+function LoadEntity(name)
 	local script = {
-		ENT = {
-			Class 		= "",
-			Folder 		= "",
-			Spawnable 	= "",
-			Editable 	= "",
-			AdminOnly 	= "",
-			Author 		= ""
-		}
+	    ENT = setmetatable({}, ENT),
+	    include = include,
+	    AddCSLuaFile = AddCSLuaFile,
+	    print = print
 	}
-	LoadLuaFile(GetProjectDirectory() .. "lua/entities/entities/my_entity/init.lua", script)
+	
+	LoadLuaFile(GetProjectDirectory() .. "lua/entities/entities/" .. name .. "/init.lua", script)
+ 
+ return script
 end
 
 local entities = {}
@@ -160,6 +136,8 @@ function love.load(arguments)
 	console.AddCommand("send", function(line)
 		net.Broadcast(line)
 	end)
+	
+ local enti = LoadEntity("my_entity")
 end
 
 local commandline = ""
@@ -198,5 +176,5 @@ function love.update()
 end
 
 function love.render()
-	
+    
 end
