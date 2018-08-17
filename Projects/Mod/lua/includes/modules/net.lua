@@ -66,12 +66,10 @@ function Send(index, data, channel, flag)
 end
 
 function love.handlers.incoming_message(index, data)
-	print("message")
 	hook.Call("IncomingMessage", index, data)
 end
 
 function love.handlers.peer_connection(index, data)
-	print("connection")
 	hook.Call("Connection", index, data)
 end
 
