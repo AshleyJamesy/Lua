@@ -141,14 +141,15 @@ function love.load(arguments)
  	end)
  	
  	if SERVER then
- 	hook.Add("Connection", "downloads", function(index, data)
- 	    for i = 1, 10 do
- 	        net.Send(index, {"hello " .. i})
+ 	hook.Add("Connection", "downloads", function(index, packet)
+ 	    for k, v in pairs(downloads.GetContentListByType("script")) do
+ 	        net.Send(index, { type = "script", data = v })
  	    end
  	end)
  	else
- hook.Add("IncomingMessage", "downloads", function(index, data)
- 	    print("message!")
+ hook.Add("IncomingMessage", "downloads", function(index, packet)
+ 	    local data = json.decode(packet)
+ 	    print(dump(data))
  	end)
  	end
 end

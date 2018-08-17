@@ -7,7 +7,7 @@ function AddContentType(name)
 end
 
 function GetContentListByType(name)
-	return Content[name]
+	return Content[name] or {}
 end
 
 function GetContentByType(name, path)
