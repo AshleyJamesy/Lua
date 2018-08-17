@@ -16,20 +16,24 @@ function include(path)
  
 	local filename, extension = GetFileDetails(path)
  
+ --print("loading module: '" .. INCLUDE_PATH .. filename)
+ 
 	local contents, size = love.filesystem.read(INCLUDE_PATH .. filename .. "." .. extension)
 	if contents then
 		local chunk, err = loadstring(contents)
 		
 		if not chunk then
-			print("runtime error: '" .. path .. "' " .. err)
+			print("runtime error: '" .. INCLUDE_PATH .. filename .. "." .. extension .. "' " .. err)
 		else
 			setfenv(chunk, getfenv(2))
 			
 			local success, err = pcall(chunk)
 			if not success then
-				print("runtime error: '" .. path .. "' - " .. err)
+				print("runtime error: '" .. INCLUDE_PATH .. filename .. "." .. extension .. "' - " .. err)
 			end
 		end
+	else
+    print("include error: '" .. INCLUDE_PATH .. filename .. "." .. extension .. "' - does not exist")
 	end
 
 	INCLUDE_PATH = temp

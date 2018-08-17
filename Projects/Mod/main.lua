@@ -80,7 +80,7 @@ function LoadLuaFile(path, env)
 	INCLUDE_PATH = temp
 end
 
-include("lua/includes/extensions/json.lua")
+include("lua/includes/util/json.lua")
 include("lua/includes/modules/time.lua")
 include("lua/includes/modules/timer.lua")
 include("lua/includes/extensions/string.lua")
