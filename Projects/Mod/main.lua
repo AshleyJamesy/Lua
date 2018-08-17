@@ -83,6 +83,8 @@ end
 include("lua/includes/modules/time.lua")
 include("lua/includes/modules/timer.lua")
 include("lua/includes/extensions/string.lua")
+include("lua/includes/util/types.lua")
+include("lua/includes/util/hook.lua")
 include("lua/includes/util/utils.lua")
 include("lua/includes/modules/console.lua")
 include("lua/includes/modules/net.lua")
@@ -128,20 +130,14 @@ function love.load(arguments)
 		net.Init("*:6898", 1)
 		net.Connect("125.63.63.75:6898")
 	end
-
-	console.AddCommand("quit", function(line) 
-	    love.event.push("quit")
-	end)
- 
-	console.AddCommand("send", function(line)
-	    net.Broadcast(line)
-	end)
-	
-	console.AddCommand("clear", function(line)
-	    log = {}
-	end)
 	
  local enti = LoadEntity("my_entity")
+end
+
+if SERVER then
+    hook.Add("Connection", "download", function(index, data)
+	       print("tedt")
+    end)
 end
 
 local commandline = ""

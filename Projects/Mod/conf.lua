@@ -9,8 +9,10 @@ function GetProjectDirectory()
 	return git or ""
 end
 
-INCLUDE_PATH = GetProjectDirectory()
+local INCLUDE_PATH = GetProjectDirectory()
 function include(path)
+	print(path)
+	
 	local temp = INCLUDE_PATH
 	INCLUDE_PATH = INCLUDE_PATH .. GetPath(path)
  

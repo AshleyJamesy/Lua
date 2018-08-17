@@ -66,15 +66,15 @@ function Send(index, data, channel, flag)
 end
 
 function love.handlers.incoming_message(index, data)
-	print(data)
+	hook.Call("IncomingMessage", index, data)
 end
 
 function love.handlers.peer_connection(index, data)
-	print("connection established")
+	hook.Call("Connection", index, data)
 end
 
 function love.handlers.peer_disconnection(index, data)
-	print("disconnection")
+	hook.Call("Disconnection", index, data)
 end
 
 local state = ""
