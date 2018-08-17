@@ -134,21 +134,22 @@ function love.load(arguments)
 	if SERVER then
      local enti = LoadEntity("my_entity")
  end
-end
-
-if SERVER then
-    hook.Add("Connection", "download", function(index, data)
-	       local scripts = downloads.GetContentListByType("script")
-	       for k, v in pairs(scripts) do
-	           if v.data then
-	               net.Send(index, v.data)
-	           end
-	       end
-    end)
-else
-    hook.Add("IncomingMessage", "download", function(index, data)
-	       print(data)
-    end)
+ 
+ console.AddCommand("quit", function()
+ 	    love.event.push("quit")
+ 	end)
+ 	
+ 	if SERVER then
+ 	hook.Add("Connection", "downloads", function(index, data)
+ 	    for i = 1, 10 do
+ 	        net.Send(index, "hello " .. i)
+ 	    end
+ 	end)
+ 	else
+ hook.Add("IncomingMessage", "downloads", function(index, data)
+ 	    print("message!")
+ 	end)
+ 	end
 end
 
 local commandline = ""
