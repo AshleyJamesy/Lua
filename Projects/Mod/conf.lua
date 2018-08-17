@@ -1,8 +1,8 @@
-SERVER 	= true
+SERVER 	= false
 CLIENT 	= not SERVER
 
 if SERVER then
---	io.stdout:setvbuf("no")
+    io.stdout:setvbuf("no")
 end
 
 function GetProjectDirectory()
@@ -55,7 +55,6 @@ function love.conf(t)
 		if v == "-server" then
 			SERVER = true
 			CLIENT = not SERVER
-			print("server")
 		end
 	end
 	

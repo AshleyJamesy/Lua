@@ -130,11 +130,15 @@ function love.load(arguments)
 	end
 
 	console.AddCommand("quit", function(line) 
-		love.event.push("quit")
+	    love.event.push("quit")
 	end)
-
+ 
 	console.AddCommand("send", function(line)
-		net.Broadcast(line)
+	    net.Broadcast(line)
+	end)
+	
+	console.AddCommand("clear", function(line)
+	    log = {}
 	end)
 	
  local enti = LoadEntity("my_entity")
@@ -161,6 +165,7 @@ end
 
 function love.textinput(char)
 	commandline = commandline .. char
+	log[#log] = log[#log] .. char
 end
 
 function love.touchpressed(id, x, y, dx, dy, pressure)
