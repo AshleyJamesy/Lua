@@ -144,9 +144,9 @@ function love.load(arguments)
  	hook.Add("Connection", "downloads", function(index, packet)
  	    print("connection established")
  	    
- 	    dump
+ 	    print(dump(downloads.GetContentListByType("scripts")))
  	    
- 	    for k, v in pairs(downloads.GetContentListByType("script")) do
+ 	    for k, v in pairs(downloads.GetContentListByType("scripts")) do
  	        print("sending client data")
  	        net.Send(index, { type = "script", data = v })
  	    end
