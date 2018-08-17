@@ -1,4 +1,4 @@
-SERVER 	= false
+SERVER 	= love.system.getOS() == "Linux"
 CLIENT 	= not SERVER
 
 if SERVER then
