@@ -1,4 +1,4 @@
-SERVER 	= love.system.getOS() == "Linux"
+SERVER 	= true
 CLIENT 	= not SERVER
 
 if SERVER then
@@ -54,6 +54,8 @@ function love.conf(t)
 	for k, v in pairs(arg) do
 		if v == "-server" then
 			SERVER = true
+			CLIENT = not SERVER
+			print("server")
 		end
 	end
 	
