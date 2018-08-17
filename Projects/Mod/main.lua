@@ -142,7 +142,7 @@ function love.load(arguments)
  	if SERVER then
  	hook.Add("Connection", "downloads", function(index, data)
  	    for i = 1, 10 do
- 	        net.Send(index, "hello " .. i)
+ 	        net.Send(index, {"hello " .. i})
  	    end
  	end)
  	else
