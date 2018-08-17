@@ -143,6 +143,7 @@ function love.load(arguments)
  	if SERVER then
  	hook.Add("Connection", "downloads", function(index, packet)
  	    for k, v in pairs(downloads.GetContentListByType("script")) do
+ 	        print("sending client data")
  	        net.Send(index, { type = "script", data = v })
  	    end
  	end)
