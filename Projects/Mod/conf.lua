@@ -47,7 +47,7 @@ function AddCSLuaFile(path)
 		local contents, size 		= love.filesystem.read(fullpath)
 
 		if contents then
-			downloads.AddContentByType("script", fullpath, contents)
+			downloads.AddContentByType("scripts", fullpath, contents)
 		end
 	else
 		--Add current file to list of files to be downloaded by client
