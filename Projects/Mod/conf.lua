@@ -11,8 +11,6 @@ end
 
 local INCLUDE_PATH = GetProjectDirectory()
 function include(path)
-	print(path)
-	
 	local temp = INCLUDE_PATH
 	INCLUDE_PATH = INCLUDE_PATH .. GetPath(path)
  
@@ -45,7 +43,7 @@ function AddCSLuaFile(path)
 		local contents, size 		= love.filesystem.read(fullpath)
 
 		if contents then
-			downloads.AddContentByType("scripts", fullpath, contents)
+			downloads.AddContentByType("script", fullpath, contents)
 		end
 	else
 		--Add current file to list of files to be downloaded by client

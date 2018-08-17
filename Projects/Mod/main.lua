@@ -131,12 +131,23 @@ function love.load(arguments)
 		net.Connect("125.63.63.75:6898")
 	end
 	
- local enti = LoadEntity("my_entity")
+	if SERVER then
+     local enti = LoadEntity("my_entity")
+ end
 end
 
 if SERVER then
     hook.Add("Connection", "download", function(index, data)
-	       print("tedt")
+	       local scripts = downloads.GetContentListByType("script")
+	       for k, v in pairs(scripts) do
+	           if v.data then
+	               net.Send(index, v.data)
+	           end
+	       end
+    end)
+else
+    hook.Add("IncomingMessage", "download", function(index, data)
+	       print(data)
     end)
 end
 

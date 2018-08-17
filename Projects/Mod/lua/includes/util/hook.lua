@@ -1,5 +1,3 @@
-print("hooks")
-
 module("hook", package.seeall)
 
 local Hooks = {}
