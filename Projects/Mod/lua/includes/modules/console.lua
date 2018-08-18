@@ -1,19 +1,18 @@
 module("console", package.seeall)
 
 local thread = love.thread.newThread([[
-	local channel = ...
-	
+	require("love.event")
+
 	local line = ""	
 	while true do
 		io.flush()
 		line = io.read()
 
-		channel:push(line)
+		love.event.push("console_command", line)
 	end
 ]])
 
-local channel = love.thread.newChannel()
-thread:start(channel)
+thread:start()
 
 local commands = {}
 
@@ -30,7 +29,7 @@ function RemoveCommand(name)
 	commands[name] = nil
 end
 
-function Run(line)
+function love.handlers.console_command(line)
 	if line then
 		local arguments = string.split(line, " ")
 		local command = arguments[1]
@@ -45,14 +44,5 @@ function Run(line)
 				print("command '" .. command .. "' does not exist")
 			end
 		end
-	end
-end
-
-function Update()
-	local line = channel:pop()
-	while line do
-		Run(line)
-		
-		line = channel:pop()
 	end
 end

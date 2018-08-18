@@ -1,9 +1,7 @@
 SERVER 	= false
 CLIENT 	= not SERVER
 
-if SERVER then
-    io.stdout:setvbuf("no")
-end
+io.stdout:setvbuf("no")
 
 function GetProjectDirectory()
 	return git or ""

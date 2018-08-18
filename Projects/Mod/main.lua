@@ -94,105 +94,69 @@ include("lua/includes/modules/baseclass.lua")
 include("lua/includes/modules/entity.lua")
 
 ENT = {
-	Base            = "base_entity",
- ClassName       = "", --comes from folder name
-	Folder          = "", --comes from the directory
-	Spawnable       = false, --Is it spawnable?
-	Editable        = false, --Is it editable?
- AdminOnly      	= false, --Is it admin spawnable/editable only?
-	Author          = "", --the author
-	Contact         = "", --author contact details
-	Purpose         = "", --what is this used for
-	Instructions    = "", --how is it used
-	PrintName       = "" --a better name than ie; base_entity
+	Base 			= "base_entity",
+	ClassName 		= "", --comes from folder name
+	Folder 			= "", --comes from the directory
+	Spawnable 		= false, --Is it spawnable?
+	Editable 		= false, --Is it editable?
+	AdminOnly 		= false, --Is it admin spawnable/editable only?
+	Author 			= "", --the author
+	Contact 		= "", --author contact details
+	Purpose 		= "", --what is this used for
+	Instructions 	= "", --how is it used
+	PrintName 		= "" --a better name than ie; base_entity
 }
 
 function LoadEntity(name)
 	local script = {
-	    ENT = setmetatable({}, ENT),
-	    include = include,
-	    AddCSLuaFile = AddCSLuaFile,
-	    print = print
+		ENT 			= setmetatable({}, ENT),
+		include 		= include,
+		AddCSLuaFile 	= AddCSLuaFile,
+		print 			= print
 	}
 	
 	LoadLuaFile(GetProjectDirectory() .. "lua/entities/entities/" .. name .. "/init.lua", script)
- 
- return script
+	
+	return script
 end
-
-local entities = {}
 
 function love.load(arguments)
 	if SERVER then
-		print("starting server")
+		print("server")
 		net.Init("*:6898", 12)
 	else
-		print("starting client")
+		print("client")
 		net.Init("*:6899", 1)
 		net.Connect("125.63.63.75:6898")
 	end
 	
 	if SERVER then
-     local enti = LoadEntity("my_entity")
- 	end
- 	
- 	console.AddCommand("quit", function()
- 	    love.event.push("quit")
- 	end)
+		local enti = LoadEntity("my_entity")
+	end
+	
+	console.AddCommand("quit", function() love.event.push("quit") end)
 
- 	if SERVER then
-	 	hook.Add("NetworkConnection", "downloads", function(index, packet, latency)
-	 	    print("connection established")
-	 	    
-	 	    for k, v in pairs(downloads.GetContentListByType("scripts")) do
-	 	        print("sending client data")
-	 	        net.Send(index, json.encode({ type = "script", data = v }))
-	 	    end
-	 	end)
- 	else
- 	
- 	hook.Add("NetworkMessage", "downloads", function(index, packet)
- 		print(index, packet)
- 	end)
- 	end
-end
-
-local commandline = ""
-function love.keypressed(key)
-	if key == "escape" then
-		if love.keyboard.hasTextInput() then
-			love.keyboard.setTextInput(false)
-		else
-			love.event.push("quit")
-		end
+	if SERVER then
+		hook.Add("NetworkConnection", "downloads", function(index, packet, latency)
+			for k, v in pairs(downloads.GetContentListByType("scripts")) do
+				net.Send(index, json.encode({ type = "script", data = v }))
+			end
+		end)
+	else
+		hook.Add("NetworkMessage", "downloads", function(index, packet)
+			print(index, packet)
+		end)
 	end
 
-	if key == "return" then
-		if love.keyboard.hasTextInput() then
-			love.keyboard.setTextInput(false)
-			console.Run(commandline)
-			commandline = ""
-		end
-	end
-end
-
-function love.textinput(char)
-	commandline = commandline .. char
-	log[#log] = log[#log] .. char
-end
-
-function love.touchpressed(id, x, y, dx, dy, pressure)
-	if not love.keyboard.hasTextInput() then
-		love.keyboard.setTextInput(true)
-	end
+	hook.Add("NetworkState", "test", function(index, state)
+		print(index, state)
+	end)
 end
 
 function love.update()
-	if console then
-		console.Update()
-	end
+
 end
 
 function love.render()
-    
+	
 end
