@@ -122,6 +122,9 @@ function LoadEntity(name)
 	return script
 end
 
+local players = {}
+local objects = {}
+
 function love.load(arguments)
 	if SERVER then
 		print("server")
@@ -131,26 +134,92 @@ function love.load(arguments)
 		net.Init("*:6898", 1)
 		net.Connect("125.63.63.75:6898")
 	end
-	
+
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit") 
 	end)
-	
+
 	if SERVER then
-		timer.Create("test", 1000, 0, function(i)
-			net.Start("reminder")
-			net.WriteString("Here is a reminder that has run " .. i .. " times!")
+		hook.Add("Connection", function(index)
+			local id = #objects + 1
+			
+			objects[id] = 
+			{
+				owner 	= index,
+				x 		= 0,
+				y 		= 0
+			}
+
+			players[index] = objects[id]
+
+			net.Start("create")
+			net.WriteInt(id)
+			net.WriteFloat(0)
+			net.WriteFloat(0)
 			net.Broadcast()
+		end)
+		
+		net.Receive("input", function(index)
+			local key = net.ReadString()
+
+			if key == "a" then
+				players[index].x = players[index].x - 10
+			end
+
+			if key == "d" then
+				players[index].x = players[index].x + 10
+			end
 		end)
 	end
 	
 	if CLIENT then
-		net.Receive("reminder", function()
-			print(net.ReadString())
+		net.Receive("create", function(index)
+			objects[net.ReadInt()] = {
+				x = net.ReadFloat(),
+				y = net.ReadFloat()
+			}
+		end)
+		
+		net.Receive("update", function(index)
+			local id = net.ReadInt()
+			if objects[id] then
+				objects[id].x = net.ReadFloat()
+				objects[id].y = net.ReadFloat()
+			end
 		end)
 	end
 end
 
 function love.update()
+	if SERVER then
+		for k, v in pairs(objects) do
+			net.Start("update")
+			net.WriteInt(k)
+			net.WriteFloat(v.x)
+			net.WriteFloat(v.y)
+			net.Broadcast()
+		end
+	end
 
+	if CLIENT then
+		if love.keyboard.isDown("a") then
+			net.Start("input")
+			net.WriteString("a")
+			net.Broadcast()
+		end
+
+		if love.keyboard.isDown("d") then
+			net.Start("input")
+			net.WriteString("d")
+			net.Broadcast()
+		end
+	end
+end
+
+function love.render()
+	if CLIENT then
+		for k, v in pairs(objects) do
+			love.graphics.rectangle("fill", v.x, v.y, 100, 100)
+		end
+	end
 end
