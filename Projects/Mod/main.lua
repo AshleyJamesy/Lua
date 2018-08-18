@@ -126,12 +126,8 @@ function love.load(arguments)
 		net.Init("*:6898", 12)
 	else
 		print("client")
-		net.Init("*:6899", 1)
+		net.Init("*:6898", 1)
 		net.Connect("125.63.63.75:6898")
-	end
-	
-	if SERVER then
-		local enti = LoadEntity("my_entity")
 	end
 	
 	console.AddCommand("send", function(line) 
@@ -142,27 +138,23 @@ function love.load(arguments)
 		love.event.push("quit") 
 	end)
 
-	if SERVER then
-		hook.Add("NetworkConnection", "downloads", function(index, packet, latency)
-			for k, v in pairs(downloads.GetContentListByType("scripts")) do
-				net.Send(index, json.encode({ type = "script", data = v }))
-			end
-		end)
+	net.Receive("MyNetworkMessage", function(player)
+		print("Message Received")
+	end)
+
+	if CLIENT then
+		net.Start("MyNetworkMessage")
+		net.WriteString("u cunt")
+		net.Broadcast()
 	end
-	
-	hook.Add("NetworkMessage", "downloads", function(index, packet)
-		print(index, packet)
-	end)
-	
-	hook.Add("NetworkState", "test", function(index, state)
-		print(index, state)
-	end)
 end
 
 function love.update()
 
 end
 
-function love.render()
-	
+if CLIENT then
+	function love.render()
+		
+	end
 end

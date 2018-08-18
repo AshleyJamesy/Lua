@@ -89,28 +89,130 @@ function Connect(address)
 	end
 end
 
-function Send(index, data)
-	if thread and channel then
-		channel:push({
-			action 	= "send",
-			to 		= index,
-			data 	= data
-		})
-	end
+local network_send_message 	= ""
+local network_read_message 	= ""
+local network_index 		= 1
+local network_pack 			= love.data.pack
+local network_unpack 		= love.data.unpack
+
+function Start(message)
+	network_send_message = network_pack("string", "s", message)
 end
 
-function Broadcast(data)
-	if thread and channel then
-		channel:push({
-			action 	= "send",
-			to 		= nil,
-			data 	= data
-		})
+function WriteBool(bool)
+	network_send_message = network_send_message .. network_pack("string", "B", bool and 1 or 0)
+end
+
+function ReadBool()
+	local n, bytes = network_unpack("B", network_read_message, index)
+	index = bytes
+
+	return n == 1
+end
+
+function WriteInt(int)
+	network_send_message = network_send_message .. network_pack("string", "j", int)
+end
+
+function ReadInt()
+	local i, bytes = network_unpack("j", network_read_message, index)
+	index = bytes
+
+	return i
+end
+
+function WriteColour(r, g, b)
+	network_send_message = network_send_message .. network_pack("string", "B", r)
+	network_send_message = network_send_message .. network_pack("string", "B", g)
+	network_send_message = network_send_message .. network_pack("string", "B", b)
+end
+
+function ReadColour()
+	local r, bytes = network_unpack("B", network_read_message, index)
+	index = bytes
+	local g, bytes = network_unpack("B", network_read_message, index)
+	index = bytes
+	local b, bytes = network_unpack("B", network_read_message, index)
+	index = bytes
+
+	return r, g, b
+end
+
+function WriteFloat(float)
+	network_send_message = network_send_message .. network_pack("string", "f", float)
+end
+
+function ReadFloat()
+	local float, bytes = network_unpack("f", network_read_message, index)
+	index = bytes
+
+	return float
+end
+
+function WriteDouble(double)
+	network_send_message = network_send_message .. network_pack("string", "d", double)
+end
+
+function ReadDouble()
+	local double, bytes = network_unpack("d", network_read_message, index)
+	index = bytes
+	
+	return double
+end
+
+function WriteString(string)
+	network_send_message = network_send_message .. network_pack("string", "s", string)
+end
+
+function ReadString()
+	local string, bytes = network_unpack("s", network_read_message, index)
+	index = bytes
+
+	return string
+end
+
+function Send(player)
+	
+end
+
+function SendToServer()
+	
+end
+
+function Broadcast()
+	channel:push({
+		action 	= "send",
+		data 	= network_send_message
+	})
+
+	network_send_message = ""
+end
+
+local callbacks = {
+	
+}
+
+function Receive(message, callback)
+	if not callbacks[message] then
+		callbacks[message] = {}
 	end
+
+	table.insert(callbacks[message], #callbacks[message] + 1, callback)
 end
 
 function love.handlers.network_message(index, data)
-	hook.Call("NetworkMessage", index, data)
+	network_index = 1
+	
+	local string, bytes = network_unpack("s", data, network_index)
+	network_read_message 	= string
+	network_index 			= bytes
+	
+	if callbacks[string] then
+		for k, v in pairs(callbacks[string]) do
+			v(index)
+			network_index = bytes
+		end
+	end
 end
 
 function love.handlers.network_connection(index, data)

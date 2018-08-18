@@ -46,15 +46,4 @@ function Call(event, ...)
 			end
 		end
 	end
-
-	if not gamemode then 
-		return
-	end
-
-	local gmfunc = gamemode[name] 
-	if not gmfunc then 
-		return
-	end
-
-	return gmfunc(gamemode, ...)
 end
