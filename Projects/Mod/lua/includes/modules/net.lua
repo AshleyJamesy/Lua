@@ -47,6 +47,7 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 				while outgoing do
 					if outgoing.action == "send" then
 						if outgoing.to == nil then
+							print("broadcasting message")
 							host:broadcast(outgoing.data, outgoing.channel, outgoing.flag)
 						else
 							if host:get_peer(outgoing.to) then
@@ -201,6 +202,8 @@ function Receive(message, callback)
 end
 
 function love.handlers.network_message(index, data)
+	print("decoding message")
+
 	network_index = 1
 	
 	local string, bytes = network_unpack("s", data, network_index)
@@ -225,4 +228,6 @@ end
 
 function love.handlers.network_state(index, state)
 	hook.Call("NetworkState", index, state)
+
+	print("id:", index, state)
 end

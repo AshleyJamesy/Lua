@@ -142,15 +142,17 @@ function love.load(arguments)
 		print("Message Received")
 	end)
 
-	if CLIENT then
-		net.Start("MyNetworkMessage")
-		net.WriteString("u cunt")
-		net.Broadcast()
-	end
+	hook.Add("NetworkConnection", function()
+		if CLIENT then
+			net.Start("MyNetworkMessage")
+			net.WriteString("u cunt")
+			net.Broadcast()
+		end
+	end)
 end
 
 function love.update()
-
+	
 end
 
 if CLIENT then
