@@ -211,6 +211,7 @@ function love.handlers.network_message(index, data)
 end
 
 function love.handlers.network_connection(index)
+	print("TEST")
 	hook.Call("NetworkConnection", index)
 end
 
