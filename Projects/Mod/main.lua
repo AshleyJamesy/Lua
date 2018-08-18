@@ -129,7 +129,7 @@ function love.load(arguments)
 	else
 		print("starting client")
 		net.Init("*:6899", 1)
-		net.Connect("*:6898")
+		net.Connect("125.63.63.75:6898")
 	end
 	
 	if SERVER then
@@ -140,7 +140,6 @@ function love.load(arguments)
  	    love.event.push("quit")
  	end)
 
- 	--[[
  	if SERVER then
 	 	hook.Add("Connection", "downloads", function(index, packet)
 	 	    print("connection established")
@@ -159,7 +158,6 @@ function love.load(arguments)
  	    print(dump(data))
  	end)
  	end
- 	]]
 end
 
 local commandline = ""

@@ -42,7 +42,7 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 						love.event.push("network_state", i, states[i])
 					end
 				end
-
+				
 				local outgoing = ch_send:pop()
 				while outgoing do
 					if outgoing.type == "packet" then
@@ -55,7 +55,6 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 						end
 					else
 						if outgoing.action == "connect" then
-							print("TEST")
 							host:connect(outgoing.address)
 						end
 
@@ -91,17 +90,17 @@ function Connect(address)
 end
 
 function love.handlers.network_message(index, data)
-	hook.Call("IncomingMessage", index, data)
+	hook.Call("NetworkMessage", index, data)
 end
 
 function love.handlers.network_connection(index, data)
-	hook.Call("Connection", index, data)
+	hook.Call("NetworkConnection", index, data)
 end
 
 function love.handlers.network_disconnection(index, data)
-	hook.Call("Disconnection", index, data)
+	hook.Call("NetworkDisconnection", index, data)
 end
 
 function love.handlers.network_state(index, state)
-	print(index, state)
+	hook.Call("NetworkState", index, state)
 end
