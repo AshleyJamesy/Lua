@@ -134,8 +134,14 @@ function love.load(arguments)
 		local enti = LoadEntity("my_entity")
 	end
 	
-	console.AddCommand("quit", function() love.event.push("quit") end)
+	console.AddCommand("send", function(line) 
+		net.Broadcast(line) 
+	end)
 	
+	console.AddCommand("quit", function(line) 
+		love.event.push("quit") 
+	end)
+
 	if SERVER then
 		hook.Add("NetworkConnection", "downloads", function(index, packet, latency)
 			for k, v in pairs(downloads.GetContentListByType("scripts")) do
