@@ -137,7 +137,7 @@ function love.load(arguments)
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit") 
 	end)
-	
+
 	net.Receive("MyNetworkMessage", function(player)
 		print("Message Received", net.ReadString())
 	end)
@@ -152,7 +152,7 @@ function love.load(arguments)
 end
 
 function love.update()
-	
+
 end
 
 if CLIENT then

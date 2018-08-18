@@ -188,9 +188,7 @@ function Broadcast()
 	network_send_message = ""
 end
 
-local callbacks = {
-	
-}
+local callbacks = {}
 
 function Receive(message, callback)
 	if not callbacks[message] then
@@ -201,14 +199,11 @@ function Receive(message, callback)
 end
 
 function love.handlers.network_message(index, data)
-	print("decoding message")
-
 	network_index = 1
 	
 	local string, bytes = network_unpack("s", data, network_index)
-	network_read_message 	= string
-	network_index 			= bytes
-	
+	network_index = bytes
+
 	if callbacks[string] then
 		for k, v in pairs(callbacks[string]) do
 			v(index)
