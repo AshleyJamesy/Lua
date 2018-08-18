@@ -8,10 +8,9 @@ function Create(identifier, delay, repetitions, func)
 		active 		= true,
 		time 		= delay,
 		delay 		= delay,
-		iterations 	= repetitions,
+		iterations 	= 1,
 		max 		= repetitions,
 		callback 	= func,
-		loop 		= repetitions == 0
 	}
 end
 
@@ -25,7 +24,6 @@ function Simple(delay, func)
 		iterations 	= 1,
 		max 		= 1,
 		callback 	= func,
-		loop 		= false
 	}
 end
 
@@ -64,23 +62,22 @@ function Update()
 
 	for k, timer in pairs(timers) do
 		if timer.active then
-		timer.time = timer.time  - deduct
-		
-		if timer.time <= 0 then
-			timer.callback(timer.max - timer.iterations + 1)
+			timer.time = timer.time  - deduct
 			
-			if timer.loop then
-				timer.time = timer.delay + timer.time
-			else
-				timer.iterations = timer.iterations - 1
+			if timer.time <= 0 then
+				timer.callback(timer.iterations)
+				timer.iterations = timer.iterations + 1
 				
-				if timer.iterations < 1 then
-					timers[k] = nil
+				if timer.max > 0 then
+					if timer.iterations > timer.max then
+						timers[k] = nil
+					else
+						timer.time = timer.delay
+					end
 				else
-					timer.time = timer.delay
+					timer.time = timer.delay + timer.time
 				end
 			end
-		end
 		end
 	end
 end
