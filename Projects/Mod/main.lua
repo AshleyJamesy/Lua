@@ -140,7 +140,7 @@ function love.load(arguments)
 	end)
 
 	if SERVER then
-		hook.Add("NetworkConnection", "inital player", function(index)
+		hook.Add("NetworkConnection", "player", function(index)
 			print("NetworkConnection!")
 
 			local id = #objects + 1
@@ -152,8 +152,9 @@ function love.load(arguments)
 				y 		= 0
 			}
 
-			print(objects[id])
 			players[index] = objects[id]
+
+			print("creating player with object id:", id)
 
 			net.Start("create")
 			net.WriteInt(id)
@@ -175,6 +176,16 @@ function love.load(arguments)
 				end
 			end
 		end)
+
+		timer.Create("update", 100, 0, function()
+			for k, v in pairs(objects) do
+				net.Start("update")
+				net.WriteInt(k)
+				net.WriteFloat(v.x)
+				net.WriteFloat(v.y)
+				net.Broadcast()
+			end
+		end)
 	end
 
 	if CLIENT then
@@ -183,41 +194,32 @@ function love.load(arguments)
 				x = net.ReadFloat(),
 				y = net.ReadFloat()
 			}
+			
+			print("creating object with id", net.ReadInt())
 		end)
 
 		net.Receive("update", function(index)
 			local id = net.ReadInt()
+
 			if objects[id] then
 				objects[id].x = net.ReadFloat()
 				objects[id].y = net.ReadFloat()
 			end
 		end)
-	end
-end
 
-function love.update()
-	if SERVER then
-		for k, v in pairs(objects) do
-			net.Start("update")
-			net.WriteInt(k)
-			net.WriteFloat(v.x)
-			net.WriteFloat(v.y)
-			net.Broadcast()
-		end
-	end
+		timer.Create("input", 100, 0, function()
+			if love.keyboard.isDown("a") then
+				net.Start("input")
+				net.WriteString("a")
+				net.Broadcast()
+			end
 
-	if CLIENT then
-		if love.keyboard.isDown("a") then
-			net.Start("input")
-			net.WriteString("a")
-			net.Broadcast()
-		end
-
-		if love.keyboard.isDown("d") then
-			net.Start("input")
-			net.WriteString("d")
-			net.Broadcast()
-		end
+			if love.keyboard.isDown("d") then
+				net.Start("input")
+				net.WriteString("d")
+				net.Broadcast()
+			end
+		end)
 	end
 end
 
