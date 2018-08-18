@@ -165,6 +165,7 @@ function WriteString(string)
 end
 
 function ReadString()
+	print("reading string:", network_read_message, network_index)
 	local string, bytes = network_unpack("s", network_read_message, network_index)
 	network_index = bytes
 
@@ -202,12 +203,11 @@ function love.handlers.network_message(index, data)
 	network_index = 1
 	
 	local string, bytes = network_unpack("s", data, network_index)
-	network_index = bytes
 
 	if callbacks[string] then
 		for k, v in pairs(callbacks[string]) do
-			v(index)
 			network_index = bytes
+			v(index)
 		end
 	end
 end
