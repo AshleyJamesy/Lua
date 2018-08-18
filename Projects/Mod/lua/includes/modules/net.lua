@@ -203,9 +203,6 @@ end
 function love.handlers.network_message(index, data)
 	local string, bytes 	= network_unpack("s", data, 1)
 	network_read_message 	= data
-
-	print(string)
-	print(callbacks[string])
 	
 	if callbacks[string] then
 		for k, v in pairs(callbacks[string]) do
