@@ -156,11 +156,13 @@ function love.load(arguments)
 
 			print("creating player with object id:", id)
 
-			net.Start("create")
-			net.WriteInt(id)
-			net.WriteFloat(0)
-			net.WriteFloat(0)
-			net.Broadcast()
+			for k, v in pairs(objects) do
+				net.Start("create")
+					net.WriteInt(id)
+					net.WriteFloat(0)
+					net.WriteFloat(0)
+				net.Broadcast()
+			end
 		end)
 
 		net.Receive("input", function(index)
@@ -177,7 +179,7 @@ function love.load(arguments)
 			end
 		end)
 
-		timer.Create("update", 100, 0, function()
+		timer.Create("update", 10, 0, function()
 			for k, v in pairs(objects) do
 				net.Start("update")
 				net.WriteInt(k)
@@ -190,12 +192,13 @@ function love.load(arguments)
 
 	if CLIENT then
 		net.Receive("create", function(index)
-			objects[net.ReadInt()] = {
+			local id = net.ReadInt()
+			objects[id] = {
 				x = net.ReadFloat(),
 				y = net.ReadFloat()
 			}
-			
-			print("creating object with id", net.ReadInt())
+
+			print("creating object with id", id)
 		end)
 
 		net.Receive("update", function(index)
@@ -207,7 +210,7 @@ function love.load(arguments)
 			end
 		end)
 
-		timer.Create("input", 100, 0, function()
+		timer.Create("input", 10, 0, function()
 			if love.keyboard.isDown("a") then
 				net.Start("input")
 				net.WriteString("a")
