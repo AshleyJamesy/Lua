@@ -27,7 +27,7 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 					if packet.type == "receive" then
 						love.event.push("network_message", packet.peer:index(), packet.data, packet.peer:round_trip_time())
 					elseif packet.type == "connect" then
-						love.event.push("network_connection", packet.peer:index(), packet.data)
+						love.event.push("network_connection", packet.peer:index())
 					elseif packet.type == "disconnect" then
 						love.event.push("network_disconnection", packet.peer:index(), packet.data)
 					end
@@ -220,6 +220,8 @@ end
 
 function love.handlers.network_connection(index, data)
 	hook.Call("NetworkConnection", index, data)
+
+	print("connection")
 end
 
 function love.handlers.network_disconnection(index, data)
