@@ -92,7 +92,7 @@ end
 function Send(index, data)
 	if thread and channel then
 		channel:push({
-			action 	= "send"
+			action 	= "send",
 			to 		= index,
 			data 	= data
 		})
@@ -102,7 +102,7 @@ end
 function Broadcast(data)
 	if thread and channel then
 		channel:push({
-			action 	= "send"
+			action 	= "send",
 			to 		= nil,
 			data 	= data
 		})
