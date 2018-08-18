@@ -104,8 +104,8 @@ function WriteBool(bool)
 end
 
 function ReadBool()
-	local n, bytes = network_unpack("B", network_read_message, index)
-	index = bytes
+	local n, bytes = network_unpack("B", network_read_message, network_index)
+	network_index = bytes
 
 	return n == 1
 end
@@ -115,8 +115,8 @@ function WriteInt(int)
 end
 
 function ReadInt()
-	local i, bytes = network_unpack("j", network_read_message, index)
-	index = bytes
+	local i, bytes = network_unpack("j", network_read_message, network_index)
+	network_index = bytes
 
 	return i
 end
@@ -128,12 +128,12 @@ function WriteColour(r, g, b)
 end
 
 function ReadColour()
-	local r, bytes = network_unpack("B", network_read_message, index)
-	index = bytes
-	local g, bytes = network_unpack("B", network_read_message, index)
-	index = bytes
-	local b, bytes = network_unpack("B", network_read_message, index)
-	index = bytes
+	local r, bytes = network_unpack("B", network_read_message, network_index)
+	network_index = bytes
+	local g, bytes = network_unpack("B", network_read_message, network_index)
+	network_index = bytes
+	local b, bytes = network_unpack("B", network_read_message, network_index)
+	network_index = bytes
 
 	return r, g, b
 end
@@ -143,8 +143,8 @@ function WriteFloat(float)
 end
 
 function ReadFloat()
-	local float, bytes = network_unpack("f", network_read_message, index)
-	index = bytes
+	local float, bytes = network_unpack("f", network_read_message, network_index)
+	network_index = bytes
 
 	return float
 end
@@ -154,8 +154,8 @@ function WriteDouble(double)
 end
 
 function ReadDouble()
-	local double, bytes = network_unpack("d", network_read_message, index)
-	index = bytes
+	local double, bytes = network_unpack("d", network_read_message, network_index)
+	network_index = bytes
 	
 	return double
 end
@@ -165,8 +165,8 @@ function WriteString(string)
 end
 
 function ReadString()
-	local string, bytes = network_unpack("s", network_read_message, index)
-	index = bytes
+	local string, bytes = network_unpack("s", network_read_message, network_index)
+	network_index = bytes
 
 	return string
 end
