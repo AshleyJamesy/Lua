@@ -136,11 +136,11 @@ function love.load(arguments)
      local enti = LoadEntity("my_entity")
  	end
  	
- 	--[[
  	console.AddCommand("quit", function()
  	    love.event.push("quit")
  	end)
- 	
+
+ 	--[[
  	if SERVER then
 	 	hook.Add("Connection", "downloads", function(index, packet)
 	 	    print("connection established")
