@@ -118,10 +118,6 @@ function love.run()
 	end
 	
 	while true do
-		if net then
-			net.Update()
-		end
-		
 		if love.event then
 			love.event.pump()
 			

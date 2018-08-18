@@ -1,120 +1,107 @@
 module("net", package.seeall)
 
-local ENET = require("enet")
+local thread, channel
 
-local host = nil
-local connections = {}
+function Init(address, maxplayers, maxchannels, incoming, outgoing)
+	channel = love.thread.newChannel()
 
-function Connect(address, callback)
-	host:connect(address)
- 
-	print("connecting to '" .. address .. "'")
+	thread = love.thread.newThread([[
+		local config, ch_send = ...
+
+		require("love.event")
+		local enet = require("enet")
+		
+		host = enet.host_create(config.address, config.maxplayers, config.maxchannels, config.incoming, config.outgoing)
+
+		local states = {}
+		for i = 1, config.maxplayers do
+			states[i] = "disconnected"
+		end
+
+		while true do
+			if host then
+				host:flush()
+
+				local packet = host:service()
+				while packet do
+					if packet.type == "receive" then
+						love.event.push("network_message", packet.peer:index(), packet.data, packet.peer:round_trip_time())
+					elseif packet.type == "connect" then
+						love.event.push("network_connection", packet.peer:index(), packet.data)
+					elseif packet.type == "disconnect" then
+						love.event.push("network_disconnection", packet.peer:index(), packet.data)
+					end
+					
+					packet = host:service()
+				end
+
+				for i = 1, config.maxplayers do
+					if states[i] ~= host:get_peer(i):state() then
+						states[i] = host:get_peer(i):state()
+
+						love.event.push("network_state", i, states[i])
+					end
+				end
+
+				local outgoing = ch_send:pop()
+				while outgoing do
+					if outgoing.type == "packet" then
+						if outgoing.to == nil then
+							host:broadcast(outgoing.data, outgoing.channel, outgoing.flag)
+						else
+							if host:get_peer(outgoing.to) then
+								host:get_peer(outgoing.to):send(outgoing.data, outgoing.channel, outgoing.flag)
+							end
+						end
+					else
+						if outgoing.action == "connect" then
+							print("TEST")
+							host:connect(outgoing.address)
+						end
+
+						if outgoing.action == "disconnect" then
+							host:get_peer(outgoing.to):disconnect_later(1)
+						end
+					end
+
+					outgoing = ch_send:pop()
+				end
+			end
+		end
+	]])
+
+	local configuration = {
+		address 		= address,
+		maxplayers 		= maxplayers,
+		maxchannels 	= maxchannels,
+		incoming 		= incoming,
+		outgoing 		= outgoing
+	}
+
+	thread:start(configuration, channel)
 end
 
-function GetConnections()
-	local t = {}
-	for k, v in pairs(connections) do
-		t[k] = v
+function Connect(address)
+	if thread and channel then
+		channel:push({
+			action 	= "connect",
+			address = address
+		})
 	end
-	
-	return t
 end
 
-function Init(address, connections_max, channels_max, incoming, outgoing)
-	host = 
-		ENET.host_create(address, connections_max, channels_max, incoming, outgoing)
-end
-
-function SetChannelLimit(n)
-	host:channel_limit(n)
-end
-
-function SetBandwidthLimit(incoming, outgoing)
-	host:bandwidth_limit(incoming, outgoing)
-end
-
-function Broadcast(data, channel, flag)
-	host:broadcast(json.encode(data), channel, flag)
-end
-
-function Peer(index)
-	return host:get_peer(index)
-end
-
-function Disconnect(index, message)
-	local peer = Class.host:get_peer(index)
-
-	--if message then
-		--disconnect_network.data[1] = message
-		--local encoded = json.encode(disconnect_network)
-		--peer:send(encoded)
-	--end
-
-	peer:disconnect_later(1)
-end
-
-function Latency(index)
-	host:get_peer(index):round_trip_time()
-end
-
-function State(index)
-	host:get_peer(index):state()
-end
-
-function Send(index, data, channel, flag)
-	host:get_peer(index):send(json.encode(data), channel, flag)
-end
-
-function love.handlers.incoming_message(index, data)
+function love.handlers.network_message(index, data)
 	hook.Call("IncomingMessage", index, data)
 end
 
-function love.handlers.peer_connection(index, data)
+function love.handlers.network_connection(index, data)
 	hook.Call("Connection", index, data)
 end
 
-function love.handlers.peer_disconnection(index, data)
+function love.handlers.network_disconnection(index, data)
 	hook.Call("Disconnection", index, data)
 end
 
-local state = ""
-function Update()
-	if host then
-		host:flush()
-
-		local packet = host:service()
-		while packet do
-			if packet.type == "receive" then
-				love.event.push("incoming_message", packet.peer:index(), packet.data)
-			elseif packet.type == "connect" then
-				love.event.push("peer_connection", packet.peer:index(), packet.data)
-			elseif packet.type == "disconnect" then
-				love.event.push("peer_disconnection", packet.peer:index(), packet.data)
-			end
-			
-			packet = host:service()
-		end
-	end
+function love.handlers.network_state(index, state)
+	print(index, state)
 end
-
---[[
-hook.Add("connection", "network", function(index, data)
-	table.insert(connections, 1, Class.host:get_peer(index))
-
-	print("connection established")
-end)
-
-hook.Add("disconnection", "network", function(index, data)
-	for k, v in pairs(connections) do
-		if index == v:index() then
-			table.remove(connections, k)
-		end
-	end
-
-	print("user disconnection")
-end)
-
-hook.Add("OnDisconnect", "network", function(index, message)
-	print(index .. " " .. message)
-end)
-]]

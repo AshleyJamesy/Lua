@@ -125,38 +125,41 @@ local entities = {}
 function love.load(arguments)
 	if SERVER then
 		print("starting server")
-		net.Init("*:6898", 32)
+		net.Init("*:6898", 12)
 	else
 		print("starting client")
-		net.Init("*:6898", 1)
-		net.Connect("125.63.63.75:6898")
+		net.Init("*:6899", 1)
+		net.Connect("*:6898")
 	end
 	
 	if SERVER then
      local enti = LoadEntity("my_entity")
- end
- 
- console.AddCommand("quit", function()
+ 	end
+ 	
+ 	--[[
+ 	console.AddCommand("quit", function()
  	    love.event.push("quit")
  	end)
  	
  	if SERVER then
- 	hook.Add("Connection", "downloads", function(index, packet)
- 	    print("connection established")
- 	    
- 	    print(dump(downloads.GetContentListByType("scripts")))
- 	    
- 	    for k, v in pairs(downloads.GetContentListByType("scripts")) do
- 	        print("sending client data")
- 	        net.Send(index, { type = "script", data = v })
- 	    end
- 	end)
+	 	hook.Add("Connection", "downloads", function(index, packet)
+	 	    print("connection established")
+	 	    
+	 	    print(dump(downloads.GetContentListByType("scripts")))
+	 	    
+	 	    for k, v in pairs(downloads.GetContentListByType("scripts")) do
+	 	        print("sending client data")
+	 	        net.Send(index, { type = "script", data = v })
+	 	    end
+	 	end)
  	else
- hook.Add("IncomingMessage", "downloads", function(index, packet)
+ 	
+ 	hook.Add("IncomingMessage", "downloads", function(index, packet)
  	    local data = json.decode(packet)
  	    print(dump(data))
  	end)
  	end
+ 	]]
 end
 
 local commandline = ""
