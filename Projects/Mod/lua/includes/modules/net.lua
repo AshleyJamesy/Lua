@@ -210,8 +210,8 @@ function love.handlers.network_message(index, data)
 	end
 end
 
-function love.handlers.network_connection(index, data)
-	hook.Call("NetworkConnection", index, data)
+function love.handlers.network_connection(index)
+	hook.Call("NetworkConnection", index)
 end
 
 function love.handlers.network_disconnection(index, data)

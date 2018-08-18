@@ -112,6 +112,8 @@ function LoadEntity(name)
 		ENT 			= setmetatable({}, ENT),
 		include 		= include,
 		AddCSLuaFile 	= AddCSLuaFile,
+		console 		= console,
+		net 			= net,
 		print 			= print
 	}
 	
@@ -130,27 +132,25 @@ function love.load(arguments)
 		net.Connect("125.63.63.75:6898")
 	end
 	
-	console.AddCommand("send", function(line) 
-		net.Start("MyNetworkMessage")
-		net.WriteString(line)
-		net.Broadcast()
-	end)
-	
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit") 
 	end)
 	
-	net.Receive("MyNetworkMessage", function(player)
-		print("Message Received", net.ReadString())
-	end)
+	if SERVER then
+		timer.Create("test", 1000, 0, function(i)
+			net.Start("reminder")
+			net.WriteString("Here is a reminder that has run " .. i .. " times!")
+			net.Broadcast()
+		end)
+	end
+	
+	if CLIENT then
+		net.Receive("reminder", function()
+			print(net.ReadString())
+		end)
+	end
 end
 
 function love.update()
 
-end
-
-if CLIENT then
-	function love.render()
-		
-	end
 end
