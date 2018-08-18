@@ -140,7 +140,7 @@ function love.load(arguments)
 	end)
 
 	if SERVER then
-		hook.Add("NetworkConnection", function(index)
+		hook.Add("NetworkConnection", "inital player", function(index)
 			print("NetworkConnection!")
 
 			local id = #objects + 1
@@ -184,7 +184,7 @@ function love.load(arguments)
 				y = net.ReadFloat()
 			}
 		end)
-		
+
 		net.Receive("update", function(index)
 			local id = net.ReadInt()
 			if objects[id] then
