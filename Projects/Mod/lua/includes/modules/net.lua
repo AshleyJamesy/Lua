@@ -47,7 +47,6 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 				while outgoing do
 					if outgoing.action == "send" then
 						if outgoing.to == nil then
-							print("broadcasting message")
 							host:broadcast(outgoing.data, outgoing.channel, outgoing.flag)
 						else
 							if host:get_peer(outgoing.to) then
@@ -220,8 +219,6 @@ end
 
 function love.handlers.network_connection(index, data)
 	hook.Call("NetworkConnection", index, data)
-
-	print("connection")
 end
 
 function love.handlers.network_disconnection(index, data)
@@ -230,6 +227,4 @@ end
 
 function love.handlers.network_state(index, state)
 	hook.Call("NetworkState", index, state)
-
-	print("id:", index, state)
 end
