@@ -200,10 +200,9 @@ function Receive(message, callback)
 end
 
 function love.handlers.network_message(index, data)
-	network_index = 1
+	local string, bytes 	= network_unpack("s", data, 1)
+	network_read_message 	= data
 	
-	local string, bytes = network_unpack("s", data, network_index)
-
 	if callbacks[string] then
 		for k, v in pairs(callbacks[string]) do
 			network_index = bytes
