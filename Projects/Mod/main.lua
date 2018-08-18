@@ -151,16 +151,16 @@ function love.load(arguments)
 				x 		= 0,
 				y 		= 0
 			}
-
+			
 			players[index] = objects[id]
-
+			
 			print("creating player with object id:", id)
-
+			
 			for k, v in pairs(objects) do
 				net.Start("create")
-					net.WriteInt(id)
-					net.WriteFloat(0)
-					net.WriteFloat(0)
+					net.WriteInt(k)
+					net.WriteFloat(v.x)
+					net.WriteFloat(v.y)
 				net.Broadcast()
 			end
 		end)
@@ -198,7 +198,7 @@ function love.load(arguments)
 				y = net.ReadFloat()
 			}
 
-			print("creating object with id", id)
+			print("server says to create object with id: ", id)
 		end)
 
 		net.Receive("update", function(index)
