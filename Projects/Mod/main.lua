@@ -131,23 +131,17 @@ function love.load(arguments)
 	end
 	
 	console.AddCommand("send", function(line) 
-		net.Broadcast(line) 
+		net.Start("MyNetworkMessage")
+		net.WriteString(line)
+		net.Broadcast()
 	end)
 	
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit") 
 	end)
-
+	
 	net.Receive("MyNetworkMessage", function(player)
 		print("Message Received", net.ReadString())
-	end)
-	
-	hook.Add("NetworkConnection", "my", function(index)
-		if CLIENT then
-			net.Start("MyNetworkMessage")
-			net.WriteString("u cunt")
-			net.Broadcast()
-		end
 	end)
 end
 
