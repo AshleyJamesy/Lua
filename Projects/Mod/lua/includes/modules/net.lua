@@ -42,10 +42,10 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 						love.event.push("network_state", i, states[i])
 					end
 				end
-				
+
 				local outgoing = ch_send:pop()
 				while outgoing do
-					if outgoing.type == "packet" then
+					if outgoing.action == "send" then
 						if outgoing.to == nil then
 							host:broadcast(outgoing.data, outgoing.channel, outgoing.flag)
 						else
@@ -85,6 +85,26 @@ function Connect(address)
 		channel:push({
 			action 	= "connect",
 			address = address
+		})
+	end
+end
+
+function Send(index, data)
+	if thread and channel then
+		channel:push({
+			action 	= "send"
+			to 		= index,
+			data 	= data
+		})
+	end
+end
+
+function Broadcast(data)
+	if thread and channel then
+		channel:push({
+			action 	= "send"
+			to 		= nil,
+			data 	= data
 		})
 	end
 end

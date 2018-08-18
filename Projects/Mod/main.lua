@@ -141,10 +141,8 @@ function love.load(arguments)
  	end)
 
  	if SERVER then
-	 	hook.Add("Connection", "downloads", function(index, packet)
+	 	hook.Add("NetworkConnection", "downloads", function(index, packet, latency)
 	 	    print("connection established")
-	 	    
-	 	    print(dump(downloads.GetContentListByType("scripts")))
 	 	    
 	 	    for k, v in pairs(downloads.GetContentListByType("scripts")) do
 	 	        print("sending client data")
@@ -153,9 +151,8 @@ function love.load(arguments)
 	 	end)
  	else
  	
- 	hook.Add("IncomingMessage", "downloads", function(index, packet)
- 	    local data = json.decode(packet)
- 	    print(dump(data))
+ 	hook.Add("NetworkMessage", "downloads", function(index, packet)
+ 		print(index, packet)
  	end)
  	end
 end
