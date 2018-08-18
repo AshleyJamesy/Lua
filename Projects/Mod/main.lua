@@ -146,7 +146,7 @@ function love.load(arguments)
 	 	    
 	 	    for k, v in pairs(downloads.GetContentListByType("scripts")) do
 	 	        print("sending client data")
-	 	        net.Send(index, { type = "script", data = v })
+	 	        net.Send(index, json.encode({ type = "script", data = v }))
 	 	    end
 	 	end)
  	else
