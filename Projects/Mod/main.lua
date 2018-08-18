@@ -135,19 +135,19 @@ function love.load(arguments)
 	end
 	
 	console.AddCommand("quit", function() love.event.push("quit") end)
-
+	
 	if SERVER then
 		hook.Add("NetworkConnection", "downloads", function(index, packet, latency)
 			for k, v in pairs(downloads.GetContentListByType("scripts")) do
 				net.Send(index, json.encode({ type = "script", data = v }))
 			end
 		end)
-	else
-		hook.Add("NetworkMessage", "downloads", function(index, packet)
-			print(index, packet)
-		end)
 	end
-
+	
+	hook.Add("NetworkMessage", "downloads", function(index, packet)
+		print(index, packet)
+	end)
+	
 	hook.Add("NetworkState", "test", function(index, state)
 		print(index, state)
 	end)
