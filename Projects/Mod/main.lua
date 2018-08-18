@@ -140,7 +140,7 @@ function love.load(arguments)
 	end)
 
 	if SERVER then
-		hook.Add("Connection", function(index)
+		hook.Add("NetworkConnection", function(index)
 			local id = #objects + 1
 			
 			objects[id] = 
