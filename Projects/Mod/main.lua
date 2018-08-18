@@ -150,6 +150,7 @@ function love.load(arguments)
 				y 		= 0
 			}
 
+			print(objects[id])
 			players[index] = objects[id]
 
 			net.Start("create")
@@ -158,20 +159,22 @@ function love.load(arguments)
 			net.WriteFloat(0)
 			net.Broadcast()
 		end)
-		
+
 		net.Receive("input", function(index)
 			local key = net.ReadString()
 
-			if key == "a" then
-				players[index].x = players[index].x - 10
-			end
+			if players[index] then
+				if key == "a" then
+					players[index].x = players[index].x - 10
+				end
 
-			if key == "d" then
-				players[index].x = players[index].x + 10
+				if key == "d" then
+					players[index].x = players[index].x + 10
+				end
 			end
 		end)
 	end
-	
+
 	if CLIENT then
 		net.Receive("create", function(index)
 			objects[net.ReadInt()] = {
@@ -179,7 +182,7 @@ function love.load(arguments)
 				y = net.ReadFloat()
 			}
 		end)
-		
+
 		net.Receive("update", function(index)
 			local id = net.ReadInt()
 			if objects[id] then
