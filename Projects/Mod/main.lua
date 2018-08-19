@@ -55,8 +55,8 @@ function GetPath(filepath)
 end
 
 function LoadLuaFile(path, env)
-	local temp = INCLUDE_PATH
-	INCLUDE_PATH = GetPath(path)
+	local include_temp 	= INCLUDE_PATH
+	INCLUDE_PATH 		= GetPath(path)
 	
 	local contents, size = love.filesystem.read(path)
 	if contents then
@@ -77,7 +77,7 @@ function LoadLuaFile(path, env)
 		end
 	end
 	
-	INCLUDE_PATH = temp
+	INCLUDE_PATH = include_temp
 end
 
 include("lua/includes/util/json.lua")
@@ -92,144 +92,22 @@ include("lua/includes/modules/net.lua")
 include("lua/includes/modules/downloads.lua")
 include("lua/includes/modules/baseclass.lua")
 include("lua/includes/modules/entity.lua")
-
-ENT = {
-	Base 			= "base_entity",
-	ClassName 		= "", --comes from folder name
-	Folder 			= "", --comes from the directory
-	Spawnable 		= false, --Is it spawnable?
-	Editable 		= false, --Is it editable?
-	AdminOnly 		= false, --Is it admin spawnable/editable only?
-	Author 			= "", --the author
-	Contact 		= "", --author contact details
-	Purpose 		= "", --what is this used for
-	Instructions 	= "", --how is it used
-	PrintName 		= "" --a better name than ie; base_entity
-}
-
-function LoadEntity(name)
-	local script = {
-		ENT 			= setmetatable({}, ENT),
-		include 		= include,
-		AddCSLuaFile 	= AddCSLuaFile,
-		console 		= console,
-		net 			= net,
-		print 			= print
-	}
-	
-	LoadLuaFile(GetProjectDirectory() .. "lua/entities/entities/" .. name .. "/init.lua", script)
-	
-	return script
-end
-
-local players = {}
-local objects = {}
+include("lua/includes/modules/addon.lua")
 
 function love.load(arguments)
 	if SERVER then
 		print("server")
-		net.Init("*:6898", 12)
+		--net.Init("*:6898", 12)
 	else
 		print("client")
-		net.Init("*:6898", 1)
-		net.Connect("125.63.63.75:6898")
+		--net.Init("*:6898", 1)
+		--net.Connect("125.63.63.75:6898")
 	end
 
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit") 
 	end)
 
-	if SERVER then
-		hook.Add("NetworkConnection", "player", function(index)
-			print("NetworkConnection!")
-
-			local id = #objects + 1
-			
-			objects[id] = 
-			{
-				owner 	= index,
-				x 		= 0,
-				y 		= 0
-			}
-			
-			players[index] = objects[id]
-			
-			print("creating player with object id:", id)
-			
-			for k, v in pairs(objects) do
-				net.Start("create")
-					net.WriteInt(k)
-					net.WriteFloat(v.x)
-					net.WriteFloat(v.y)
-				net.Broadcast()
-			end
-		end)
-
-		net.Receive("input", function(index)
-			local key = net.ReadString()
-
-			if players[index] then
-				if key == "a" then
-					players[index].x = players[index].x - 10
-				end
-
-				if key == "d" then
-					players[index].x = players[index].x + 10
-				end
-			end
-		end)
-
-		timer.Create("update", 10, 0, function()
-			for k, v in pairs(objects) do
-				net.Start("update")
-				net.WriteInt(k)
-				net.WriteFloat(v.x)
-				net.WriteFloat(v.y)
-				net.Broadcast()
-			end
-		end)
-	end
-
-	if CLIENT then
-		net.Receive("create", function(index)
-			local id = net.ReadInt()
-			objects[id] = {
-				x = net.ReadFloat(),
-				y = net.ReadFloat()
-			}
-
-			print("server says to create object with id: ", id)
-		end)
-
-		net.Receive("update", function(index)
-			local id = net.ReadInt()
-
-			if objects[id] then
-				objects[id].x = net.ReadFloat()
-				objects[id].y = net.ReadFloat()
-			end
-		end)
-
-		timer.Create("input", 10, 0, function()
-			if love.keyboard.isDown("a") then
-				net.Start("input")
-				net.WriteString("a")
-				net.Broadcast()
-			end
-
-			if love.keyboard.isDown("d") then
-				net.Start("input")
-				net.WriteString("d")
-				net.Broadcast()
-			end
-		end)
-	end
-end
-
-function love.render()
-	if CLIENT then
-		for k, v in pairs(objects) do
-			love.graphics.rectangle("fill", v.x, v.y, 100, 100)
-		end
-	end
+	addon.LoadAddon("")
+	addon.LoadAddons("addons/")
 end

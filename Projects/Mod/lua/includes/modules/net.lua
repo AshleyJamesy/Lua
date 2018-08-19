@@ -42,7 +42,7 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 						love.event.push("network_state", i, states[i])
 					end
 				end
-
+				
 				local outgoing = ch_send:pop()
 				while outgoing do
 					if outgoing.action == "send" then
@@ -57,12 +57,12 @@ function Init(address, maxplayers, maxchannels, incoming, outgoing)
 						if outgoing.action == "connect" then
 							host:connect(outgoing.address)
 						end
-
+						
 						if outgoing.action == "disconnect" then
 							host:get_peer(outgoing.to):disconnect_later(1)
 						end
 					end
-
+					
 					outgoing = ch_send:pop()
 				end
 			end
@@ -121,7 +121,7 @@ function ReadInt()
 	return i
 end
 
-function WriteColour(r, g, b)
+function WriteColour(r, g, b, a)
 	network_send_message = network_send_message .. network_pack("string", "B", r)
 	network_send_message = network_send_message .. network_pack("string", "B", g)
 	network_send_message = network_send_message .. network_pack("string", "B", b)
@@ -171,18 +171,26 @@ function ReadString()
 	return string
 end
 
-function Send(player)
-	
+function Send(index)
+	channel:push({
+		action 	= "send",
+		to 		= index,
+		data 	= network_send_message,
+		flag 	= reliable and "reliable" or "unreliable"
+	})
+
+	network_send_message = ""
 end
 
 function SendToServer()
-	
+
 end
 
-function Broadcast()
+function Broadcast(reliable)
 	channel:push({
 		action 	= "send",
-		data 	= network_send_message
+		data 	= network_send_message,
+		flag 	= reliable and "reliable" or "unreliable"
 	})
 
 	network_send_message = ""

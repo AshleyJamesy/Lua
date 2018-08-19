@@ -1,5 +1,9 @@
 module("console", package.seeall)
 
+if SERVER then
+	io.stdout:setvbuf("no")
+end
+
 local thread = love.thread.newThread([[
 	require("love.event")
 

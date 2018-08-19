@@ -1,21 +1,22 @@
 SERVER 	= false
 CLIENT 	= not SERVER
 
-io.stdout:setvbuf("no")
-
 function GetProjectDirectory()
 	return git or ""
 end
 
+CURRENT_PATH = ""
 INCLUDE_PATH = GetProjectDirectory()
+
 function include(path)	
-	local temp = INCLUDE_PATH
+	local include_temp = INCLUDE_PATH
 	INCLUDE_PATH = INCLUDE_PATH .. GetPath(path)
- 
+	
 	local filename, extension = GetFileDetails(path)
- 
- --print("loading module: '" .. INCLUDE_PATH .. filename)
- 
+	
+	local current_temp = CURRENT_PATH
+	CURRENT_PATH = INCLUDE_PATH .. filename .. "." .. extension
+	
 	local contents, size = love.filesystem.read(INCLUDE_PATH .. filename .. "." .. extension)
 	if contents then
 		local chunk, err = loadstring(contents)
@@ -31,24 +32,23 @@ function include(path)
 			end
 		end
 	else
-    print("include error: '" .. INCLUDE_PATH .. filename .. "." .. extension .. "' - does not exist")
+		print("include error: '" .. INCLUDE_PATH .. filename .. "." .. extension .. "' - does not exist")
 	end
-
-	INCLUDE_PATH = temp
+	
+	INCLUDE_PATH = include_temp
+	CURRENT_PATH = current_temp
 end
 
 function AddCSLuaFile(path)
-	if path then
-		local filename, extension 	= GetFileDetails(path)
-		local folder 				= GetPath(path)
-		local fullpath 				= INCLUDE_PATH .. folder .. filename .. "." .. extension
-		local contents, size 		= love.filesystem.read(fullpath)
-
-		if contents then
-			downloads.AddContentByType("scripts", fullpath, contents)
-		end
-	else
-		--Add current file to list of files to be downloaded by client
+	local file = path or CURRENT_PATH
+	
+	local filename, extension 	= GetFileDetails(file)
+	local folder 				= GetPath(file)
+	local fullpath 				= INCLUDE_PATH .. folder .. filename .. "." .. extension
+	local contents, size 		= love.filesystem.read(fullpath)
+	
+	if contents then
+		downloads.AddContentByType("script", fullpath, contents)
 	end
 end
 
@@ -105,7 +105,6 @@ function love.conf(t)
 end
 
 local accumulator = 0
-
 function love.run()
 	if love.load then
 		love.load(arg) 
@@ -125,7 +124,7 @@ function love.run()
 						return a
 					end
 				end
-			
+				
 				love.handlers[name](a,b,c,d,e,f)
 			end
 		end
@@ -134,29 +133,31 @@ function love.run()
 		
 		if love.timer then
 			love.timer.step()
-			time.Delta  = love.timer.getDelta() * time.TimeScale
-			frameTime   = love.timer.getDelta()
+			time.Delta 	= love.timer.getDelta() * time.TimeScale
+			frameTime 	= love.timer.getDelta()
 		end
 		
-			time.FixedTimeStepScaled = time.FixedTimeStep * time.TimeScale
+		time.FixedTimeStepScaled = time.FixedTimeStep * time.TimeScale
 
-			if frameTime > time.MaximumAllowedTimeStep then
-				frameTime = time.MaximumAllowedTimeStep
-					end
-			
-			accumulator = accumulator + frameTime
-			
-			while accumulator >= time.FixedTimeStep do
-			 if timer then
-		     timer.Update()
-		  end
-		  
-				if love.fixedupate then love.fixedupdate() end
-				
-				accumulator = accumulator - time.FixedTimeStep
+		if frameTime > time.MaximumAllowedTimeStep then
+			frameTime = time.MaximumAllowedTimeStep
+		end
+		
+		accumulator = accumulator + frameTime
+		
+		while accumulator >= time.FixedTimeStep do
+			if timer then
+				timer.Update()
 			end
 			
-			time.Alpha = accumulator / time.FixedTimeStep
+			if love.fixedupate then
+				love.fixedupdate()
+			end
+			
+			accumulator = accumulator - time.FixedTimeStep
+		end
+		
+		time.Alpha = accumulator / time.FixedTimeStep
 		
 		if love.update then 
 			love.update()
@@ -171,8 +172,9 @@ function love.run()
 				
 				if love.render then 
 					love.render(time.Alpha)
-					love.graphics.present()
 				end
+				
+				love.graphics.present()
 			end
 		end
 		

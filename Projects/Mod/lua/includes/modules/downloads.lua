@@ -51,6 +51,6 @@ function RemoveContentByType(name, path)
 	end
 end
 
-AddContentType("scripts")
-AddContentType("images")
+AddContentType("script")
+AddContentType("materials")
 AddContentType("sounds")
