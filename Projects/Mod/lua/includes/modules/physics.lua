@@ -1,75 +1,93 @@
 module("physics", package.seeall)
 
 local thread
-ch = love.thread.newChannel()
+local channel = love.thread.newChannel()
 
 world = nil
 function Init()
-    world = love.physics.newWorld(0, 9)
+    love.physics.setMeter(10)
+    world = love.physics.newWorld(0, 9.81 * 10, true)
     
     thread = love.thread.newThread([[
-    	    world, ch = ...
+    	    world, channel = ...
     	    require("love.event")
     	    require("love.physics")
     	    
-    	    function startTouch(a, b, c)
+    	    function callback_StartTouch(a, b, c)
     	        love.event.push("StartTouch", a, b, c)
     	    end
     	    
-    	    function endTouch(a, b, c)
+    	    function callback_EndTouch(a, b, c)
     	        love.event.push("EndTouch", a, b, c)
     	    end
     	    
-    	    world:setCallbacks(startTouch, endTouch, nil, nil)
+    	    --world:setCallbacks(callback_StartTouch, callback_EndTouch, nil, nil)
     	    
     	    while true do
-    	        local dt = ch:demand()
+    	        local dt = channel:demand()
     	        world:update(dt)
     	        
-    	        ch:supply(true)
+    	        channel:supply(true)
     	    end
     ]])
     
-    thread:start(world, ch)
+    thread:start(world, channel)
 end
 
 objects = {}
 
-function SetDT(value)
-    ch:supply(value)
+function Update(dt)
+    channel:supply(dt)
 end
 
-function AddBody(x, y, type)
+function AddBody(x, y, type, str_shape, w, h)
     local id = #objects + 1
     local body = love.physics.newBody(world, 0, 0, type == 1 and "dynamic" or "static")
     
-    local shape = love.physics.newCircleShape(10)
+    local shape 
+    if str_shape == "circle" then
+        shape = love.physics.newCircleShape(w * 0.25)
+    end
+
+    if str_shape == "rectangle" then
+        shape = love.physics.newRectangleShape(w, h)
+    end
+
     local fixture = love.physics.newFixture(body, shape)
-    
+
     body:setPosition(x, y)
-    
-    fixture:setUserData(id)
-    
-    objects[id] = body
+
+    objects[id] = {
+        class   = str_shape,
+        body    = body
+    }
+
+    fixture:setUserData(objects[id])
     
     return body
 end
 
+function WaitForPhysicsUpdate()
+    channel:demand()
+end
+
 function love.handlers.StartTouch(a, b, contact)
-    print("touch start")
+
 end
 
 function love.handlers.EndTouch(a, b, contact)
-    print("touch end")
+
 end
 
 function Render()
     for id, object in pairs(objects) do
-        for k, fixture in pairs(object:getFixtureList()) do
+        for k, fixture in pairs(object.body:getFixtures()) do
             local shape = fixture:getShape()
             if shape:getType() == "circle" then
-                local x, y = object:getWorldPoints(0,0)
+                local x, y = object.body:getWorldPoints(0,0)
                 love.graphics.circle("line", x, y, shape:getRadius())
+            elseif shape:getType() == "polygon" then
+                love.graphics.polygon("line", object.body:getWorldPoints(shape:getPoints()))
             end
         end
     end

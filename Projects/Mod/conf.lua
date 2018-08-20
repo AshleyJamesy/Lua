@@ -133,8 +133,9 @@ function love.run()
 		
 		if love.timer then
 			love.timer.step()
-			time.Delta 	= love.timer.getDelta() * time.TimeScale
-			frameTime 	= love.timer.getDelta()
+			time.Delta 			= love.timer.getDelta() * time.TimeScale
+			time.UnScaledDelta 	= love.timer.getDelta()
+			frameTime 			= love.timer.getDelta()
 		end
 		
 		time.FixedTimeStepScaled = time.FixedTimeStep * time.TimeScale

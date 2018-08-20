@@ -80,6 +80,7 @@ function LoadLuaFile(path, env)
 	INCLUDE_PATH = include_temp
 end
 
+include("lua/includes/extensions/math.lua")
 include("lua/includes/util/json.lua")
 include("lua/includes/modules/time.lua")
 include("lua/includes/modules/timer.lua")
@@ -98,28 +99,48 @@ include("lua/includes/modules/physics.lua")
 function love.load(arguments)
 	if SERVER then
 		print("server")
-		--net.Init("*:6898", 12)
+		net.Init("*:6898", 12)
 	else
 		print("client")
-		--net.Init("*:6898", 1)
-		--net.Connect("125.63.63.75:6898")
+		net.Init("*:6898", 1)
+		net.Connect("125.63.63.75:6898")
 	end
 
 	console.AddCommand("quit", function(line) 
 		love.event.push("quit") 
 	end)
 
- physics.Init()
- 
- physics.AddBody(100, 100, 1)
- physics.AddBody(100, 200, 0)
+	physics.Init()
+
+
+	physics.AddBody(love.graphics.getWidth() * 0.5, 0, 0, "rectangle", love.graphics.getWidth(), 10)
+	physics.AddBody(love.graphics.getWidth() * 0.5, love.graphics.getHeight(), 0, "rectangle", love.graphics.getWidth(), 10)
+
+	physics.AddBody(0, love.graphics.getHeight() * 0.5, 0, "rectangle", 10, love.graphics.getHeight())
+	physics.AddBody(love.graphics.getWidth(), love.graphics.getHeight() * 0.5, 0, "rectangle", 10, love.graphics.getHeight())
+	for i = 1, 1000 do
+		physics.AddBody(math.random() * love.graphics.getWidth(), math.random() * love.graphics.getHeight(), 1, "circle", math.random() * 25, math.random() * 25)
+	end
+
+	mouse = physics.AddBody(100, 200, 1, "rectangle", 15, 15)
 
 	addon.LoadAddon("")
 	addon.LoadAddons("addons/")
 end
 
 function love.update()
-    physics.SetDT(time.Delta)
+	physics.Update(time.Delta)
+
+	local x = (mouse:getX() - love.mouse.getX()) * 20
+	local y = (mouse:getY() - love.mouse.getY()) * 20
+
+	mouse:setLinearVelocity(-x, -y)
+
+	if love.keyboard.isDown("space") then
+		time.TimeScale = math.lerp(time.TimeScale, 0.0, time.UnScaledDelta)
+	else
+		time.TimeScale = math.lerp(time.TimeScale, 1.0, time.UnScaledDelta * 2.5)
+	end
 end
 
 function love.fixedupdate()
@@ -127,6 +148,8 @@ function love.fixedupdate()
 end
 
 function love.render()
-    physics.ch:demand()
+    physics.WaitForPhysicsUpdate()
     physics.Render()
+
+    love.graphics.print(love.timer.getFPS(), 0, 0)
 end
