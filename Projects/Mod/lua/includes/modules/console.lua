@@ -33,6 +33,12 @@ function RemoveCommand(name)
 	commands[name] = nil
 end
 
+function love.handlers.debug(type, a, b, c, d)
+    if type == "log" then
+        a:setMass(100)
+    end
+end
+
 function love.handlers.console_command(line)
 	if line then
 		local arguments = string.split(line, " ")

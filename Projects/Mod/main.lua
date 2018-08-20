@@ -93,6 +93,7 @@ include("lua/includes/modules/downloads.lua")
 include("lua/includes/modules/baseclass.lua")
 include("lua/includes/modules/entity.lua")
 include("lua/includes/modules/addon.lua")
+include("lua/includes/modules/physics.lua")
 
 function love.load(arguments)
 	if SERVER then
@@ -108,6 +109,24 @@ function love.load(arguments)
 		love.event.push("quit") 
 	end)
 
+ physics.Init()
+ 
+ physics.AddBody(100, 100, 1)
+ physics.AddBody(100, 200, 0)
+
 	addon.LoadAddon("")
 	addon.LoadAddons("addons/")
+end
+
+function love.update()
+    physics.SetDT(time.Delta)
+end
+
+function love.fixedupdate()
+    
+end
+
+function love.render()
+    physics.ch:demand()
+    physics.Render()
 end

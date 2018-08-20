@@ -150,7 +150,7 @@ function love.run()
 				timer.Update()
 			end
 			
-			if love.fixedupate then
+			if love.fixedupdate then
 				love.fixedupdate()
 			end
 			
