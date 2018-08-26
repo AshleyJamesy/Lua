@@ -130,6 +130,8 @@ function love.load(arguments)
 
 			objects[id] = object
 
+			print("Creating body", object, object.body)
+
 			net.Start("Create")
 			net.WriteInt(id)
 			net.WriteFloat(love.mouse.getX())
@@ -170,11 +172,13 @@ function love.update()
 		physics.WaitForPhysicsUpdate()
 
 		for k, v in pairs(objects) do
-			net.Start("Update")
-			net.WriteInt(k)
-			net.WriteFloat(v.body.getX())
-			net.WriteFloat(v.body.getY())
-			net.Broadcast(false)
+			--net.Start("Update")
+			--net.WriteInt(k)
+			--net.WriteFloat(v.body.getX())
+			--net.WriteFloat(v.body.getY())
+			--net.Broadcast(false)
+
+			print(v.body)
 		end
 	else
 		if love.mouse.isDown(1) then
