@@ -132,8 +132,8 @@ function love.load(arguments)
 
 			net.Start("Create")
 			net.WriteInt(id)
-			net.WriteFloat(love.mouse.getX())
-			net.WriteFloat(love.mouse.getY())
+			net.WriteFloat(object.body:getX())
+			net.WriteFloat(object.body:getY())
 			net.Broadcast(true)
 		end)
 	else
@@ -176,7 +176,7 @@ function love.update()
 			net.WriteInt(k)
 			net.WriteFloat(v.body:getX())
 			net.WriteFloat(v.body:getY())
-
+			
 			print(k, v.body:getX(), v.body:getY())
 
 			net.Broadcast(false)
