@@ -171,7 +171,7 @@ function love.update()
 
 		for k, v in pairs(objects) do
 			net.Start("Update")
-			net.WriteInt(id)
+			net.WriteInt(k)
 			net.WriteFloat(v.body.getX())
 			net.WriteFloat(v.body.getY())
 			net.Broadcast(false)
