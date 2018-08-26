@@ -97,6 +97,8 @@ include("lua/includes/modules/entity.lua")
 include("lua/includes/modules/addon.lua")
 include("lua/includes/modules/physics.lua")
 
+local objects = {}
+
 function love.load(arguments)
 	if SERVER then
 		print("server")
@@ -123,11 +125,11 @@ function love.load(arguments)
 			local object = {
 				body = physics.AddPhysicsBody(love.mouse.getX(), love.mouse.getY(), "dynamic")
 			}
-			
+
 			local fixture = love.physics.newFixture(object.body, love.physics.newCircleShape(10), 1.0)
-			
+
 			objects[id] = object
-			
+
 			net.Start("Create")
 			net.WriteInt(id)
 			net.WriteFloat(love.mouse.getX())
@@ -151,9 +153,9 @@ function love.load(arguments)
 			local id = net.ReadInt()
 			local x = net.ReadFloat()
 			local y = net.ReadFloat()
-			
+
 			local object = objects[id]
-			
+
 			if object then
 				object.x = x
 				object.y = y
@@ -161,8 +163,6 @@ function love.load(arguments)
 		end)
 	end
 end
-
-local objects = {}
 
 function love.update()
 	if SERVER then
@@ -192,7 +192,7 @@ function love.render()
 		for k, v in pairs(objects) do
 			love.graphics.circle("line", v.x, v.y, 10)
 		end
-		
+
 		love.graphics.print(love.timer.getFPS() .. "\n" .. #objects, 0, 0)
 	end
 end
