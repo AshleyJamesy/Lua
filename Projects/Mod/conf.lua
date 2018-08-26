@@ -1,4 +1,4 @@
-SERVER 	= false
+SERVER 	= true
 CLIENT 	= not SERVER
 
 function GetProjectDirectory()

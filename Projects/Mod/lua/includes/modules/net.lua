@@ -171,7 +171,7 @@ function ReadString()
 	return string
 end
 
-function Send(index)
+function Send(index, reliable)
 	channel:push({
 		action 	= "send",
 		to 		= index,

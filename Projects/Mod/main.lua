@@ -115,20 +115,84 @@ function love.load(arguments)
 	
 	addon.LoadAddon("")
 	addon.LoadAddons("addons/")
+
+	if SERVER then
+		net.Receive("MouseDown", function(index)
+			local id = #objects + 1
+			
+			local object = {
+				body = physics.AddPhysicsBody(love.mouse.getX(), love.mouse.getY(), "dynamic")
+			}
+			
+			local fixture = love.physics.newFixture(object.body, love.physics.newCircleShape(10), 1.0)
+			
+			objects[id] = object
+			
+			net.Start("Create")
+			net.WriteInt(id)
+			net.WriteFloat(love.mouse.getX())
+			net.WriteFloat(love.mouse.getY())
+			net.Broadcast(true)
+		end)
+	else
+		net.Receive("Create", function(index)
+			local id = net.ReadInt()
+			local x = net.ReadFloat()
+			local y = net.ReadFloat()
+
+			objects[id] = {
+				id = id,
+				x = x,
+				y = y
+			}
+		end)
+
+		net.Receive("Update", function(index)
+			local id = net.ReadInt()
+			local x = net.ReadFloat()
+			local y = net.ReadFloat()
+			
+			local object = objects[id]
+			
+			if object then
+				object.x = x
+				object.y = y
+			end
+		end)
+	end
 end
+
+local objects = {}
 
 function love.update()
-	physics.Update(time.Delta)
-	
-end
+	if SERVER then
+		physics.Update(time.Delta)
+		physics.WaitForPhysicsUpdate()
 
-function love.fixedupdate()
-    
+		for k, v in pairs(objects) do
+			net.Start("Update")
+			net.WriteInt(id)
+			net.WriteFloat(v.body.getX())
+			net.WriteFloat(v.body.getY())
+			net.Broadcast(false)
+		end
+	else
+		if love.mouse.isDown(1) then
+			net.Start("MouseDown")
+			net.WriteBool(true)
+			net.Send(1, true)
+		end
+	end
 end
 
 function love.render()
-    physics.WaitForPhysicsUpdate()
-    physics.Render()
-
-    love.graphics.print(love.timer.getFPS(), 0, 0)
+	if SERVER then
+		
+	else
+		for k, v in pairs(objects) do
+			love.graphics.circle("line", v.x, v.y, 10)
+		end
+		
+		love.graphics.print(love.timer.getFPS() .. "\n" .. #objects, 0, 0)
+	end
 end
