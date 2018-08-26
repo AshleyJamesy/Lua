@@ -1,11 +1,16 @@
 module("entity", package.seeall)
 
-owner 	= nil
-name 	= "entity"
-class 	= "entity"
+owner = nil
+name = "entity"
+__class = "entity"
+__loaded = false
 
 function Activate()
 	--activate entity from inactive entities
+end
+
+function Spawn()
+
 end
 
 function AddCallback(event, func)

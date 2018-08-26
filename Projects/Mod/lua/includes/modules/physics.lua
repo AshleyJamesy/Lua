@@ -21,7 +21,7 @@ function Init()
     	        love.event.push("EndTouch", a, b, c)
     	    end
     	    
-    	    --world:setCallbacks(callback_StartTouch, callback_EndTouch, nil, nil)
+    	    world:setCallbacks(callback_StartTouch, callback_EndTouch, nil, nil)
     	    
     	    while true do
     	        local dt = channel:demand()
@@ -33,8 +33,6 @@ function Init()
     
     thread:start(world, channel)
 end
-
-objects = {}
 
 function Update(dt)
     channel:supply(dt)
