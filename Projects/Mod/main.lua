@@ -122,10 +122,12 @@ function love.load(arguments)
 		net.Receive("MouseDown", function(index)
 			local id = #objects + 1
 			
+			local x, y = net.ReadFloat(), net.ReadFloat()
+			
 			local object = {
-				body = physics.AddPhysicsBody(love.mouse.getX(), love.mouse.getY(), "dynamic")
+				body = physics.AddPhysicsBody(x, y, "dynamic")
 			}
-
+			
 			local fixture = love.physics.newFixture(object.body, love.physics.newCircleShape(10), 1.0)
 
 			objects[id] = object
@@ -176,7 +178,7 @@ function love.update()
 			net.WriteInt(k)
 			net.WriteFloat(v.body:getX())
 			net.WriteFloat(v.body:getY())
-			
+
 			print(k, v.body:getX(), v.body:getY())
 
 			net.Broadcast(false)
@@ -184,7 +186,8 @@ function love.update()
 	else
 		if love.mouse.isDown(1) then
 			net.Start("MouseDown")
-			net.WriteBool(true)
+			net.WriteFloat(love.mouse.getX())
+			net.WriteFloat(love.mouse.getY())
 			net.Send(1, true)
 		end
 	end
