@@ -172,11 +172,13 @@ function love.update()
 		physics.WaitForPhysicsUpdate()
 
 		for k, v in pairs(objects) do
-			--net.Start("Update")
-			--net.WriteInt(k)
-			print("BODY:", v.body)
-
-			--net.Broadcast(false)
+			if v.body then
+				net.Start("Update")
+				net.WriteInt(k)
+				net.WriteFloat(v.body.getX())
+				net.WriteFloat(v.body.getY())
+				net.Broadcast(false)
+			end
 		end
 	else
 		if love.mouse.isDown(1) then
