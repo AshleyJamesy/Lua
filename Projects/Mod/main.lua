@@ -123,11 +123,11 @@ function love.load(arguments)
 			local id = #objects + 1
 			
 			local x, y = net.ReadFloat(), net.ReadFloat()
-			
+
 			local object = {
 				body = physics.AddPhysicsBody(x, y, "dynamic")
 			}
-			
+
 			local fixture = love.physics.newFixture(object.body, love.physics.newCircleShape(10), 1.0)
 
 			objects[id] = object
@@ -155,11 +155,9 @@ function love.load(arguments)
 			local id = net.ReadInt()
 			local x = net.ReadFloat()
 			local y = net.ReadFloat()
-
+			
 			local object = objects[id]
-
-			print(id, x, y)
-
+			
 			if object then
 				object.x = x
 				object.y = y
@@ -172,15 +170,12 @@ function love.update()
 	if SERVER then
 		physics.Update(time.Delta)
 		physics.WaitForPhysicsUpdate()
-
+		
 		for k, v in pairs(objects) do
 			net.Start("Update")
 			net.WriteInt(k)
 			net.WriteFloat(v.body:getX())
 			net.WriteFloat(v.body:getY())
-
-			print(k, v.body:getX(), v.body:getY())
-
 			net.Broadcast(false)
 		end
 	else
@@ -200,7 +195,7 @@ function love.render()
 		for k, v in pairs(objects) do
 			love.graphics.circle("line", v.x, v.y, 10)
 		end
-
+		
 		love.graphics.print(love.timer.getFPS() .. "\n" .. #objects, 0, 0)
 	end
 end
