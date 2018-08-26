@@ -138,6 +138,16 @@ function love.load(arguments)
 			net.WriteFloat(object.body:getY())
 			net.Broadcast(true)
 		end)
+
+		hook.Add("NetworkConnection", "game", function(index)
+			for k, v in pairs(objects) do
+				net.Start("Create")
+				net.WriteInt(k)
+				net.WriteFloat(object.body:getX())
+				net.WriteFloat(object.body:getY())
+				net.Send(index, true)
+			end
+		end)
 	else
 		net.Receive("Create", function(index)
 			local id = net.ReadInt()
@@ -155,9 +165,9 @@ function love.load(arguments)
 			local id = net.ReadInt()
 			local x = net.ReadFloat()
 			local y = net.ReadFloat()
-			
+
 			local object = objects[id]
-			
+
 			if object then
 				object.x = x
 				object.y = y
@@ -170,7 +180,7 @@ function love.update()
 	if SERVER then
 		physics.Update(time.Delta)
 		physics.WaitForPhysicsUpdate()
-		
+
 		for k, v in pairs(objects) do
 			net.Start("Update")
 			net.WriteInt(k)
@@ -195,7 +205,7 @@ function love.render()
 		for k, v in pairs(objects) do
 			love.graphics.circle("line", v.x, v.y, 10)
 		end
-		
+
 		love.graphics.print(love.timer.getFPS() .. "\n" .. #objects, 0, 0)
 	end
 end
