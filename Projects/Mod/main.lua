@@ -143,8 +143,8 @@ function love.load(arguments)
 			for k, v in pairs(objects) do
 				net.Start("Create")
 				net.WriteInt(k)
-				net.WriteFloat(object.body:getX())
-				net.WriteFloat(object.body:getY())
+				net.WriteFloat(v.body:getX())
+				net.WriteFloat(v.body:getY())
 				net.Send(index, true)
 			end
 		end)
